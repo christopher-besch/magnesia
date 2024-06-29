@@ -1,0 +1,28 @@
+---
+dangle_parens: true
+line_ending: unix
+line_width: 120
+tab_size: 4
+max_pargs_hwrap: 3
+
+additional_commands:
+  qt_generate_deploy_app_script:
+    kwargs:
+      TARGET: 1
+      OUTPUT_SCRIPT: 1
+      NO_UNSUPPORTED_PLATFORM_ERROR: 0
+  set_target_properties:
+    pargs: 1
+    kwargs:
+      PROPERTIES: 0
+      WIN32_EXECUTABLE: 1
+      MACOSX_BUNDLE: 1
+  target_link_system_libraries:
+    pargs: 1
+    kwargs:
+      PUBLIC: '*'
+      PRIVATE: '*'
+      INTERFACE: '*'
+  target_warnings:
+    pargs: 7
+...

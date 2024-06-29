@@ -1,0 +1,62 @@
+# for clang-format 18 (should work with 17 minus SkipMacroDefinitionBody)
+---
+Language: Cpp
+BasedOnStyle: LLVM
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments:
+  Enabled:         true
+  AlignCompound:   true
+AlignConsecutiveBitFields:
+  Enabled:         true
+AlignConsecutiveDeclarations:
+  Enabled:         true
+  PadOperators:    true
+AlignConsecutiveShortCaseStatements:
+  Enabled:         true
+AlignEscapedNewlines: Left
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Empty
+AlwaysBreakTemplateDeclarations: Yes
+AttributeMacros:
+  - __capability
+  # TODO: - Qt macros (Q_INVOCABLE, ...)
+BreakBeforeBinaryOperators: NonAssignment
+ColumnLimit:     120
+EmptyLineAfterAccessModifier: Never
+# IncludeCategories: # TODO: define categories for Qt, open62541(pp) and our stuff? Needs IncludeBlocks: Regroup
+#   - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+#     Priority:        2
+#     SortPriority:    0
+#     CaseSensitive:   false
+#   - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+#     Priority:        3
+#     SortPriority:    0
+#     CaseSensitive:   false
+#   - Regex:           '.*'
+#     Priority:        1
+#     SortPriority:    0
+#     CaseSensitive:   false
+IndentCaseLabels: true
+IndentWidth:     4
+InsertBraces:    false # required by clang-tidy but disabled due to correctness warning in docs.
+InsertNewlineAtEOF: true
+LineEnding:      LF
+NamespaceIndentation: All
+PointerAlignment: Left
+RemoveParentheses: Leave # Should be enabled, left disabled due to correctness warning in docs
+RemoveSemicolon: false # Should be enabled, left disabled due to correctness warning in docs
+SeparateDefinitionBlocks: Always
+ShortNamespaceLines: 0
+SkipMacroDefinitionBody: false # clang-format 18
+# TODO: remove when IncludeCategories used
+SortIncludes: CaseInsensitive
+SpaceAfterTemplateKeyword: false
+Standard:        c++20
+StatementAttributeLikeMacros:
+  - Q_EMIT
+  - emit
+StatementMacros:
+  - Q_UNUSED
+  - QT_REQUIRE_VERSION
+  # TODO: - Qt macros
+...
