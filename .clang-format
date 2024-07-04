@@ -1,4 +1,4 @@
-# for clang-format 18 (should work with 17 minus SkipMacroDefinitionBody)
+# for clang-format 18 (should work with 17)
 ---
 Language: Cpp
 BasedOnStyle: LLVM
@@ -47,7 +47,6 @@ RemoveParentheses: Leave # Should be enabled, left disabled due to correctness w
 RemoveSemicolon: false # Should be enabled, left disabled due to correctness warning in docs
 SeparateDefinitionBlocks: Always
 ShortNamespaceLines: 0
-SkipMacroDefinitionBody: false # clang-format 18
 # TODO: remove when IncludeCategories used
 SortIncludes: CaseInsensitive
 SpaceAfterTemplateKeyword: false
