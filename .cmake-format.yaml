@@ -17,12 +17,4 @@ additional_commands:
       PROPERTIES: 0
       WIN32_EXECUTABLE: 1
       MACOSX_BUNDLE: 1
-  target_link_system_libraries:
-    pargs: 1
-    kwargs:
-      PUBLIC: '*'
-      PRIVATE: '*'
-      INTERFACE: '*'
-  target_warnings:
-    pargs: 7
 ...
