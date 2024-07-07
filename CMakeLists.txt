@@ -52,4 +52,9 @@ add_library(magnesia_project_options INTERFACE)
 add_library(magnesia::project_options ALIAS magnesia_project_options)
 magnesia_set_project_warnings(magnesia_project_options ${MAGNESIA_WARNINGS_AS_ERRORS} "" "" "" "")
 
+option(MAGNESIA_BUILD_DOCS "Whether to build code documentation with doxygen" ON)
+if(MAGNESIA_BUILD_DOCS)
+    find_package(Doxygen REQUIRED)
+endif()
+
 add_subdirectory(src/magnesia)

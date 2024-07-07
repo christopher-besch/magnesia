@@ -30,3 +30,7 @@ if(APPLE OR WIN32)
     )
     install(SCRIPT ${deploy_script})
 endif()
+
+if(MAGNESIA_BUILD_DOCS)
+    doxygen_add_docs(magnesia-docs ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
