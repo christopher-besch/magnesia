@@ -31,6 +31,7 @@ FetchContent_Declare(
     GIT_TAG 6b83f185e0fbc78f98647ff4afd848b8a17cbc60 # v0.13.0
     GIT_SHALLOW ON
     SYSTEM ${EXCLUDE_FROM_ALL}
+    FIND_PACKAGE_ARGS 0.13
 )
 message(STATUS "Fetching dependencies. This may take a while...")
 FetchContent_MakeAvailable(open62541pp)
