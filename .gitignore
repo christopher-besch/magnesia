@@ -4,6 +4,12 @@
 # CMake build directory
 build/
 
+# direnv cache
+.direnv/
+
+# nix build output
+result
+
 # Created by https://www.toptal.com/developers/gitignore/api/c++,cmake,vim,visualstudiocode,clion
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake,vim,visualstudiocode,clion
 
