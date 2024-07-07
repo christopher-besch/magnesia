@@ -17,10 +17,15 @@ install(
 )
 
 if(APPLE OR WIN32)
-    # TODO rename FILENAME_VARIABLE to OUTPUT_SCRIPT when using Qt6.5 or newer
+    if(Qt6_VERSION VERSION_GREATER_EQUAL 6.5)
+        set(OUTPUT_VAR OUTPUT_SCRIPT)
+    else()
+        set(OUTPUT_VAR FILENAME_VARIABLE)
+    endif()
+
     qt_generate_deploy_app_script(
         TARGET magnesia
-        FILENAME_VARIABLE deploy_script
+        ${OUTPUT_VAR} deploy_script
         NO_UNSUPPORTED_PLATFORM_ERROR
     )
     install(SCRIPT ${deploy_script})
