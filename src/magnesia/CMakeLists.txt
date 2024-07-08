@@ -4,7 +4,10 @@ set(SOURCES
     Activity.cpp
     ActivityMetadata.cpp
     ConfigWidget.cpp
+    database_types.cpp
     Router.cpp
+    SQLStorageManager.cpp
+    StorageManager.cpp
     terminate.cpp
 )
 qt_add_executable(magnesia main.cpp ${SOURCES})

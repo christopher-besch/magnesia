@@ -34,7 +34,7 @@ The following Types are allowed:
 - **refactor:** A code change that neither fixes a bug nor adds a feature
 - **style:** Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
 - **test:** Adding missing tests or correcting existing tests
-- **chore:** i.e. dependency updates
+- **chore:** e.g. dependency updates
 - **build:** Changes that affect the build system or external dependencies
 - **perf:** A code change that improves performance
 - **ci:** Changes to our CI configuration files and scripts
@@ -46,6 +46,7 @@ Only the following Scope are allowed to use:
 - **tooling**: changes to the tooling configuration, e.g. `.cmake-format.yaml`, `.clang-tidy`
 - **docs**: changes related to code docs
 - **linux**: changes to the linux ci configuration
+- **storage**: e.g. StorageManager and SQLStorageManger
 - ...
 
 To define a new scope add it above.
