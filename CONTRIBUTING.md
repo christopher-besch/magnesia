@@ -41,7 +41,9 @@ The following Types are allowed:
 
 ### Scopes
 Only the following Scope are allowed to use:
-<!-- TODO: to be decided -->
+- **repo-docs**: everything that only touches the repository documentation files (e.g., `README.md`, `CONTRIBUTING.md`)
+- **cmake**: mainly used with the **build** type for everything that touches CMake files
+- **cmake-format**: changes to the `.cmake-format.yaml` file
 - ...
 
 To define a new scope add it above.
