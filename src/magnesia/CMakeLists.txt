@@ -9,7 +9,13 @@ set(SOURCES
 )
 qt_add_executable(magnesia main.cpp ${SOURCES})
 
-target_link_libraries(magnesia PRIVATE magnesia::project_options Qt::Widgets open62541pp::open62541pp)
+target_link_libraries(
+    magnesia
+    PRIVATE magnesia::project_options
+            Qt::Widgets
+            Qt::Sql
+            open62541pp::open62541pp
+)
 
 set_target_properties(
     magnesia
