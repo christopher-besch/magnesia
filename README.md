@@ -3,14 +3,17 @@
 ### Install Prerequisites
 #### Debian
 - `sudo apt-get update`
-- `sudo apt-get install -y git python3 cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang`
+- `sudo apt-get install -y git python3 cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen`
 
 #### Arch Linux
-- `pacman -S python git cmake base-devel clang qt6-base ninja`
+- `pacman -S python git cmake base-devel clang qt6-base ninja doxygen`
 
 ### Build
 - `cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ .`
 - `cmake --build build --config Release`
+
+### CMake Options
+- `MAGNESIA_BUILD_DOCS` (default: `ON`): Whether to build code documentation with doxygen
 
 ## Dependencies
 - compiler:
