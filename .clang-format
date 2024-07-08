@@ -23,19 +23,20 @@ AttributeMacros:
 BreakBeforeBinaryOperators: NonAssignment
 ColumnLimit:     120
 EmptyLineAfterAccessModifier: Never
-# IncludeCategories: # TODO: define categories for Qt, open62541(pp) and our stuff? Needs IncludeBlocks: Regroup
-#   - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
-#     Priority:        2
-#     SortPriority:    0
-#     CaseSensitive:   false
-#   - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
-#     Priority:        3
-#     SortPriority:    0
-#     CaseSensitive:   false
-#   - Regex:           '.*'
-#     Priority:        1
-#     SortPriority:    0
-#     CaseSensitive:   false
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^<open62541(pp)?/'
+    Priority:        3
+    CaseSensitive:   false
+  - Regex:           '^<(Qt?[A-Z]|q[^\/]*\.h)'
+    Priority:        4
+    CaseSensitive:   true
+  - Regex:           '^<'
+    Priority:        2
+    CaseSensitive:   false
+  - Regex:           '^"'
+    Priority:        1
+    CaseSensitive:   false
 IndentCaseLabels: true
 IndentWidth:     4
 InsertBraces:    false # required by clang-tidy but disabled due to correctness warning in docs.
@@ -47,8 +48,6 @@ RemoveParentheses: Leave # Should be enabled, left disabled due to correctness w
 RemoveSemicolon: false # Should be enabled, left disabled due to correctness warning in docs
 SeparateDefinitionBlocks: Always
 ShortNamespaceLines: 0
-# TODO: remove when IncludeCategories used
-SortIncludes: CaseInsensitive
 SpaceAfterTemplateKeyword: false
 Standard:        c++20
 StatementAttributeLikeMacros:
