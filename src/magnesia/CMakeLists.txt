@@ -4,6 +4,7 @@ qt_add_executable(
     Activity.cpp
     ActivityMetadata.cpp
     ConfigWidget.cpp
+    Router.cpp
 )
 
 target_link_libraries(magnesia PRIVATE magnesia::project_options Qt::Widgets open62541pp::open62541pp)
