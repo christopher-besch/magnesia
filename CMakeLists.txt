@@ -40,4 +40,16 @@ FetchContent_MakeAvailable(open62541pp)
 find_package(Qt6 6.4 REQUIRED COMPONENTS Widgets)
 qt_standard_project_setup()
 
+include(CompilerWarnings)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    set(MAGNESIA_WARNINGS_AS_ERRORS ON)
+else()
+    set(MAGNESIA_WARNINGS_AS_ERRORS OFF)
+endif()
+
+add_library(magnesia_project_options INTERFACE)
+add_library(magnesia::project_options ALIAS magnesia_project_options)
+magnesia_set_project_warnings(magnesia_project_options ${MAGNESIA_WARNINGS_AS_ERRORS} "" "" "" "")
+
 add_subdirectory(src/magnesia)
