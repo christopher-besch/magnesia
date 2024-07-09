@@ -8,6 +8,10 @@
 #### Arch Linux
 - `pacman -S python git cmake base-devel clang qt6-base ninja doxygen`
 
+#### Nix
+This repository contains a nix flake. Make sure you have flakes enabled and run `nix develop`. You can also use
+[direnv](https://direnv.net/), if you have it.
+
 ### Build
 - `cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ .`
 - `cmake --build build --config Release`
