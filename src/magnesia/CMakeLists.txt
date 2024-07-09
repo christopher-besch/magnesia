@@ -2,6 +2,7 @@ qt_add_executable(
     magnesia
     main.cpp
     Activity.cpp
+    ActivityMetadata.cpp
     ConfigWidget.cpp
 )
 
