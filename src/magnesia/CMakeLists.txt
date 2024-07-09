@@ -2,6 +2,7 @@ qt_add_executable(
     magnesia
     main.cpp
     Activity.cpp
+    ConfigWidget.cpp
 )
 
 target_link_libraries(magnesia PRIVATE magnesia::project_options Qt::Widgets open62541pp::open62541pp)
