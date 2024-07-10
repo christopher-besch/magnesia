@@ -40,6 +40,11 @@ FetchContent_MakeAvailable(open62541pp)
 find_package(Qt6 6.4 REQUIRED COMPONENTS Widgets)
 qt_standard_project_setup()
 
+message(STATUS "Using cmake ${CMAKE_VERSION}")
+message(STATUS "Using open62541 ${open62541_VERSION}")
+message(STATUS "Using open62541pp ${open62541pp_VERSION}")
+message(STATUS "Using qt ${Qt6_VERSION}")
+
 include(CompilerWarnings)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
