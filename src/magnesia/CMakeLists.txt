@@ -6,6 +6,8 @@ set(SOURCES
     ConfigWidget.cpp
     database_types.cpp
     Router.cpp
+    settings.cpp
+    SettingsManager.cpp
     SQLStorageManager.cpp
     StorageManager.cpp
     terminate.cpp
