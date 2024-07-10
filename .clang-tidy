@@ -21,7 +21,7 @@ CheckOptions:
   # https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-naming.html
   readability-identifier-naming.ClassCase: CamelCase
   readability-identifier-naming.MethodCase: camelBack
-  readability-identifier-naming.MemberCase: camelBack
+  readability-identifier-naming.MemberCase: lower_case
   readability-identifier-naming.MemberPrefix: m_
   readability-identifier-naming.NamespaceCase: lower_case
   readability-identifier-naming.FunctionCase: lower_case
