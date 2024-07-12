@@ -71,9 +71,12 @@ Do so even when the cpp file only includes the header.
 ### Naming-Conventions
 We use the following naming conventions:
 - **Classes:** PascalCase
+- **Enums:** PascalCase
 - **Member functions (includes signals and slots):** camelCase()
-- **Member variables:** m_snake_case
+- **Private member variables:** m_snake_case
+- **Public member variables:** snake_case
 - **Static member variables:** s_snake_case
+- **Free functions:** snake_case
 - **Parameters:** snake_case
 - **Other variables:** snake_case
 - **Files:**
@@ -82,7 +85,7 @@ We use the following naming conventions:
     - snake_case.cpp
     - snake_case.hpp
 - **Dirs:** snake_case
-- **Name spaces:** snake_case
+- **Namespaces:** snake_case
 - **Namespaces:**
     - magnesia
     - one per activity
