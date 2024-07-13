@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ConfigWidget.hpp"
+
 #include <QStringView>
 
 namespace magnesia {
