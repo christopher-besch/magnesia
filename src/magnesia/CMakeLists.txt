@@ -5,6 +5,7 @@ set(SOURCES
     ActivityMetadata.cpp
     ConfigWidget.cpp
     Router.cpp
+    terminate.cpp
 )
 qt_add_executable(magnesia main.cpp ${SOURCES})
 
