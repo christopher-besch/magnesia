@@ -1,4 +1,5 @@
 stages:
+  - lint
   - build
 
 build_linux:
@@ -22,3 +23,15 @@ build_linux:
     - |
       cmake -B build -DCMAKE_BUILD_TYPE=$build_type -G Ninja -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler .
       cmake --build build --config $build_type
+
+lint:
+  stage: lint
+  tags: [ubuntu]
+  script:
+    - |
+      DEBIAN_FRONTEND=noninteractive
+
+      sudo apt-get update
+      sudo apt-get install -y clang-format
+
+    - find src -name '*.[ch]pp' -print0 | xargs -0 clang-format -Werror --dry-run --verbose
