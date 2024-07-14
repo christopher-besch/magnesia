@@ -1,6 +1,6 @@
 #!/bin/sh
 
-install_tools() {
+install_deps() {
     if [ "${CI_DEPS_SKIP_INSTALL-0}" -eq 1 ]; then
         return
     fi
@@ -14,5 +14,11 @@ install_tools() {
     export DEBIAN_FRONTEND=noninteractive
     $SUDO apt-get update
     $SUDO apt-get install -y \
-        clang-format
+        git \
+        cmake \
+        ninja-build \
+        clang \
+        qt6-base-dev \
+        clang-format \
+        clang-tidy
 }
