@@ -5,7 +5,7 @@
 #include <qnamespace.h>
 
 int main(int argc, char** argv) {
-    QApplication app(argc, argv);
+    const QApplication app(argc, argv);
 
     opcua::Server server;
     server.run();
