@@ -27,11 +27,4 @@ build_linux:
 lint:
   stage: lint
   tags: [ubuntu]
-  script:
-    - |
-      DEBIAN_FRONTEND=noninteractive
-
-      sudo apt-get update
-      sudo apt-get install -y clang-format
-
-    - find src -name '*.[ch]pp' -print0 | xargs -0 clang-format -Werror --dry-run --verbose
+  script: ./.ci/lint.sh
