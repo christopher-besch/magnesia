@@ -45,17 +45,26 @@ message(STATUS "Using open62541 ${open62541_VERSION}")
 message(STATUS "Using open62541pp ${open62541pp_VERSION}")
 message(STATUS "Using qt ${Qt6_VERSION}")
 
-include(CompilerWarnings)
-
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    set(MAGNESIA_WARNINGS_AS_ERRORS ON)
+    set(MAGNESIA_IS_RELEASE ON)
+    set(MAGNESIA_IS_NOT_RELEASE OFF)
 else()
-    set(MAGNESIA_WARNINGS_AS_ERRORS OFF)
+    set(MAGNESIA_IS_RELEASE OFF)
+    set(MAGNESIA_IS_NOT_RELEASE ON)
 endif()
 
 add_library(magnesia_project_options INTERFACE)
 add_library(magnesia::project_options ALIAS magnesia_project_options)
+
+option(MAGNESIA_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ${MAGNESIA_IS_RELEASE})
+include(CompilerWarnings)
 magnesia_set_project_warnings(magnesia_project_options ${MAGNESIA_WARNINGS_AS_ERRORS} "" "" "" "")
+
+option(MAGNESIA_ENABLE_SANITIZERS "Build with asan and ubsan" ${MAGNESIA_IS_NOT_RELEASE})
+if(MAGNESIA_ENABLE_SANITIZERS)
+    include(Sanitizers)
+    magnesia_enable_sanitizers(magnesia_project_options ON ON ON OFF OFF)
+endif()
 
 option(MAGNESIA_BUILD_DOCS "Whether to build code documentation with doxygen" ON)
 if(MAGNESIA_BUILD_DOCS)
