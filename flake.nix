@@ -83,8 +83,8 @@
                 ninja
 
                 # C++ static analysis/formatting
-                llvmPackages_18.clang
                 llvmPackages_18.clang-tools
+                llvmPackages_18.clang
                 cppcheck
                 include-what-you-use
 
