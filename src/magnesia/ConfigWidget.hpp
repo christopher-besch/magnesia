@@ -18,7 +18,7 @@ namespace magnesia {
         using QWidget::QWidget;
 
         /**
-         * Classed by the AddActivity Activity to handle OPC UA URLs. The common use case is to pre-fill the UI and
+         * Called by the AddActivity Activity to handle OPC UA URLs. The common use case is to pre-fill the UI and
          * prompt the user for the rest. The URL is passed to all `ConfigWidget`s, so the handler should not
          * automatically create any activities to prevent launching multiple activities.
          *
