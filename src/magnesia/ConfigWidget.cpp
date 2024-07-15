@@ -1,4 +1,5 @@
 #include "ConfigWidget.hpp"
+
 #include <QUrl>
 
 namespace magnesia {

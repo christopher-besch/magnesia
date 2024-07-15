@@ -1,7 +1,7 @@
 #pragma once
 
-#include <qtmetamacros.h>
 #include <QWidget>
+#include <qtmetamacros.h>
 
 namespace magnesia {
     /**
