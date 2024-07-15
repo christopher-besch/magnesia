@@ -43,9 +43,7 @@ The following Types are allowed:
 Only the following Scope are allowed to use:
 - **repo-docs**: everything that only touches the repository documentation files (e.g., `README.md`, `CONTRIBUTING.md`)
 - **cmake**: mainly used with the **build** type for everything that touches CMake files
-- **cmake-format**: changes to the `.cmake-format.yaml` file
-- **clang-format**: changes to the `.clang-format` file
-- **clang-tidy**: changes to the `.clang-tidy` file
+- **tooling**: changes to the tooling configuration, e.g. `.cmake-format.yaml`, `.clang-tidy`
 - **docs**: changes related to code docs
 - **linux**: changes to the linux ci configuration
 - ...
