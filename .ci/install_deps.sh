@@ -20,5 +20,6 @@ install_deps() {
         clang \
         qt6-base-dev \
         clang-format \
-        clang-tidy
+        clang-tidy \
+        cmake-format
 }
