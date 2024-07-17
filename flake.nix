@@ -97,6 +97,9 @@
                 doxygen
                 graphviz
                 sphinx
+
+                # spell checking
+                codespell
               ]
               # also C++ static analysis, but platform dependent
               ++ lib.optionals (lib.meta.availableOn stdenv.hostPlatform clazy) [clazy];
