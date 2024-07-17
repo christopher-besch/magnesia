@@ -1,4 +1,5 @@
-# Based on: https://github.com/cpp-best-practices/cmake_template/blob/759d7184f44aad80a3e24ba6ce8e86d08e64d9bb/cmake/PreventInSourceBuilds.cmake
+# Based on
+# https://github.com/cpp-best-practices/cmake_template/blob/759d7184f44aad80a3e24ba6ce8e86d08e64d9bb/cmake/PreventInSourceBuilds.cmake
 
 function(magnesia_assure_out_of_source_builds)
     # make sure the user doesn't play dirty with symlinks

@@ -1,11 +1,12 @@
-qt_add_executable(
-    magnesia
-    main.cpp
+set(SOURCES
+    # this comment doesn't seem to work in qt_add_executable
+    # cmake-format: sortable
     Activity.cpp
     ActivityMetadata.cpp
     ConfigWidget.cpp
     Router.cpp
 )
+qt_add_executable(magnesia main.cpp ${SOURCES})
 
 target_link_libraries(magnesia PRIVATE magnesia::project_options Qt::Widgets open62541pp::open62541pp)
 
@@ -30,11 +31,14 @@ if(APPLE OR WIN32)
         set(OUTPUT_VAR FILENAME_VARIABLE)
     endif()
 
+    # cmake-format doesn't handle the ${OUTPUT_VAR} well
+    # cmake-format: off
     qt_generate_deploy_app_script(
         TARGET magnesia
         ${OUTPUT_VAR} deploy_script
         NO_UNSUPPORTED_PLATFORM_ERROR
     )
+    # cmake-format: on
     install(SCRIPT ${deploy_script})
 endif()
 

@@ -1,4 +1,5 @@
-# Based on https://github.com/cpp-best-practices/cmake_template/blob/759d7184f44aad80a3e24ba6ce8e86d08e64d9bb/cmake/Sanitizers.cmake
+# Based on
+# https://github.com/cpp-best-practices/cmake_template/blob/759d7184f44aad80a3e24ba6ce8e86d08e64d9bb/cmake/Sanitizers.cmake
 
 function(
     magnesia_enable_sanitizers
