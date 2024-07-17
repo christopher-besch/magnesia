@@ -10,7 +10,10 @@ run_clang_format() {
 }
 
 run_clang_tidy() {
-    cmake --fresh -G Ninja -B build/clang-tidy . \
+    BUILD_DIR="$(pwd)/build/clang-tidy"
+    trap 'rm -rf "'"$BUILD_DIR"'"' EXIT
+
+    cmake --fresh -G Ninja -B "$BUILD_DIR" . \
         -D CMAKE_BUILD_TYPE=Debug \
         -D CMAKE_EXPORT_COMPILE_COMMANDS=ON \
         -D CMAKE_C_COMPILER=clang \
@@ -19,7 +22,7 @@ run_clang_tidy() {
         -D MAGNESIA_BUILD_DOCS=OFF
 
     find src -name '*.[ch]pp' -print0 \
-        | xargs -0 run-clang-tidy -warnings-as-errors='*' -use-color -p build/clang-tidy
+        | xargs -0 run-clang-tidy -warnings-as-errors='*' -use-color -p "$BUILD_DIR"
 }
 
 main() {
