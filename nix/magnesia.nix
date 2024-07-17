@@ -29,6 +29,6 @@ stdenv.mkDerivation {
     (lib.cmakeBool "MAGNESIA_BUILD_DOCS" false)
   ];
 
-  # Qt's deploy script on macOS produces an app bundle that is indendent of the nix store and wrapping fails
+  # Qt's deploy script on macOS produces an app bundle that is independent of the nix store and wrapping fails
   dontWrapQtApps = stdenv.isDarwin;
 }
