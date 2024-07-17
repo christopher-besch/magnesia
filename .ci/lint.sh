@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. "$(dirname "$(readlink -f "$0")")/install_deps.sh"
-
 run_cmake_format() {
     find . \( -name 'CMakeLists.txt' -or -name '*.cmake' \) -and -not -path './build/*' -print0 \
         | xargs -0 cmake-format --check
@@ -32,8 +30,6 @@ run_clang_tidy() {
 
 main() {
     set -xeu
-
-    install_deps
 
     run_cmake_format
     run_clang_format
