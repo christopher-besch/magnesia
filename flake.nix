@@ -24,10 +24,11 @@
         overlays =
           [
             (self: super: {
-              open62541 = inputs.nixpkgs-open61541-1-3-10.legacyPackages.${system}.open62541.overrideAttrs {
+              open62541 = (inputs.nixpkgs-open61541-1-3-10.legacyPackages.${system}.open62541.overrideAttrs {
                 doCheck = !super.stdenv.isDarwin;
                 meta.platforms = super.lib.platforms.linux ++ super.lib.platforms.darwin;
-              };
+              })
+              .override {withEncryption = "openssl";};
             })
             (self: super: {open62541pp = super.callPackage ./nix/open62541pp.nix {};})
           ]
