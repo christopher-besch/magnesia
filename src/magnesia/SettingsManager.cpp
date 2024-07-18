@@ -64,12 +64,12 @@ namespace magnesia {
         return true;
     }
 
-    bool SettingsManager::setFloatSetting(const SettingKey& key, float value) {
-        auto* setting = validate<FloatSetting>(key, value);
+    bool SettingsManager::setDoubleSetting(const SettingKey& key, double value) {
+        auto* setting = validate<DoubleSetting>(key, value);
         if (setting == nullptr) {
             return false;
         }
-        m_storage_manager->setFloatSetting(key, value);
+        m_storage_manager->setDoubleSetting(key, value);
         Q_EMIT settingChanged(key);
         return true;
     }
@@ -150,16 +150,16 @@ namespace magnesia {
         return m_storage_manager->getIntSetting(key).value_or(int_setting->getDefault());
     }
 
-    std::optional<float> SettingsManager::getFloatSetting(const SettingKey& key) {
+    std::optional<double> SettingsManager::getDoubleSetting(const SettingKey& key) {
         auto setting = getSettingDefinition(key);
         if (setting == std::nullopt) {
             return {};
         }
-        auto* float_setting = dynamic_cast<FloatSetting*>(setting.value().get());
-        if (float_setting == nullptr) {
+        auto* double_setting = dynamic_cast<DoubleSetting*>(setting.value().get());
+        if (double_setting == nullptr) {
             return {};
         }
-        return m_storage_manager->getFloatSetting(key).value_or(float_setting->getDefault());
+        return m_storage_manager->getDoubleSetting(key).value_or(double_setting->getDefault());
     }
 
     std::optional<EnumSettingValue> SettingsManager::getEnumSetting(const SettingKey& key) {

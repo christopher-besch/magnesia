@@ -148,26 +148,26 @@ namespace magnesia {
     };
 
     /**
-     * A setting of type float in [min, max].
+     * A setting of type double in [min, max].
      */
-    class FloatSetting : public Setting {
+    class DoubleSetting : public Setting {
       public:
         /**
          *  @return default value.
          */
-        [[nodiscard]] float getDefault() const {
+        [[nodiscard]] double getDefault() const {
             return m_default_value;
         }
 
         /**
          *  @return true iff value fulfills this type of setting.
          */
-        [[nodiscard]] bool isValid(float value) const {
+        [[nodiscard]] bool isValid(double value) const {
             return value >= m_min && value <= m_max;
         }
 
-        FloatSetting(QString name, QString human_readable_name, QString description, float default_value, float min,
-                     float max)
+        DoubleSetting(QString name, QString human_readable_name, QString description, double default_value, double min,
+                     double max)
             : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
               m_default_value{default_value}, m_min{min}, m_max{max} {
             if (!isValid(m_default_value)) {
@@ -176,9 +176,9 @@ namespace magnesia {
         }
 
       private:
-        float m_default_value;
-        float m_min;
-        float m_max;
+        double m_default_value;
+        double m_min;
+        double m_max;
     };
 
     /**

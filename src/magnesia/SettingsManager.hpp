@@ -86,7 +86,7 @@ namespace magnesia {
          */
         bool setIntSetting(const SettingKey& key, int value);
         /*
-         * Change a setFloatSetting.
+         * Change a setDoubleSetting.
          *
          * Fail when the setting can't be found or doesn't fulfill the setting's type.
          *
@@ -95,7 +95,7 @@ namespace magnesia {
          *
          * @return false on failure.
          */
-        bool setFloatSetting(const SettingKey& key, float value);
+        bool setDoubleSetting(const SettingKey& key, double value);
         /*
          * Change an EnumSetting.
          *
@@ -168,13 +168,13 @@ namespace magnesia {
          */
         std::optional<int> getIntSetting(const SettingKey& key);
         /*
-         * Get a FloatSetting.
+         * Get a DoubleSetting.
          *
          * @param key The SettingKey of the setting to be get.
          *
          * @return the Setting's value or its default value when not set or nullopt when the setting is not defined
          */
-        std::optional<float> getFloatSetting(const SettingKey& key);
+        std::optional<double> getDoubleSetting(const SettingKey& key);
         /*
          * Get an EnumSetting.
          *

@@ -389,16 +389,16 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setFloatSetting(const SettingKey& key, float value) {
+    void SQLStorageManager::setDoubleSetting(const SettingKey& key, double value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
-        query.prepare(R"sql(REPLACE INTO FloatSetting VALUES (:name, :domain, :value);)sql");
+        query.prepare(R"sql(REPLACE INTO DoubleSetting VALUES (:name, :domain, :value);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.bindValue(":value", value);
         query.exec();
         if (query.lastError().isValid()) {
-            warnQuery("database FloatSetting replace failed.", query);
+            warnQuery("database DoubleSetting replace failed.", query);
             terminate();
         }
     }
@@ -511,21 +511,21 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toInt();
     }
 
-    std::optional<float> SQLStorageManager::getFloatSetting(const SettingKey& key) {
+    std::optional<double> SQLStorageManager::getDoubleSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
-        query.prepare(R"sql(SELECT value FROM FloatSetting WHERE name = :name AND domain = :domain;)sql");
+        query.prepare(R"sql(SELECT value FROM DoubleSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            warnQuery("database FloatSetting retrieval failed.", query);
+            warnQuery("database DoubleSetting retrieval failed.", query);
             terminate();
         }
 
         if (!query.next()) {
             return {};
         }
-        return query.value("value").toFloat();
+        return query.value("value").toDouble();
     }
 
     std::optional<EnumSettingValue> SQLStorageManager::getEnumSetting(const SettingKey& key) {
@@ -741,13 +741,13 @@ CREATE TABLE IntSetting (
 ) STRICT;
 )sql",
             R"sql(
-CREATE TABLE FloatSetting (
+CREATE TABLE DoubleSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
     value REAL NOT NULL,
     --
-    CONSTRAINT FloatSetting_PK PRIMARY KEY (name, domain),
-    CONSTRAINT FloatSetting_TO_Setting_FK FOREIGN KEY (name, domain)
+    CONSTRAINT DoubleSetting_PK PRIMARY KEY (name, domain),
+    CONSTRAINT DoubleSetting_TO_Setting_FK FOREIGN KEY (name, domain)
         REFERENCES Setting (name, domain)
         ON DELETE CASCADE
 ) STRICT;

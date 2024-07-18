@@ -48,7 +48,7 @@ namespace magnesia {
         void setBooleanSetting(const SettingKey& key, bool value) override;
         void setStringSetting(const SettingKey& key, const QString& value) override;
         void setIntSetting(const SettingKey& key, int value) override;
-        void setFloatSetting(const SettingKey& key, float value) override;
+        void setDoubleSetting(const SettingKey& key, double value) override;
         void setEnumSetting(const SettingKey& key, const EnumSettingValue& value) override;
         void setCertificateSetting(const SettingKey& key, StorageId cert_id) override;
         void setHistoricServerConnectionSetting(const SettingKey& key, StorageId historic_connection_id) override;
@@ -56,7 +56,7 @@ namespace magnesia {
         std::optional<bool>                     getBoolSetting(const SettingKey& key) override;
         std::optional<QString>                  getStringSetting(const SettingKey& key) override;
         std::optional<int>                      getIntSetting(const SettingKey& key) override;
-        std::optional<float>                    getFloatSetting(const SettingKey& key) override;
+        std::optional<double>                    getDoubleSetting(const SettingKey& key) override;
         std::optional<EnumSettingValue>         getEnumSetting(const SettingKey& key) override;
         std::optional<Certificate>              getCertificateSetting(const SettingKey& key) override;
         std::optional<HistoricServerConnection> getHistoricServerConnectionSetting(const SettingKey& key) override;
