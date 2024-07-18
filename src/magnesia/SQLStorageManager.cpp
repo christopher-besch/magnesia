@@ -34,7 +34,7 @@ namespace magnesia {
         qDebug("Database: connection ok");
 
         // This needs to be performed at every connection.
-        const QSqlQuery query{"PRAGMA foreign_keys = ON;", m_database};
+        const QSqlQuery query{R"sql(PRAGMA foreign_keys = ON;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database failed to enable foreign_keys.", query);
             terminate();
@@ -45,7 +45,7 @@ namespace magnesia {
 
     StorageId SQLStorageManager::storeCertificate(Certificate cert) {
         QSqlQuery query{m_database};
-        query.prepare("INSERT INTO Certificate VALUES (NULL, :name, :path, CURRENT_TIMESTAMP);");
+        query.prepare(R"sql(INSERT INTO Certificate VALUES (NULL, :name, :path, CURRENT_TIMESTAMP);)sql");
         query.bindValue(":name", cert.name);
         query.bindValue(":path", cert.path_to_cert);
         query.exec();
@@ -60,8 +60,10 @@ namespace magnesia {
 
     StorageId SQLStorageManager::storeHistoricServerConnection(HistoricServerConnection historic_server_connection) {
         QSqlQuery query{m_database};
-        query.prepare("INSERT INTO HistoricServerConnection VALUES (NULL, :address, :port, :cert_id, :layout_id, "
-                      ":layout_group, :layout_domain, :last_used, CURRENT_TIMESTAMP);");
+        query.prepare(R"sql(
+INSERT INTO HistoricServerConnection
+VALUES (NULL, :address, :port, :cert_id, :layout_id, :layout_group, :layout_domain, :last_used, CURRENT_TIMESTAMP);
+                      )sql");
         query.bindValue(":address", historic_server_connection.address);
         query.bindValue(":port", historic_server_connection.port);
         query.bindValue(":cert_id", historic_server_connection.certificate_id);
@@ -81,8 +83,9 @@ namespace magnesia {
 
     StorageId SQLStorageManager::storeLayout(Layout layout, LayoutGroup group, Domain domain) {
         QSqlQuery query{m_database};
-        query.prepare("INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, "
-                      "CURRENT_TIMESTAMP);");
+        query.prepare(R"sql(
+INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURRENT_TIMESTAMP);
+                      )sql");
         query.bindValue(":layout_group", group);
         query.bindValue(":domain", domain);
         query.bindValue(":name", layout.name);
@@ -99,7 +102,7 @@ namespace magnesia {
 
     std::optional<Certificate> SQLStorageManager::getCertificate(StorageId cert_id) {
         QSqlQuery query{m_database};
-        query.prepare("SELECT name, path FROM Certificate WHERE id = :id;");
+        query.prepare(R"sql(SELECT name, path FROM Certificate WHERE id = :id;)sql");
         query.bindValue(":id", cert_id);
         query.exec();
         if (query.lastError().isValid()) {
@@ -119,8 +122,9 @@ namespace magnesia {
     std::optional<HistoricServerConnection>
     SQLStorageManager::getHistoricServerConnection(StorageId historic_connection_id) {
         QSqlQuery query{m_database};
-        query.prepare("SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used FROM "
-                      "HistoricServerConnection WHERE id = :id;");
+        query.prepare(R"sql(
+SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used FROM HistoricServerConnection WHERE id = :id;
+                      )sql");
         query.bindValue(":id", historic_connection_id);
         query.exec();
         if (query.lastError().isValid()) {
@@ -144,8 +148,9 @@ namespace magnesia {
 
     std::optional<Layout> SQLStorageManager::getLayout(StorageId layout_id, LayoutGroup group, Domain domain) {
         QSqlQuery query{m_database};
-        query.prepare("SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = "
-                      ":layout_group AND domain = :domain;");
+        query.prepare(R"sql(
+SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = :domain;
+                      )sql");
         query.bindValue(":id", layout_id);
         query.bindValue(":layout_group", group);
         query.bindValue(":domain", domain);
@@ -165,9 +170,7 @@ namespace magnesia {
     }
 
     QList<Certificate> SQLStorageManager::getAllCertificates() {
-        QSqlQuery query{m_database};
-        query.prepare("SELECT name, path FROM Certificate;");
-        query.exec();
+        QSqlQuery query{R"sql(SELECT name, path FROM Certificate;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database all Certificate retrieval failed.", query);
             terminate();
@@ -185,8 +188,9 @@ namespace magnesia {
 
     QList<HistoricServerConnection> SQLStorageManager::getAllHistoricServerConnections() {
         QSqlQuery query{m_database};
-        query.prepare("SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used FROM "
-                      "HistoricServerConnection;");
+        query.prepare(R"sql(
+SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used FROM HistoricServerConnection;
+                      )sql");
         query.exec();
         if (query.lastError().isValid()) {
             warnQuery("database all HistoricServerConnection retrieval failed.", query);
@@ -210,8 +214,9 @@ namespace magnesia {
 
     QList<Layout> SQLStorageManager::getAllLayouts(LayoutGroup group, Domain domain) {
         QSqlQuery query{m_database};
-        query.prepare("SELECT name, json_data FROM Layout WHERE layout_group = "
-                      ":layout_group AND domain = :domain;");
+        query.prepare(R"sql(
+SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain = :domain;
+                      )sql");
         query.bindValue(":layout_group", group);
         query.bindValue(":domain", domain);
         query.exec();
@@ -232,7 +237,7 @@ namespace magnesia {
 
     void SQLStorageManager::deleteCertificate(StorageId cert_id) {
         QSqlQuery query{m_database};
-        query.prepare("DELETE FROM Certificate WHERE id = :id;");
+        query.prepare(R"sql(DELETE FROM Certificate WHERE id = :id;)sql");
         query.bindValue(":id", cert_id);
         query.exec();
         if (query.lastError().isValid()) {
@@ -244,7 +249,7 @@ namespace magnesia {
 
     void SQLStorageManager::deleteHistoricServerConnection(StorageId historic_connection_id) {
         QSqlQuery query{m_database};
-        query.prepare("DELETE FROM HistoricServerConnection WHERE id = :id;");
+        query.prepare(R"sql(DELETE FROM HistoricServerConnection WHERE id = :id;)sql");
         query.bindValue(":id", historic_connection_id);
         query.exec();
         if (query.lastError().isValid()) {
@@ -256,8 +261,9 @@ namespace magnesia {
 
     void SQLStorageManager::deleteLayout(StorageId layout_id, LayoutGroup group, Domain domain) {
         QSqlQuery query{m_database};
-        query.prepare("DELETE FROM Layout WHERE id = :id AND layout_group = "
-                      ":layout_group AND domain = :domain;");
+        query.prepare(R"sql(
+DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = :domain;
+                      )sql");
         query.bindValue(":id", layout_id);
         query.bindValue(":layout_group", group);
         query.bindValue(":domain", domain);
@@ -271,7 +277,7 @@ namespace magnesia {
 
     void SQLStorageManager::setKV(QString key, Domain domain, QString value) {
         QSqlQuery query{m_database};
-        query.prepare("REPLACE INTO KeyValue VALUES (:key, :domain, :value, CURRENT_TIMESTAMP);");
+        query.prepare(R"sql(REPLACE INTO KeyValue VALUES (:key, :domain, :value, CURRENT_TIMESTAMP);)sql");
         query.bindValue(":key", key);
         query.bindValue(":domain", domain);
         query.bindValue(":value", value);
@@ -285,7 +291,7 @@ namespace magnesia {
 
     std::optional<QString> SQLStorageManager::getKV(QString key, Domain domain) {
         QSqlQuery query{m_database};
-        query.prepare("SELECT value FROM KeyValue WHERE key = :key AND domain = :domain;");
+        query.prepare(R"sql(SELECT value FROM KeyValue WHERE key = :key AND domain = :domain;)sql");
         query.bindValue(":key", key);
         query.bindValue(":domain", domain);
         query.exec();
@@ -302,7 +308,7 @@ namespace magnesia {
 
     void SQLStorageManager::deleteKV(QString key, Domain domain) {
         QSqlQuery query{m_database};
-        query.prepare("DELETE FROM KeyValue WHERE key = :key AND domain = :domain;");
+        query.prepare(R"sql(DELETE FROM KeyValue WHERE key = :key AND domain = :domain;)sql");
         query.bindValue(":key", key);
         query.bindValue(":domain", domain);
         query.exec();
@@ -316,7 +322,7 @@ namespace magnesia {
     void SQLStorageManager::resetSetting(SettingKey key) {
         // The specific setting (i.e. BooleanSetting) is deleted using SQLite's `ON DELETE CASCADE`.
         QSqlQuery query{m_database};
-        query.prepare("DELETE FROM Setting WHERE name = :name AND domain = :domain;");
+        query.prepare(R"sql(DELETE FROM Setting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
@@ -328,7 +334,7 @@ namespace magnesia {
 
     void SQLStorageManager::setGenericSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
-        query.prepare("REPLACE INTO Setting VALUES (:name, :domain, CURRENT_TIMESTAMP);");
+        query.prepare(R"sql(REPLACE INTO Setting VALUES (:name, :domain, CURRENT_TIMESTAMP);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
@@ -341,7 +347,7 @@ namespace magnesia {
     void SQLStorageManager::setBooleanSetting(SettingKey key, bool value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
-        query.prepare("REPLACE INTO BooleanSetting VALUES (:name, :domain, :value);");
+        query.prepare(R"sql(REPLACE INTO BooleanSetting VALUES (:name, :domain, :value);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.bindValue(":value", value);
@@ -355,7 +361,7 @@ namespace magnesia {
     void SQLStorageManager::setStringSetting(SettingKey key, QString value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
-        query.prepare("REPLACE INTO StringSetting VALUES (:name, :domain, :value);");
+        query.prepare(R"sql(REPLACE INTO StringSetting VALUES (:name, :domain, :value);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.bindValue(":value", value);
@@ -369,7 +375,7 @@ namespace magnesia {
     void SQLStorageManager::setIntSetting(SettingKey key, int value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
-        query.prepare("REPLACE INTO IntSetting VALUES (:name, :domain, :value);");
+        query.prepare(R"sql(REPLACE INTO IntSetting VALUES (:name, :domain, :value);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.bindValue(":value", value);
@@ -383,7 +389,7 @@ namespace magnesia {
     void SQLStorageManager::setFloatSetting(SettingKey key, float value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
-        query.prepare("REPLACE INTO FloatSetting VALUES (:name, :domain, :value);");
+        query.prepare(R"sql(REPLACE INTO FloatSetting VALUES (:name, :domain, :value);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.bindValue(":value", value);
@@ -397,7 +403,7 @@ namespace magnesia {
     void SQLStorageManager::setEnumSetting(SettingKey key, EnumSettingValue value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
-        query.prepare("REPLACE INTO EnumSetting VALUES (:name, :domain, :value);");
+        query.prepare(R"sql(REPLACE INTO EnumSetting VALUES (:name, :domain, :value);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.bindValue(":value", value);
@@ -411,7 +417,7 @@ namespace magnesia {
     void SQLStorageManager::setCertificateSetting(SettingKey key, StorageId cert_id) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
-        query.prepare("REPLACE INTO CertificateSetting VALUES (:name, :domain, :cert_id);");
+        query.prepare(R"sql(REPLACE INTO CertificateSetting VALUES (:name, :domain, :cert_id);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.bindValue(":cert_id", cert_id);
@@ -425,7 +431,7 @@ namespace magnesia {
     void SQLStorageManager::setHistoricServerConnectionSetting(SettingKey key, StorageId historic_connection_id) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
-        query.prepare("REPLACE INTO HistoricServerConnectionSetting VALUES (:name, :domain, :server_con_id);");
+        query.prepare(R"sql(REPLACE INTO HistoricServerConnectionSetting VALUES (:name, :domain, :server_con_id);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.bindValue(":server_con_id", historic_connection_id);
@@ -439,7 +445,7 @@ namespace magnesia {
     void SQLStorageManager::setLayoutSetting(SettingKey key, StorageId layout_id, LayoutGroup group) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
-        query.prepare("REPLACE INTO LayoutSetting VALUES (:name, :domain, :layout_id, :layout_group);");
+        query.prepare(R"sql(REPLACE INTO LayoutSetting VALUES (:name, :domain, :layout_id, :layout_group);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.bindValue(":layout_id", layout_id);
@@ -453,7 +459,7 @@ namespace magnesia {
 
     std::optional<bool> SQLStorageManager::getBoolSetting(SettingKey key) {
         QSqlQuery query{m_database};
-        query.prepare("SELECT value FROM BooleanSetting WHERE name = :name AND domain = :domain;");
+        query.prepare(R"sql(SELECT value FROM BooleanSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
@@ -469,7 +475,7 @@ namespace magnesia {
 
     std::optional<QString> SQLStorageManager::getStringSetting(SettingKey key) {
         QSqlQuery query{m_database};
-        query.prepare("SELECT value FROM StringSetting WHERE name = :name AND domain = :domain;");
+        query.prepare(R"sql(SELECT value FROM StringSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
@@ -486,7 +492,7 @@ namespace magnesia {
 
     std::optional<int> SQLStorageManager::getIntSetting(SettingKey key) {
         QSqlQuery query{m_database};
-        query.prepare("SELECT value FROM IntSetting WHERE name = :name AND domain = :domain;");
+        query.prepare(R"sql(SELECT value FROM IntSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
@@ -503,7 +509,7 @@ namespace magnesia {
 
     std::optional<float> SQLStorageManager::getFloatSetting(SettingKey key) {
         QSqlQuery query{m_database};
-        query.prepare("SELECT value FROM FloatSetting WHERE name = :name AND domain = :domain;");
+        query.prepare(R"sql(SELECT value FROM FloatSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
@@ -520,7 +526,7 @@ namespace magnesia {
 
     std::optional<EnumSettingValue> SQLStorageManager::getEnumSetting(SettingKey key) {
         QSqlQuery query{m_database};
-        query.prepare("SELECT value FROM EnumSetting WHERE name = :name AND domain = :domain;");
+        query.prepare(R"sql(SELECT value FROM EnumSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
@@ -537,11 +543,14 @@ namespace magnesia {
 
     std::optional<Certificate> SQLStorageManager::getCertificateSetting(SettingKey key) {
         QSqlQuery query{m_database};
-        query.prepare(R"(
-SELECT Certificate.name, Certificate.path FROM CertificateSetting, Certificate
-WHERE CertificateSetting.name = :name AND CertificateSetting.domain = :domain
-AND Certificate.id = CertificateSetting.cert_id;
-                      )");
+        query.prepare(R"sql(
+SELECT Certificate.name,
+    Certificate.path
+FROM CertificateSetting, Certificate
+WHERE CertificateSetting.name = :name
+    AND CertificateSetting.domain = :domain
+    AND Certificate.id = CertificateSetting.cert_id;
+                      )sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
@@ -561,14 +570,19 @@ AND Certificate.id = CertificateSetting.cert_id;
 
     std::optional<HistoricServerConnection> SQLStorageManager::getHistoricServerConnectionSetting(SettingKey key) {
         QSqlQuery query{m_database};
-        query.prepare(R"(
-SELECT HistoricServerConnection.address, HistoricServerConnection.port, HistoricServerConnection.cert_id,
-HistoricServerConnection.layout_id, HistoricServerConnection.layout_group, HistoricServerConnection.layout_domain,
-HistoricServerConnection.last_used
+        query.prepare(R"sql(
+SELECT HistoricServerConnection.address,
+    HistoricServerConnection.port,
+    HistoricServerConnection.cert_id,
+    HistoricServerConnection.layout_id,
+    HistoricServerConnection.layout_group,
+    HistoricServerConnection.layout_domain,
+    HistoricServerConnection.last_used
 FROM HistoricServerConnectionSetting, HistoricServerConnection
-WHERE HistoricServerConnectionSetting.name = :name AND HistoricServerConnectionSetting.domain = :domain
-AND HistoricServerConnection.id = HistoricServerConnectionSetting.server_con_id;
-                      )");
+WHERE HistoricServerConnectionSetting.name = :name
+    AND HistoricServerConnectionSetting.domain = :domain
+    AND HistoricServerConnection.id = HistoricServerConnectionSetting.server_con_id;
+                      )sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
@@ -593,11 +607,14 @@ AND HistoricServerConnection.id = HistoricServerConnectionSetting.server_con_id;
 
     std::optional<Layout> SQLStorageManager::getLayoutSetting(SettingKey key) {
         QSqlQuery query{m_database};
-        query.prepare(R"(
+        query.prepare(R"sql(
 SELECT Layout.name, Layout.json_data FROM LayoutSetting, Layout
-WHERE LayoutSetting.name = :name AND LayoutSetting.domain = :domain
-AND Layout.id = LayoutSetting.layout_id AND Layout.layout_group = LayoutSetting.layout_group AND Layout.domain = LayoutSetting.domain;
-                      )");
+WHERE LayoutSetting.name = :name
+    AND LayoutSetting.domain = :domain
+    AND Layout.id = LayoutSetting.layout_id
+    AND Layout.layout_group = LayoutSetting.layout_group
+    AND Layout.domain = LayoutSetting.domain;
+                      )sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
         query.exec();
@@ -621,7 +638,7 @@ AND Layout.id = LayoutSetting.layout_id AND Layout.layout_group = LayoutSetting.
         // Instead append a query to drop that table.
         // This allows users to smoothly update.
         QList<QString> migrations{
-            R"(
+            R"sql(
 -- always needs to be in company of a specific setting type
 CREATE TABLE Setting (
     name TEXT NOT NULL,
@@ -630,8 +647,8 @@ CREATE TABLE Setting (
     --
     CONSTRAINT Setting_PK PRIMARY KEY (name, domain)
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE BooleanSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -642,8 +659,8 @@ CREATE TABLE BooleanSetting (
         REFERENCES Setting (name, domain)
         ON DELETE CASCADE
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE StringSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -654,8 +671,8 @@ CREATE TABLE StringSetting (
         REFERENCES Setting (name, domain)
         ON DELETE CASCADE
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE IntSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -666,8 +683,8 @@ CREATE TABLE IntSetting (
         REFERENCES Setting (name, domain)
         ON DELETE CASCADE
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE FloatSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -678,8 +695,8 @@ CREATE TABLE FloatSetting (
         REFERENCES Setting (name, domain)
         ON DELETE CASCADE
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE EnumSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -690,8 +707,8 @@ CREATE TABLE EnumSetting (
         REFERENCES Setting (name, domain)
         ON DELETE CASCADE
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE CertificateSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -704,8 +721,8 @@ CREATE TABLE CertificateSetting (
     CONSTRAINT CertificateSetting_TO_Certificate_FK FOREIGN KEY (cert_id)
         REFERENCES Certificate (id)
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE HistoricServerConnectionSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -718,8 +735,8 @@ CREATE TABLE HistoricServerConnectionSetting (
     CONSTRAINT HistoricServerConnectionSetting_TO_HistoricServerConnection_FK FOREIGN KEY (server_con_id)
         REFERENCES HistoricServerConnection (id)
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE LayoutSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -733,16 +750,16 @@ CREATE TABLE LayoutSetting (
     CONSTRAINT LayoutSetting_TO_Layout_FK FOREIGN KEY (layout_id, layout_group, domain)
         REFERENCES Layout (id, layout_group, domain)
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE Certificate (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     path TEXT NOT NULL,
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE HistoricServerConnection (
     id INTEGER PRIMARY KEY,
     address TEXT NOT NULL,
@@ -759,8 +776,8 @@ CREATE TABLE HistoricServerConnection (
     CONSTRAINT HistoricServerConnection_TO_Layout_FK FOREIGN KEY (layout_id, layout_group, layout_domain)
         REFERENCES Layout (id, layout_group, domain)
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE Layout (
     -- unique for each (domain, layout_group) combination
     id INTEGER PRIMARY KEY,
@@ -774,8 +791,8 @@ CREATE TABLE Layout (
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(id, layout_group, domain)
 ) STRICT;
-)",
-            R"(
+)sql",
+            R"sql(
 CREATE TABLE KeyValue (
     key TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -784,7 +801,7 @@ CREATE TABLE KeyValue (
     --
     CONSTRAINT KeyValue_PK PRIMARY KEY (key, domain)
 ) STRICT;
-)",
+)sql",
         };
 
         // The user_version stores the index of the first migration that hasn't been executed yet.
@@ -792,7 +809,7 @@ CREATE TABLE KeyValue (
         //  > The user_version pragma will get or set the value of the user-version integer
         //  > at offset 60 in the database header. The user-version is an integer that is available
         //  > to applications to use however they want. SQLite makes no use of the user-version itself.
-        QSqlQuery get_migration_version_query{"PRAGMA user_version;", m_database};
+        QSqlQuery get_migration_version_query{R"sql(PRAGMA user_version;)sql", m_database};
         if (get_migration_version_query.lastError().isValid() || !get_migration_version_query.next()) {
             warnQuery("database user_version get failed.", get_migration_version_query);
             terminate();
@@ -822,7 +839,7 @@ CREATE TABLE KeyValue (
         qDebug() << "Database: migration complete";
 
         // See: https://www.sqlite.org/pragma.html#pragma_integrity_check
-        QSqlQuery integrity_check_query = QSqlQuery{"PRAGMA integrity_check;", m_database};
+        QSqlQuery integrity_check_query = QSqlQuery{R"sql(PRAGMA integrity_check;)sql", m_database};
         if (integrity_check_query.lastError().isValid() || !integrity_check_query.next()
             || integrity_check_query.value(0).toString() != "ok") {
             warnQuery("database integrity_check failed.", integrity_check_query);
@@ -832,7 +849,7 @@ CREATE TABLE KeyValue (
     }
 
     StorageId SQLStorageManager::getLastRowId() {
-        QSqlQuery query{"SELECT last_insert_rowid();", m_database};
+        QSqlQuery query{R"sql(SELECT last_insert_rowid();)sql", m_database};
         if (query.lastError().isValid() || !query.next()) {
             warnQuery("retrieving last row id from database failed.", query);
             terminate();
