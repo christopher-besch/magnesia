@@ -34,7 +34,7 @@ namespace magnesia {
         return true;
     }
 
-    bool SettingsManager::setBooleanSetting(const SettingKey& key, const bool& value) {
+    bool SettingsManager::setBooleanSetting(const SettingKey& key, bool value) {
         auto* setting = validate<BooleanSetting>(key, value);
         if (setting == nullptr) {
             return false;
@@ -54,7 +54,7 @@ namespace magnesia {
         return true;
     }
 
-    bool SettingsManager::setIntSetting(const SettingKey& key, const int& value) {
+    bool SettingsManager::setIntSetting(const SettingKey& key, int value) {
         auto* setting = validate<IntSetting>(key, value);
         if (setting == nullptr) {
             return false;
@@ -64,7 +64,7 @@ namespace magnesia {
         return true;
     }
 
-    bool SettingsManager::setFloatSetting(const SettingKey& key, const float& value) {
+    bool SettingsManager::setFloatSetting(const SettingKey& key, float value) {
         auto* setting = validate<FloatSetting>(key, value);
         if (setting == nullptr) {
             return false;

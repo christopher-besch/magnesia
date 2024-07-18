@@ -62,7 +62,7 @@ namespace magnesia {
          *
          * @return false on failure.
          */
-        bool setBooleanSetting(const SettingKey& key, const bool& value);
+        bool setBooleanSetting(const SettingKey& key, bool value);
         /*
          * Change a StringSetting.
          *
@@ -84,7 +84,7 @@ namespace magnesia {
          *
          * @return false on failure.
          */
-        bool setIntSetting(const SettingKey& key, const int& value);
+        bool setIntSetting(const SettingKey& key, int value);
         /*
          * Change a setFloatSetting.
          *
@@ -95,7 +95,7 @@ namespace magnesia {
          *
          * @return false on failure.
          */
-        bool setFloatSetting(const SettingKey& key, const float& value);
+        bool setFloatSetting(const SettingKey& key, float value);
         /*
          * Change an EnumSetting.
          *
@@ -259,13 +259,13 @@ namespace magnesia {
          *
          * @param key The key of the Setting that was (re)set.
          */
-        void settingChanged(const SettingKey& key);
+        void settingChanged(SettingKey key);
         /**
          * Qt signal called when a setting domain was (re)defined.
          *
          * @param domain The Domain that was (re)defined.
          */
-        void settingDomainDefined(const Domain& domain);
+        void settingDomainDefined(Domain domain);
 
       private:
         QMap<Domain, QList<QSharedPointer<Setting>>> m_settings;

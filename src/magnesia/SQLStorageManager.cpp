@@ -44,7 +44,7 @@ namespace magnesia {
         migrate();
     }
 
-    StorageId SQLStorageManager::storeCertificate(Certificate cert) {
+    StorageId SQLStorageManager::storeCertificate(const Certificate& cert) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(INSERT INTO Certificate VALUES (NULL, :name, :path, CURRENT_TIMESTAMP);)sql");
         query.bindValue(":name", cert.name);
@@ -59,7 +59,8 @@ namespace magnesia {
         return cert_id;
     }
 
-    StorageId SQLStorageManager::storeHistoricServerConnection(HistoricServerConnection historic_server_connection) {
+    StorageId
+    SQLStorageManager::storeHistoricServerConnection(const HistoricServerConnection& historic_server_connection) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 INSERT INTO HistoricServerConnection
@@ -82,7 +83,7 @@ VALUES (NULL, :address, :port, :cert_id, :layout_id, :layout_group, :layout_doma
         return server_con_id;
     }
 
-    StorageId SQLStorageManager::storeLayout(Layout layout, LayoutGroup group, Domain domain) {
+    StorageId SQLStorageManager::storeLayout(const Layout& layout, const LayoutGroup& group, const Domain& domain) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURRENT_TIMESTAMP);
@@ -147,7 +148,8 @@ SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used
         };
     }
 
-    std::optional<Layout> SQLStorageManager::getLayout(StorageId layout_id, LayoutGroup group, Domain domain) {
+    std::optional<Layout> SQLStorageManager::getLayout(StorageId layout_id, const LayoutGroup& group,
+                                                       const Domain& domain) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = :domain;
@@ -179,7 +181,7 @@ SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_gro
 
         QList<Certificate> certificates{};
         while (query.next()) {
-            certificates.emplaceBack(Certificate{
+            certificates.append({
                 .name         = query.value("name").toString(),
                 .path_to_cert = query.value("path").toString(),
             });
@@ -200,7 +202,7 @@ SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used
 
         QList<HistoricServerConnection> historic_connections{};
         while (query.next()) {
-            historic_connections.emplaceBack(HistoricServerConnection{
+            historic_connections.append({
                 .port               = query.value("port").toInt(),
                 .address            = query.value("address").toString(),
                 .certificate_id     = query.value("cert_id").toULongLong(),
@@ -213,7 +215,7 @@ SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used
         return historic_connections;
     }
 
-    QList<Layout> SQLStorageManager::getAllLayouts(LayoutGroup group, Domain domain) {
+    QList<Layout> SQLStorageManager::getAllLayouts(const LayoutGroup& group, const Domain& domain) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain = :domain;
@@ -228,7 +230,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
 
         QList<Layout> layouts{};
         while (query.next()) {
-            layouts.emplaceBack(Layout{
+            layouts.append({
                 .name      = query.value("name").toString(),
                 .json_data = query.value("json_data").toString(),
             });
@@ -260,7 +262,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
         Q_EMIT historicConnectionChanged(historic_connection_id);
     }
 
-    void SQLStorageManager::deleteLayout(StorageId layout_id, LayoutGroup group, Domain domain) {
+    void SQLStorageManager::deleteLayout(StorageId layout_id, const LayoutGroup& group, const Domain& domain) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = :domain;
@@ -276,7 +278,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         Q_EMIT layoutChanged(layout_id, group, domain);
     }
 
-    void SQLStorageManager::setKV(QString key, Domain domain, QString value) {
+    void SQLStorageManager::setKV(const QString& key, const Domain& domain, const QString& value) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(REPLACE INTO KeyValue VALUES (:key, :domain, :value, CURRENT_TIMESTAMP);)sql");
         query.bindValue(":key", key);
@@ -290,7 +292,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         Q_EMIT kvChanged(key, domain);
     }
 
-    std::optional<QString> SQLStorageManager::getKV(QString key, Domain domain) {
+    std::optional<QString> SQLStorageManager::getKV(const QString& key, const Domain& domain) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM KeyValue WHERE key = :key AND domain = :domain;)sql");
         query.bindValue(":key", key);
@@ -307,7 +309,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toString();
     }
 
-    void SQLStorageManager::deleteKV(QString key, Domain domain) {
+    void SQLStorageManager::deleteKV(const QString& key, const Domain& domain) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(DELETE FROM KeyValue WHERE key = :key AND domain = :domain;)sql");
         query.bindValue(":key", key);
@@ -320,7 +322,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         Q_EMIT kvChanged(key, domain);
     }
 
-    void SQLStorageManager::resetSetting(SettingKey key) {
+    void SQLStorageManager::resetSetting(const SettingKey& key) {
         // The specific setting (i.e. BooleanSetting) is deleted using SQLite's `ON DELETE CASCADE`.
         QSqlQuery query{m_database};
         query.prepare(R"sql(DELETE FROM Setting WHERE name = :name AND domain = :domain;)sql");
@@ -345,7 +347,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setBooleanSetting(SettingKey key, bool value) {
+    void SQLStorageManager::setBooleanSetting(const SettingKey& key, bool value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
         query.prepare(R"sql(REPLACE INTO BooleanSetting VALUES (:name, :domain, :value);)sql");
@@ -359,7 +361,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setStringSetting(SettingKey key, QString value) {
+    void SQLStorageManager::setStringSetting(const SettingKey& key, const QString& value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
         query.prepare(R"sql(REPLACE INTO StringSetting VALUES (:name, :domain, :value);)sql");
@@ -373,7 +375,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setIntSetting(SettingKey key, int value) {
+    void SQLStorageManager::setIntSetting(const SettingKey& key, int value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
         query.prepare(R"sql(REPLACE INTO IntSetting VALUES (:name, :domain, :value);)sql");
@@ -387,7 +389,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setFloatSetting(SettingKey key, float value) {
+    void SQLStorageManager::setFloatSetting(const SettingKey& key, float value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
         query.prepare(R"sql(REPLACE INTO FloatSetting VALUES (:name, :domain, :value);)sql");
@@ -401,7 +403,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setEnumSetting(SettingKey key, EnumSettingValue value) {
+    void SQLStorageManager::setEnumSetting(const SettingKey& key, const EnumSettingValue& value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
         query.prepare(R"sql(REPLACE INTO EnumSetting VALUES (:name, :domain, :value);)sql");
@@ -415,7 +417,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setCertificateSetting(SettingKey key, StorageId cert_id) {
+    void SQLStorageManager::setCertificateSetting(const SettingKey& key, StorageId cert_id) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
         query.prepare(R"sql(REPLACE INTO CertificateSetting VALUES (:name, :domain, :cert_id);)sql");
@@ -429,7 +431,8 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setHistoricServerConnectionSetting(SettingKey key, StorageId historic_connection_id) {
+    void SQLStorageManager::setHistoricServerConnectionSetting(const SettingKey& key,
+                                                               StorageId         historic_connection_id) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
         query.prepare(R"sql(REPLACE INTO HistoricServerConnectionSetting VALUES (:name, :domain, :server_con_id);)sql");
@@ -443,7 +446,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setLayoutSetting(SettingKey key, StorageId layout_id, LayoutGroup group) {
+    void SQLStorageManager::setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
         query.prepare(R"sql(REPLACE INTO LayoutSetting VALUES (:name, :domain, :layout_id, :layout_group);)sql");
@@ -458,7 +461,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    std::optional<bool> SQLStorageManager::getBoolSetting(SettingKey key) {
+    std::optional<bool> SQLStorageManager::getBoolSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM BooleanSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -474,7 +477,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toBool();
     }
 
-    std::optional<QString> SQLStorageManager::getStringSetting(SettingKey key) {
+    std::optional<QString> SQLStorageManager::getStringSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM StringSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -491,7 +494,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toString();
     }
 
-    std::optional<int> SQLStorageManager::getIntSetting(SettingKey key) {
+    std::optional<int> SQLStorageManager::getIntSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM IntSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -508,7 +511,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toInt();
     }
 
-    std::optional<float> SQLStorageManager::getFloatSetting(SettingKey key) {
+    std::optional<float> SQLStorageManager::getFloatSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM FloatSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -525,7 +528,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toFloat();
     }
 
-    std::optional<EnumSettingValue> SQLStorageManager::getEnumSetting(SettingKey key) {
+    std::optional<EnumSettingValue> SQLStorageManager::getEnumSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM EnumSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -542,7 +545,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return EnumSettingValue{query.value("value").toString()};
     }
 
-    std::optional<Certificate> SQLStorageManager::getCertificateSetting(SettingKey key) {
+    std::optional<Certificate> SQLStorageManager::getCertificateSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT Certificate.name,
@@ -569,7 +572,8 @@ WHERE CertificateSetting.name = :name
         };
     }
 
-    std::optional<HistoricServerConnection> SQLStorageManager::getHistoricServerConnectionSetting(SettingKey key) {
+    std::optional<HistoricServerConnection>
+    SQLStorageManager::getHistoricServerConnectionSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT HistoricServerConnection.address,
@@ -606,7 +610,7 @@ WHERE HistoricServerConnectionSetting.name = :name
         };
     }
 
-    std::optional<Layout> SQLStorageManager::getLayoutSetting(SettingKey key) {
+    std::optional<Layout> SQLStorageManager::getLayoutSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT Layout.name, Layout.json_data FROM LayoutSetting, Layout

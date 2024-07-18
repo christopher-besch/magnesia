@@ -31,7 +31,7 @@ namespace magnesia {
          * @param cert The Certificate to store.
          * @return the new database id of the Certificate.
          */
-        virtual StorageId storeCertificate(Certificate cert) = 0;
+        virtual StorageId storeCertificate(const Certificate& cert) = 0;
         /**
          * Store a HistoricServerConnection in the database.
          *
@@ -40,7 +40,7 @@ namespace magnesia {
          * @param historic_server_connection The HistoricServerConnection to store.
          * @return the new database id of the HistoricServerConnection.
          */
-        virtual StorageId storeHistoricServerConnection(HistoricServerConnection historic_server_connection) = 0;
+        virtual StorageId storeHistoricServerConnection(const HistoricServerConnection& historic_server_connection) = 0;
         /**
          * Store a Layout in the database.
          *
@@ -51,7 +51,7 @@ namespace magnesia {
          * @param domain The Domain this layout belongs to.
          * @return the new database id of the Layout.
          */
-        virtual StorageId storeLayout(Layout layout, LayoutGroup group, Domain domain) = 0;
+        virtual StorageId storeLayout(const Layout& layout, const LayoutGroup& group, const Domain& domain) = 0;
 
         /**
          * Retrieve a Certificate from the database.
@@ -82,7 +82,8 @@ namespace magnesia {
          * @param domain The Domain this layout belongs to.
          * @return the Layout or nullopt when not found.
          */
-        virtual std::optional<Layout> getLayout(StorageId layout_id, LayoutGroup group, Domain domain) = 0;
+        virtual std::optional<Layout> getLayout(StorageId layout_id, const LayoutGroup& group,
+                                                const Domain& domain) = 0;
 
         /**
          * Retrieve all Certificates from the database.
@@ -115,7 +116,7 @@ namespace magnesia {
          * @param domain The Domain the layouts belong to.
          * @return a list of all Layouts with the specified group and domain.
          */
-        virtual QList<Layout> getAllLayouts(LayoutGroup group, Domain domain) = 0;
+        virtual QList<Layout> getAllLayouts(const LayoutGroup& group, const Domain& domain) = 0;
 
         /**
          * Delete the Certificate with the specified id.
@@ -142,7 +143,7 @@ namespace magnesia {
          * @param group The Group this layout belongs to.
          * @param domain The Domain this layout belongs to.
          */
-        virtual void deleteLayout(StorageId layout_id, LayoutGroup group, Domain domain) = 0;
+        virtual void deleteLayout(StorageId layout_id, const LayoutGroup& group, const Domain& domain) = 0;
 
         /**
          * Set or update the value for the specified key in a specified domain.
@@ -153,7 +154,7 @@ namespace magnesia {
          * @param domain the key-value pair belongs to.
          * @param value the new value.
          */
-        virtual void setKV(QString key, Domain domain, QString value) = 0;
+        virtual void setKV(const QString& key, const Domain& domain, const QString& value) = 0;
         /**
          * Get the value for the specified key in a specified domain.
          *
@@ -163,7 +164,7 @@ namespace magnesia {
          * @param domain the key-value pair belongs to.
          * @return the value for the key-value pair or nullopt when the key-value pair is not set.
          */
-        virtual std::optional<QString> getKV(QString key, Domain domain) = 0;
+        virtual std::optional<QString> getKV(const QString& key, const Domain& domain) = 0;
         /**
          * Unset a key-value pair.
          *
@@ -172,32 +173,32 @@ namespace magnesia {
          * @param key the key to delete the key-value pair for.
          * @param domain the key-value pair belongs to.
          */
-        virtual void deleteKV(QString key, Domain domain) = 0;
+        virtual void deleteKV(const QString& key, const Domain& domain) = 0;
 
       private:
         // only the SettingsManager may use these
         friend SettingsManager;
         // doesn't fail when setting not set
-        virtual void resetSetting(SettingKey key)                  = 0;
-        virtual void setBooleanSetting(SettingKey key, bool value) = 0;
+        virtual void resetSetting(const SettingKey& key)                  = 0;
+        virtual void setBooleanSetting(const SettingKey& key, bool value) = 0;
         // Most of these could receive the same name with function overloading.
         // This is not done because doing so causes confusion when types are implicitly cast and the setting is inserted
         // into the wrong table.
-        virtual void setStringSetting(SettingKey key, QString value)                                       = 0;
-        virtual void setIntSetting(SettingKey key, int value)                                              = 0;
-        virtual void setFloatSetting(SettingKey key, float value)                                          = 0;
-        virtual void setEnumSetting(SettingKey key, EnumSettingValue value)                                = 0;
-        virtual void setCertificateSetting(SettingKey key, StorageId cert_id)                              = 0;
-        virtual void setHistoricServerConnectionSetting(SettingKey key, StorageId historic_connection_id)  = 0;
-        virtual void setLayoutSetting(SettingKey key, StorageId layout_id, LayoutGroup group)              = 0;
-        virtual std::optional<bool>                     getBoolSetting(SettingKey key)                     = 0;
-        virtual std::optional<QString>                  getStringSetting(SettingKey key)                   = 0;
-        virtual std::optional<int>                      getIntSetting(SettingKey key)                      = 0;
-        virtual std::optional<float>                    getFloatSetting(SettingKey key)                    = 0;
-        virtual std::optional<EnumSettingValue>         getEnumSetting(SettingKey key)                     = 0;
-        virtual std::optional<Certificate>              getCertificateSetting(SettingKey key)              = 0;
-        virtual std::optional<HistoricServerConnection> getHistoricServerConnectionSetting(SettingKey key) = 0;
-        virtual std::optional<Layout>                   getLayoutSetting(SettingKey key)                   = 0;
+        virtual void setStringSetting(const SettingKey& key, const QString& value)                                = 0;
+        virtual void setIntSetting(const SettingKey& key, int value)                                              = 0;
+        virtual void setFloatSetting(const SettingKey& key, float value)                                          = 0;
+        virtual void setEnumSetting(const SettingKey& key, const EnumSettingValue& value)                         = 0;
+        virtual void setCertificateSetting(const SettingKey& key, StorageId cert_id)                              = 0;
+        virtual void setHistoricServerConnectionSetting(const SettingKey& key, StorageId historic_connection_id)  = 0;
+        virtual void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group)       = 0;
+        virtual std::optional<bool>                     getBoolSetting(const SettingKey& key)                     = 0;
+        virtual std::optional<QString>                  getStringSetting(const SettingKey& key)                   = 0;
+        virtual std::optional<int>                      getIntSetting(const SettingKey& key)                      = 0;
+        virtual std::optional<float>                    getFloatSetting(const SettingKey& key)                    = 0;
+        virtual std::optional<EnumSettingValue>         getEnumSetting(const SettingKey& key)                     = 0;
+        virtual std::optional<Certificate>              getCertificateSetting(const SettingKey& key)              = 0;
+        virtual std::optional<HistoricServerConnection> getHistoricServerConnectionSetting(const SettingKey& key) = 0;
+        virtual std::optional<Layout>                   getLayoutSetting(const SettingKey& key)                   = 0;
 
       signals:
         /**
