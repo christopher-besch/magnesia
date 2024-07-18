@@ -30,8 +30,11 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/open62541pp/open62541pp.git
     GIT_TAG 6b83f185e0fbc78f98647ff4afd848b8a17cbc60 # v0.13.0
     GIT_SHALLOW ON
-    SYSTEM ${EXCLUDE_FROM_ALL}
+    SYSTEM
+    ${EXCLUDE_FROM_ALL}
+    # cmake-format: off
     FIND_PACKAGE_ARGS 0.13
+    # cmake-format: on
 )
 message(STATUS "Fetching dependencies. This may take a while...")
 FetchContent_MakeAvailable(open62541pp)
@@ -58,12 +61,16 @@ add_library(magnesia::project_options ALIAS magnesia_project_options)
 
 option(MAGNESIA_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ${MAGNESIA_IS_RELEASE})
 include(CompilerWarnings)
+# cmake-format: off
 magnesia_set_project_warnings(magnesia_project_options ${MAGNESIA_WARNINGS_AS_ERRORS} "" "" "" "")
+# cmake-format: on
 
 option(MAGNESIA_ENABLE_SANITIZERS "Build with asan and ubsan" ${MAGNESIA_IS_NOT_RELEASE})
 if(MAGNESIA_ENABLE_SANITIZERS)
     include(Sanitizers)
+    # cmake-format: off
     magnesia_enable_sanitizers(magnesia_project_options ON ON ON OFF OFF)
+    # cmake-format: on
 endif()
 
 option(MAGNESIA_BUILD_DOCS "Whether to build code documentation with doxygen" ON)
