@@ -25,6 +25,10 @@ else()
 endif()
 
 include(FetchContent)
+set(UA_ENABLE_ENCRYPTION
+    OPENSSL
+    CACHE INTERNAL ""
+)
 FetchContent_Declare(
     open62541pp
     GIT_REPOSITORY https://github.com/open62541pp/open62541pp.git

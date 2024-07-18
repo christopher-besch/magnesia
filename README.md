@@ -3,7 +3,7 @@
 ### Install Prerequisites
 #### Debian
 - `sudo apt-get update`
-- `sudo apt-get install -y git python3 cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen`
+- `sudo apt-get install -y git python3 cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen libssl-dev`
 
 #### Arch Linux
 - `pacman -S python git cmake base-devel clang qt6-base ninja doxygen`
