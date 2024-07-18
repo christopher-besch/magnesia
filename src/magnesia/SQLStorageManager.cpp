@@ -11,6 +11,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QString>
+#include <qlogging.h>
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtLogging>
@@ -35,8 +36,7 @@ namespace magnesia {
         // This needs to be performed at every connection.
         const QSqlQuery query{"PRAGMA foreign_keys = ON;", m_database};
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database failed to enable foreign_keys.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database failed to enable foreign_keys.", query);
             terminate();
         }
 
@@ -50,8 +50,7 @@ namespace magnesia {
         query.bindValue(":path", cert.path_to_cert);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database Certificate storing failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database Certificate storing failed.", query);
             terminate();
         }
         auto cert_id = getLastRowId();
@@ -72,8 +71,7 @@ namespace magnesia {
         query.bindValue(":last_used", historic_server_connection.last_used);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database HistoricServerConnection storing failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database HistoricServerConnection storing failed.", query);
             terminate();
         }
         auto server_con_id = getLastRowId();
@@ -91,8 +89,7 @@ namespace magnesia {
         query.bindValue(":json_data", layout.json_data);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database Layout storing failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database Layout storing failed.", query);
             terminate();
         }
         auto layout_id = getLastRowId();
@@ -106,8 +103,7 @@ namespace magnesia {
         query.bindValue(":id", cert_id);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database Certificate retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database Certificate retrieval failed.", query);
             terminate();
         }
 
@@ -128,8 +124,7 @@ namespace magnesia {
         query.bindValue(":id", historic_connection_id);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database HistoricServerConnection retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database HistoricServerConnection retrieval failed.", query);
             terminate();
         }
 
@@ -156,8 +151,7 @@ namespace magnesia {
         query.bindValue(":domain", domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database Layout retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database Layout retrieval failed.", query);
             terminate();
         }
 
@@ -175,8 +169,7 @@ namespace magnesia {
         query.prepare("SELECT name, path FROM Certificate;");
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database all Certificate retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database all Certificate retrieval failed.", query);
             terminate();
         }
 
@@ -196,9 +189,7 @@ namespace magnesia {
                       "HistoricServerConnection;");
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database all HistoricServerConnection retrieval failed.\nQuery:"
-                       << query.executedQuery() << "\nVariables:" << query.boundValues()
-                       << "\nError:" << query.lastError();
+            warnQuery("database all HistoricServerConnection retrieval failed.", query);
             terminate();
         }
 
@@ -225,8 +216,7 @@ namespace magnesia {
         query.bindValue(":domain", domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database all Layout retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database all Layout retrieval failed.", query);
             terminate();
         }
 
@@ -246,8 +236,7 @@ namespace magnesia {
         query.bindValue(":id", cert_id);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database Certificate deletion failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database Certificate deletion failed.", query);
             terminate();
         }
         certificateChanged(cert_id);
@@ -259,8 +248,7 @@ namespace magnesia {
         query.bindValue(":id", historic_connection_id);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database HistoricServerConnection deletion failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database HistoricServerConnection deletion failed.", query);
             terminate();
         }
         historicConnectionChanged(historic_connection_id);
@@ -275,8 +263,7 @@ namespace magnesia {
         query.bindValue(":domain", domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database Layout deletion failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database Layout deletion failed.", query);
             terminate();
         }
         layoutChanged(layout_id, group, domain);
@@ -290,8 +277,7 @@ namespace magnesia {
         query.bindValue(":value", value);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database KeyValue replace failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database KeyValue replace failed.", query);
             terminate();
         }
         kvChanged(key, domain);
@@ -304,8 +290,7 @@ namespace magnesia {
         query.bindValue(":domain", domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database KeyValue retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database KeyValue retrieval failed.", query);
             terminate();
         }
 
@@ -322,8 +307,7 @@ namespace magnesia {
         query.bindValue(":domain", domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database KeyValue deletion failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database KeyValue deletion failed.", query);
             terminate();
         }
         kvChanged(key, domain);
@@ -337,8 +321,7 @@ namespace magnesia {
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database Setting deletion failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database Setting deletion failed.", query);
             terminate();
         }
     }
@@ -350,8 +333,7 @@ namespace magnesia {
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database Setting replace failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database Setting replace failed.", query);
             terminate();
         }
     }
@@ -365,8 +347,7 @@ namespace magnesia {
         query.bindValue(":value", value);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database BooleanSetting replace failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database BooleanSetting replace failed.", query);
             terminate();
         }
     }
@@ -380,8 +361,7 @@ namespace magnesia {
         query.bindValue(":value", value);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database StringSetting replace failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database StringSetting replace failed.", query);
             terminate();
         }
     }
@@ -395,8 +375,7 @@ namespace magnesia {
         query.bindValue(":value", value);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database IntSetting replace failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database IntSetting replace failed.", query);
             terminate();
         }
     }
@@ -410,8 +389,7 @@ namespace magnesia {
         query.bindValue(":value", value);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database FloatSetting replace failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database FloatSetting replace failed.", query);
             terminate();
         }
     }
@@ -425,8 +403,7 @@ namespace magnesia {
         query.bindValue(":value", value);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database EnumSetting replace failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database EnumSetting replace failed.", query);
             terminate();
         }
     }
@@ -440,8 +417,7 @@ namespace magnesia {
         query.bindValue(":cert_id", cert_id);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database CertificateSetting replace failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database CertificateSetting replace failed.", query);
             terminate();
         }
     }
@@ -455,9 +431,7 @@ namespace magnesia {
         query.bindValue(":server_con_id", historic_connection_id);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database HistoricServerConnectionSetting replace failed.\nQuery:"
-                       << query.executedQuery() << "\nVariables:" << query.boundValues()
-                       << "\nError:" << query.lastError();
+            warnQuery("database HistoricServerConnectionSetting replace failed.", query);
             terminate();
         }
     }
@@ -472,8 +446,7 @@ namespace magnesia {
         query.bindValue(":layout_group", group);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database LayoutSetting replace failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database LayoutSetting replace failed.", query);
             terminate();
         }
     }
@@ -485,8 +458,7 @@ namespace magnesia {
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database BooleanSetting retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database BooleanSetting retrieval failed.", query);
         }
 
         if (!query.next()) {
@@ -502,8 +474,7 @@ namespace magnesia {
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database StringSetting retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database StringSetting retrieval failed.", query);
             terminate();
         }
 
@@ -520,8 +491,7 @@ namespace magnesia {
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database IntSetting retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database IntSetting retrieval failed.", query);
             terminate();
         }
 
@@ -538,8 +508,7 @@ namespace magnesia {
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database FloatSetting retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database FloatSetting retrieval failed.", query);
             terminate();
         }
 
@@ -556,8 +525,7 @@ namespace magnesia {
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database EnumSetting retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database EnumSetting retrieval failed.", query);
             terminate();
         }
 
@@ -578,8 +546,7 @@ AND Certificate.id = CertificateSetting.cert_id;
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database CertificateSetting retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database CertificateSetting retrieval failed.", query);
             terminate();
         }
 
@@ -606,8 +573,7 @@ AND HistoricServerConnection.id = HistoricServerConnectionSetting.server_con_id;
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database HistoricServerConnection retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database HistoricServerConnection retrieval failed.", query);
             terminate();
         }
 
@@ -636,8 +602,7 @@ AND Layout.id = LayoutSetting.layout_id AND Layout.layout_group = LayoutSetting.
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            qWarning() << "Error: database LayoutSetting retrieval failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("database LayoutSetting retrieval failed.", query);
             terminate();
         }
 
@@ -829,10 +794,7 @@ CREATE TABLE KeyValue (
         //  > to applications to use however they want. SQLite makes no use of the user-version itself.
         QSqlQuery get_migration_version_query{"PRAGMA user_version;", m_database};
         if (get_migration_version_query.lastError().isValid() || !get_migration_version_query.next()) {
-            qWarning() << "Error: database user_version get failed.\nQuery:"
-                       << get_migration_version_query.executedQuery()
-                       << "\nVariables:" << get_migration_version_query.boundValues()
-                       << "\nError:" << get_migration_version_query.lastError();
+            warnQuery("database user_version get failed.", get_migration_version_query);
             terminate();
         }
         qsizetype migration_version = get_migration_version_query.value(0).toInt();
@@ -840,9 +802,8 @@ CREATE TABLE KeyValue (
         while (migration_version < migrations.size()) {
             const QSqlQuery query = QSqlQuery{migrations[migration_version], m_database};
             if (query.lastError().isValid()) {
-                qWarning() << "Error: database migration" << migration_version
-                           << "failed.\nQuery:" << query.executedQuery() << "\nVariables:" << query.boundValues()
-                           << "\nError:" << query.lastError();
+                qWarning() << migration_version << "failed";
+                warnQuery("database migration failed", query);
                 terminate();
             }
             auto next_migration_version = migration_version + 1;
@@ -851,10 +812,7 @@ CREATE TABLE KeyValue (
             const QSqlQuery user_version_query =
                 QSqlQuery{"PRAGMA user_version = " + QString::number(next_migration_version) + ";", m_database};
             if (user_version_query.lastError().isValid()) {
-                qWarning() << "Error: database user_version change to" << next_migration_version
-                           << "failed.\nQuery:" << user_version_query.executedQuery()
-                           << "\nVariables:" << user_version_query.boundValues()
-                           << "\nError:" << user_version_query.lastError();
+                warnQuery("database user_version change failed", user_version_query);
                 terminate();
             }
 
@@ -867,9 +825,7 @@ CREATE TABLE KeyValue (
         QSqlQuery integrity_check_query = QSqlQuery{"PRAGMA integrity_check;", m_database};
         if (integrity_check_query.lastError().isValid() || !integrity_check_query.next()
             || integrity_check_query.value(0).toString() != "ok") {
-            qWarning() << "Error: database integrity_check failed.\nQuery:" << integrity_check_query.executedQuery()
-                       << "\nVariables:" << integrity_check_query.boundValues()
-                       << "\nError:" << integrity_check_query.lastError();
+            warnQuery("database integrity_check failed.", integrity_check_query);
             terminate();
         }
         qDebug() << "Database: integrity_check ok";
@@ -878,11 +834,15 @@ CREATE TABLE KeyValue (
     StorageId SQLStorageManager::getLastRowId() {
         QSqlQuery query{"SELECT last_insert_rowid();", m_database};
         if (query.lastError().isValid() || !query.next()) {
-            qWarning() << "Error: retrieving last row id from database failed.\nQuery:" << query.executedQuery()
-                       << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+            warnQuery("retrieving last row id from database failed.", query);
             terminate();
         }
         return static_cast<StorageId>(query.value(0).toInt());
+    }
+
+    void SQLStorageManager::warnQuery(const QString& message, const QSqlQuery& query) {
+        qWarning() << "Error:" << message << "\nQuery:" << query.executedQuery()
+                   << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
     }
 
 } // namespace magnesia

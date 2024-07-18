@@ -6,7 +6,9 @@
 
 #include <QList>
 #include <QSqlDatabase>
+#include <QSqlQuery>
 #include <QString>
+#include <QStringView>
 #include <qtmetamacros.h>
 
 namespace magnesia {
@@ -74,6 +76,8 @@ namespace magnesia {
          * This updates the generic Setting's last_updated.
          */
         void setGenericSetting(const SettingKey& key);
+
+        static void warnQuery(const QString& message, const QSqlQuery& query);
 
       private:
         QSqlDatabase m_database;
