@@ -94,6 +94,7 @@
 
                 # doc generation
                 doxygen
+                graphviz
                 sphinx
               ]
               # also C++ static analysis, but platform dependent
