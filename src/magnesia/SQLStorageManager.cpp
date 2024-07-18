@@ -1,40 +1,42 @@
 #include "SQLStorageManager.hpp"
 
+#include "StorageManager.hpp"
 #include "database_types.hpp"
 #include "qt_version_check.hpp"
 #include "terminate.hpp"
 
 #include <optional>
 
+#include <QJsonDocument>
 #include <QList>
+#include <QObject>
 #include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QString>
-#include <qlogging.h>
 #include <qtmetamacros.h>
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtLogging>
-#include <QtTypes>
 #else
 #include <QtDebug>
 #include <QtGlobal>
 #endif
 
 namespace magnesia {
+    SQLStorageManager::SQLStorageManager(const QString& db_location, QObject* parent)
+        : StorageManager(parent), m_database{QSqlDatabase::addDatabase("QSQLITE")} {
 
-    SQLStorageManager::SQLStorageManager(const QString& db_location) {
-        m_database = QSqlDatabase::addDatabase("QSQLITE");
         m_database.setDatabaseName(db_location);
 
         if (!m_database.open()) {
-            qDebug("Error: connection with database failed");
+            qDebug() << "Error: connection with database failed";
             terminate();
         }
-        qDebug("Database: connection ok");
+        qDebug() << "Database: connection ok";
 
-        // This needs to be performed at every connection.
+        // SQLite currently has foreign key support disabled by default. It has to be enabled per database connection:
+        // https://www.sqlite.org/foreignkeys.html#fk_enable
         const QSqlQuery query{R"sql(PRAGMA foreign_keys = ON;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database failed to enable foreign_keys.", query);
@@ -168,7 +170,7 @@ SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_gro
         }
         return Layout{
             .name      = query.value("name").toString(),
-            .json_data = query.value("json_data").toString(),
+            .json_data = query.value("json_data").toJsonDocument(),
         };
     }
 
@@ -232,7 +234,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
         while (query.next()) {
             layouts.append({
                 .name      = query.value("name").toString(),
-                .json_data = query.value("json_data").toString(),
+                .json_data = query.value("json_data").toJsonDocument(),
             });
         }
         return layouts;
@@ -633,7 +635,7 @@ WHERE LayoutSetting.name = :name
         }
         return Layout{
             .name      = query.value("Layout.name").toString(),
-            .json_data = query.value("Layout.json_data").toString(),
+            .json_data = query.value("Layout.json_data").toJsonDocument(),
         };
     }
 
@@ -681,6 +683,7 @@ CREATE TABLE Layout (
     name TEXT NOT NULL,
     json_data TEXT NOT NULL,
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    --
     UNIQUE(id, layout_group, domain)
 ) STRICT;
 )sql",
@@ -819,10 +822,10 @@ CREATE TABLE LayoutSetting (
             warnQuery("database user_version get failed.", get_migration_version_query);
             terminate();
         }
-        qsizetype migration_version = get_migration_version_query.value(0).toInt();
+        unsigned int migration_version = get_migration_version_query.value(0).toUInt();
 
         while (migration_version < migrations.size()) {
-            const QSqlQuery query = QSqlQuery{migrations[migration_version], m_database};
+            const QSqlQuery query{migrations[migration_version], m_database};
             if (query.lastError().isValid()) {
                 qWarning() << migration_version << "failed";
                 warnQuery("database migration failed", query);
@@ -830,9 +833,9 @@ CREATE TABLE LayoutSetting (
             }
             auto next_migration_version = migration_version + 1;
 
-            // Binding the migration_version fails because SQLite doesn't appear to support such binds.
-            const QSqlQuery user_version_query =
-                QSqlQuery{"PRAGMA user_version = " + QString::number(next_migration_version) + ";", m_database};
+            // Binding the migration_version fails because SQLite doesn't appear to support binds in pragmas.
+            const QSqlQuery user_version_query{"PRAGMA user_version = " + QString::number(next_migration_version) + ";",
+                                               m_database};
             if (user_version_query.lastError().isValid()) {
                 warnQuery("database user_version change failed", user_version_query);
                 terminate();
@@ -844,7 +847,7 @@ CREATE TABLE LayoutSetting (
         qDebug() << "Database: migration complete";
 
         // See: https://www.sqlite.org/pragma.html#pragma_integrity_check
-        QSqlQuery integrity_check_query = QSqlQuery{R"sql(PRAGMA integrity_check;)sql", m_database};
+        QSqlQuery integrity_check_query{R"sql(PRAGMA integrity_check;)sql", m_database};
         if (integrity_check_query.lastError().isValid() || !integrity_check_query.next()
             || integrity_check_query.value(0).toString() != "ok") {
             warnQuery("database integrity_check failed.", integrity_check_query);
@@ -859,12 +862,11 @@ CREATE TABLE LayoutSetting (
             warnQuery("retrieving last row id from database failed.", query);
             terminate();
         }
-        return static_cast<StorageId>(query.value(0).toInt());
+        return query.value(0).toULongLong();
     }
 
     void SQLStorageManager::warnQuery(const QString& message, const QSqlQuery& query) {
         qWarning() << "Error:" << message << "\nQuery:" << query.executedQuery()
                    << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
     }
-
 } // namespace magnesia

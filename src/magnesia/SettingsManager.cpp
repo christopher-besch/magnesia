@@ -3,31 +3,40 @@
 #include "StorageManager.hpp"
 #include "database_types.hpp"
 #include "settings.hpp"
+#include "terminate.hpp"
 
 #include <optional>
+#include <utility>
 
 #include <QList>
 #include <QSharedPointer>
 #include <QString>
-#include <QtDebug>
 #include <qtmetamacros.h>
 
 namespace magnesia {
-
-    SettingsManager::SettingsManager(StorageManager* storage_manager) : m_storage_manager{storage_manager} {}
+    SettingsManager::SettingsManager(QPointer<StorageManager> storage_manager, QObject* parent)
+        : QObject(parent), m_storage_manager(std::move(storage_manager)) {
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
+    }
 
     void SettingsManager::defineSettingDomain(const Domain& domain, const QList<QSharedPointer<Setting>>& settings) {
-        deleteDomain(domain);
-        if (!settings.empty()) {
+        if (settings.isEmpty()) {
+            m_settings.remove(domain);
+        } else {
             m_settings[domain] = settings;
         }
         Q_EMIT settingDomainDefined(domain);
     }
 
     bool SettingsManager::resetSetting(const SettingKey& key) {
-        auto setting = getSettingDefinition(key);
+        auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return false;
+        }
+        if (m_storage_manager.isNull()) {
+            terminate();
         }
         m_storage_manager->resetSetting(key);
         Q_EMIT settingChanged(key);
@@ -39,6 +48,9 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         m_storage_manager->setBooleanSetting(key, value);
         Q_EMIT settingChanged(key);
         return true;
@@ -48,6 +60,9 @@ namespace magnesia {
         auto* setting = validate<StringSetting>(key, value);
         if (setting == nullptr) {
             return false;
+        }
+        if (m_storage_manager.isNull()) {
+            terminate();
         }
         m_storage_manager->setStringSetting(key, value);
         Q_EMIT settingChanged(key);
@@ -59,6 +74,9 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         m_storage_manager->setIntSetting(key, value);
         Q_EMIT settingChanged(key);
         return true;
@@ -68,6 +86,9 @@ namespace magnesia {
         auto* setting = validate<DoubleSetting>(key, value);
         if (setting == nullptr) {
             return false;
+        }
+        if (m_storage_manager.isNull()) {
+            terminate();
         }
         m_storage_manager->setDoubleSetting(key, value);
         Q_EMIT settingChanged(key);
@@ -79,6 +100,9 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         m_storage_manager->setEnumSetting(key, value);
         Q_EMIT settingChanged(key);
         return true;
@@ -88,6 +112,9 @@ namespace magnesia {
         auto* setting = validate<CertificateSetting>(key, cert_id);
         if (setting == nullptr) {
             return false;
+        }
+        if (m_storage_manager.isNull()) {
+            terminate();
         }
         m_storage_manager->setCertificateSetting(key, cert_id);
         Q_EMIT settingChanged(key);
@@ -99,6 +126,9 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         m_storage_manager->setHistoricServerConnectionSetting(key, historic_connection_id);
         Q_EMIT settingChanged(key);
         return true;
@@ -109,13 +139,16 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         m_storage_manager->setLayoutSetting(key, layout_id, setting->getGroup());
         Q_EMIT settingChanged(key);
         return true;
     }
 
-    std::optional<bool> SettingsManager::getBoolSetting(const SettingKey& key) {
-        auto setting = getSettingDefinition(key);
+    std::optional<bool> SettingsManager::getBoolSetting(const SettingKey& key) const {
+        auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return {};
         }
@@ -123,11 +156,14 @@ namespace magnesia {
         if (bool_setting == nullptr) {
             return {};
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         return m_storage_manager->getBoolSetting(key).value_or(bool_setting->getDefault());
     }
 
-    std::optional<QString> SettingsManager::getStringSetting(const SettingKey& key) {
-        auto setting = getSettingDefinition(key);
+    std::optional<QString> SettingsManager::getStringSetting(const SettingKey& key) const {
+        auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return {};
         }
@@ -135,11 +171,14 @@ namespace magnesia {
         if (string_setting == nullptr) {
             return {};
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         return m_storage_manager->getStringSetting(key).value_or(string_setting->getDefault());
     }
 
-    std::optional<int> SettingsManager::getIntSetting(const SettingKey& key) {
-        auto setting = getSettingDefinition(key);
+    std::optional<int> SettingsManager::getIntSetting(const SettingKey& key) const {
+        auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return {};
         }
@@ -147,11 +186,14 @@ namespace magnesia {
         if (int_setting == nullptr) {
             return {};
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         return m_storage_manager->getIntSetting(key).value_or(int_setting->getDefault());
     }
 
-    std::optional<double> SettingsManager::getDoubleSetting(const SettingKey& key) {
-        auto setting = getSettingDefinition(key);
+    std::optional<double> SettingsManager::getDoubleSetting(const SettingKey& key) const {
+        auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return {};
         }
@@ -159,11 +201,14 @@ namespace magnesia {
         if (double_setting == nullptr) {
             return {};
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         return m_storage_manager->getDoubleSetting(key).value_or(double_setting->getDefault());
     }
 
-    std::optional<EnumSettingValue> SettingsManager::getEnumSetting(const SettingKey& key) {
-        auto setting = getSettingDefinition(key);
+    std::optional<EnumSettingValue> SettingsManager::getEnumSetting(const SettingKey& key) const {
+        auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return {};
         }
@@ -171,11 +216,14 @@ namespace magnesia {
         if (enum_setting == nullptr) {
             return {};
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         return m_storage_manager->getEnumSetting(key).value_or(enum_setting->getDefault());
     }
 
-    std::optional<Certificate> SettingsManager::getCertificateSetting(const SettingKey& key) {
-        auto setting = getSettingDefinition(key);
+    std::optional<Certificate> SettingsManager::getCertificateSetting(const SettingKey& key) const {
+        auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return {};
         }
@@ -183,12 +231,16 @@ namespace magnesia {
         if (cert_setting == nullptr) {
             return {};
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         // Leave nullopt when not set.
         return m_storage_manager->getCertificateSetting(key);
     }
 
-    std::optional<HistoricServerConnection> SettingsManager::getHistoricServerConnectionSetting(const SettingKey& key) {
-        auto setting = getSettingDefinition(key);
+    std::optional<HistoricServerConnection>
+    SettingsManager::getHistoricServerConnectionSetting(const SettingKey& key) const {
+        auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return {};
         }
@@ -196,12 +248,15 @@ namespace magnesia {
         if (server_con_setting == nullptr) {
             return {};
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         // Leave nullopt when not set.
         return m_storage_manager->getHistoricServerConnectionSetting(key);
     }
 
-    std::optional<Layout> SettingsManager::getLayoutSetting(const SettingKey& key) {
-        auto setting = getSettingDefinition(key);
+    std::optional<Layout> SettingsManager::getLayoutSetting(const SettingKey& key) const {
+        auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return {};
         }
@@ -209,21 +264,24 @@ namespace magnesia {
         if (layout_setting == nullptr) {
             return {};
         }
+        if (m_storage_manager.isNull()) {
+            terminate();
+        }
         // Leave nullopt when not set.
         return m_storage_manager->getLayoutSetting(key);
     }
 
-    QList<Domain> SettingsManager::getAllDomains() {
+    QList<Domain> SettingsManager::getAllDomains() const {
         return m_settings.keys();
     }
 
-    QList<QSharedPointer<Setting>> SettingsManager::getSettingDefinitionsInDomain(const Domain& domain) {
+    QList<QSharedPointer<Setting>> SettingsManager::getSettingDefinitions(const Domain& domain) const {
         // This returns an empty list if domain not defined.
         return m_settings[domain];
     }
 
-    std::optional<QSharedPointer<Setting>> SettingsManager::getSettingDefinition(const SettingKey& key) {
-        auto settings_in_domain = getSettingDefinitionsInDomain(key.domain);
+    std::optional<QSharedPointer<Setting>> SettingsManager::findSettingDefinition(const SettingKey& key) const {
+        auto settings_in_domain = getSettingDefinitions(key.domain);
         for (const auto& setting : settings_in_domain) {
             if (setting->getName() == key.name) {
                 return setting;
@@ -231,9 +289,4 @@ namespace magnesia {
         }
         return std::nullopt;
     }
-
-    void SettingsManager::deleteDomain(const Domain& domain) {
-        m_settings.remove(domain);
-    }
-
 } // namespace magnesia

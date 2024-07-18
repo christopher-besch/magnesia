@@ -15,16 +15,12 @@ namespace magnesia {
      * The SettingsManager needs to know what settings to manage.
      * These are defined using subclasses of this base class.
      *
-     * Therefore, these classes don't contain the currently set value for any setting.
-     * They only contain data that shouldn't be changable by the user.
+     * These classes don't contain the currently set value for any setting.
+     * They only contain static data that isn't changeable by the user.
      */
     class Setting {
       public:
-        Setting(const Setting&)            = default;
-        Setting(Setting&&)                 = default;
-        Setting& operator=(const Setting&) = default;
-        Setting& operator=(Setting&&)      = default;
-        virtual ~Setting()                 = default;
+        virtual ~Setting() = default;
 
         QString getName() {
             return m_name;
@@ -39,24 +35,22 @@ namespace magnesia {
         }
 
       protected:
+        /**
+         * @param name The key to identify this setting inside its domain.
+         * @param human_readable_name The name displayed to the user.
+         * @param description The description displayed to the user.
+         */
         Setting(QString name, QString human_readable_name, QString description)
             : m_name{std::move(name)}, m_human_readable_name{std::move(human_readable_name)},
               m_description{std::move(description)} {};
+        Setting(const Setting&)            = default;
+        Setting(Setting&&)                 = default;
+        Setting& operator=(const Setting&) = default;
+        Setting& operator=(Setting&&)      = default;
 
       private:
-        /**
-         * The name and domain are needed as primary keys for the database.
-         * As only entire domains of settings can get created, the domain is not needed here.
-         */
         QString m_name;
-        /**
-         * This attribute allows changing the display name inside the Settings Activity without having to alter the
-         * database.
-         */
         QString m_human_readable_name;
-        /**
-         * The description of this setting to be shown in the Settings Activity.
-         */
         QString m_description;
     };
 
@@ -66,14 +60,14 @@ namespace magnesia {
     class BooleanSetting : public Setting {
       public:
         /**
-         *  @return default value.
+         *  @return the default value.
          */
         [[nodiscard]] bool getDefault() const {
             return m_default_value;
         }
 
         /**
-         *  @return true iff value fulfills this type of setting.
+         *  @return true iff value the requirements for boolean settings.
          */
         [[nodiscard]] static bool isValid(bool /*value*/) {
             return true;
@@ -88,19 +82,19 @@ namespace magnesia {
     };
 
     /**
-     * A setting of type QString.
+     * A setting of type string represented as QString.
      */
     class StringSetting : public Setting {
       public:
         /**
-         *  @return default value.
+         *  @return the default value.
          */
         [[nodiscard]] QString getDefault() const {
             return m_default_value;
         }
 
         /**
-         *  @return true iff value fulfills this type of setting.
+         *  @return true iff value the requirements for string settings.
          */
         [[nodiscard]] static bool isValid(const QString& /*value*/) {
             return true;
@@ -120,14 +114,14 @@ namespace magnesia {
     class IntSetting : public Setting {
       public:
         /**
-         *  @return default value.
+         *  @return the value.
          */
         [[nodiscard]] int getDefault() const {
             return m_default_value;
         }
 
         /**
-         *  @return true iff value fulfills this type of setting.
+         *  @return true iff value the requirements for int settings.
          */
         [[nodiscard]] bool isValid(int value) const {
             return value >= m_min && value <= m_max;
@@ -153,21 +147,21 @@ namespace magnesia {
     class DoubleSetting : public Setting {
       public:
         /**
-         *  @return default value.
+         *  @return the value.
          */
         [[nodiscard]] double getDefault() const {
             return m_default_value;
         }
 
         /**
-         *  @return true iff value fulfills this type of setting.
+         *  @return true iff value the requirements for double settings.
          */
         [[nodiscard]] bool isValid(double value) const {
             return value >= m_min && value <= m_max;
         }
 
         DoubleSetting(QString name, QString human_readable_name, QString description, double default_value, double min,
-                     double max)
+                      double max)
             : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
               m_default_value{default_value}, m_min{min}, m_max{max} {
             if (!isValid(m_default_value)) {
@@ -188,14 +182,14 @@ namespace magnesia {
     class EnumSetting : public Setting {
       public:
         /**
-         *  @return default value.
+         *  @return the value.
          */
         [[nodiscard]] EnumSettingValue getDefault() const {
             return m_default_value;
         }
 
         /**
-         *  @return true iff value fulfills this type of setting.
+         *  @return true iff value the requirements for enum settings.
          */
         [[nodiscard]] bool isValid(const EnumSettingValue& value) const {
             return m_possible_values.contains(value);
@@ -211,8 +205,7 @@ namespace magnesia {
         }
 
       private:
-        EnumSettingValue m_default_value;
-
+        EnumSettingValue       m_default_value;
         QSet<EnumSettingValue> m_possible_values;
     };
 
@@ -223,10 +216,13 @@ namespace magnesia {
      */
     class HistoricServerConnectionSetting : public Setting {
       public:
-        // default is nullopt
+        // The default is nullopt.
+        // Therefore, no getDefault function is needed.
 
         /**
-         *  @return true iff value fulfills this type of setting.
+         * Checking that a HistoricServerConnection with that id exists is done by the StorageManager.
+         *
+         *  @return true iff value the requirements for historic server connection settings.
          */
         [[nodiscard]] static bool isValid(StorageId /*value*/) {
             return true;
@@ -243,10 +239,13 @@ namespace magnesia {
      */
     class CertificateSetting : public Setting {
       public:
-        // default is nullopt
+        // The default is nullopt.
+        // Therefore, no getDefault function is needed.
 
         /**
-         *  @return true iff value fulfills this type of setting.
+         * Checking that a Certificate with that id exists is done by the StorageManager.
+         *
+         *  @return true iff value the requirements for certificate settings.
          */
         [[nodiscard]] static bool isValid(StorageId /*value*/) {
             return true;
@@ -264,16 +263,19 @@ namespace magnesia {
     class LayoutSetting : public Setting {
       public:
         /**
-         *  @return default value.
+         *  @return the value.
          */
         [[nodiscard]] LayoutGroup getGroup() const {
             return m_layout_group;
         }
 
-        // default is nullopt
+        // The default is nullopt.
+        // Therefore, no getDefault function is needed.
 
         /**
-         *  @return true iff value fulfills this type of setting.
+         * Checking that a Layout with that id, group and domain exists is done by the StorageManager.
+         *
+         *  @return true iff value the requirements for layout settings.
          */
         [[nodiscard]] static bool isValid(StorageId /*value*/) {
             return true;

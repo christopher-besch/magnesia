@@ -1,14 +1,15 @@
 #pragma once
+
 #include "StorageManager.hpp"
 #include "database_types.hpp"
 
 #include <optional>
 
 #include <QList>
+#include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QString>
-#include <QStringView>
 #include <qtmetamacros.h>
 
 namespace magnesia {
@@ -16,9 +17,8 @@ namespace magnesia {
         Q_OBJECT
 
       public:
-        explicit SQLStorageManager(const QString& db_location);
+        explicit SQLStorageManager(const QString& db_location, QObject* parent = nullptr);
 
-        // return the id used
         StorageId storeCertificate(const Certificate& cert) override;
         StorageId storeHistoricServerConnection(const HistoricServerConnection& historic_server_connection) override;
         StorageId storeLayout(const Layout& layout, const LayoutGroup& group, const Domain& domain) override;
@@ -27,7 +27,6 @@ namespace magnesia {
         std::optional<HistoricServerConnection> getHistoricServerConnection(StorageId historic_connection_id) override;
         std::optional<Layout> getLayout(StorageId layout_id, const LayoutGroup& group, const Domain& domain) override;
 
-        // e.g. used to query all possible options for a setting
         QList<Certificate>              getAllCertificates() override;
         QList<HistoricServerConnection> getAllHistoricServerConnections() override;
         QList<Layout>                   getAllLayouts(const LayoutGroup& group, const Domain& domain) override;
@@ -40,11 +39,8 @@ namespace magnesia {
         std::optional<QString> getKV(const QString& key, const Domain& domain) override;
         void                   deleteKV(const QString& key, const Domain& domain) override;
 
-        // only the SettingsManager may use these
       private:
         void resetSetting(const SettingKey& key) override;
-        // The SettingsManager needs to ensure that the type of a setting doesn't change.
-        // Otherwise you could have two settings with the same name and domain for different types.
         void setBooleanSetting(const SettingKey& key, bool value) override;
         void setStringSetting(const SettingKey& key, const QString& value) override;
         void setIntSetting(const SettingKey& key, int value) override;
@@ -56,7 +52,7 @@ namespace magnesia {
         std::optional<bool>                     getBoolSetting(const SettingKey& key) override;
         std::optional<QString>                  getStringSetting(const SettingKey& key) override;
         std::optional<int>                      getIntSetting(const SettingKey& key) override;
-        std::optional<double>                    getDoubleSetting(const SettingKey& key) override;
+        std::optional<double>                   getDoubleSetting(const SettingKey& key) override;
         std::optional<EnumSettingValue>         getEnumSetting(const SettingKey& key) override;
         std::optional<Certificate>              getCertificateSetting(const SettingKey& key) override;
         std::optional<HistoricServerConnection> getHistoricServerConnectionSetting(const SettingKey& key) override;
@@ -65,8 +61,7 @@ namespace magnesia {
       private:
         void migrate();
         /**
-         * The id is chosen automatically by SQLite
-         * because of id INTEGER PRIMARY KEY.
+         * The id is chosen automatically by SQLite because of id INTEGER PRIMARY KEY.
          * This returns the last one used.
          */
         StorageId getLastRowId();

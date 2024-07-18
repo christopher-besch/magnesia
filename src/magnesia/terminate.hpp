@@ -9,7 +9,7 @@
 #endif
 
 /**
- * Termiante the application.
+ * Terminate the application.
  *
  * Print any custom error message prior to this using `qWarning() << "some error";`
  *

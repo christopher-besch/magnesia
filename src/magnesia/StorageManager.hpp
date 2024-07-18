@@ -20,7 +20,7 @@ namespace magnesia {
         Q_OBJECT
 
       protected:
-        StorageManager() = default;
+        using QObject::QObject;
 
       public:
         /**
@@ -46,9 +46,9 @@ namespace magnesia {
          *
          * Exit the application on error.
          *
-         * @param layout The Layout to store.
-         * @param group The Group this layout belongs to.
+         * @param group The LayoutGroup this layout belongs to.
          * @param domain The Domain this layout belongs to.
+         * @param layout The Layout to store.
          * @return the new database id of the Layout.
          */
         virtual StorageId storeLayout(const Layout& layout, const LayoutGroup& group, const Domain& domain) = 0;
@@ -56,18 +56,18 @@ namespace magnesia {
         /**
          * Retrieve a Certificate from the database.
          *
-         * Exit the application on error, excluding not finding a Certificate with the specified id.
+         * Exit the application on error.
          *
-         * @param cert_id The id the Certificate has been stored under.
+         * @param cert_id The id the Certificate is stored under.
          * @return the Certificate or nullopt when not found.
          */
         virtual std::optional<Certificate> getCertificate(StorageId cert_id) = 0;
         /**
          * Retrieve a HistoricServerConnection from the database.
          *
-         * Exit the application on error, excluding not finding a HistoricServerConnection with the specified id.
+         * Exit the application on error.
          *
-         * @param historic_connection_id The id the HistoricServerConnection has been stored under.
+         * @param historic_connection_id The id the HistoricServerConnection is stored under.
          * @return the HistoricServerConnection or nullopt when not found.
          */
         virtual std::optional<HistoricServerConnection>
@@ -75,10 +75,10 @@ namespace magnesia {
         /**
          * Retrieve a Layout from the database.
          *
-         * Exit the application on error, excluding not finding a Layout with the specified id.
+         * Exit the application on error.
          *
-         * @param layout_id The id the Layout has been stored under.
-         * @param group The Group this layout belongs to.
+         * @param layout_id The id the Layout is stored under.
+         * @param group The LayoutGroup this layout belongs to.
          * @param domain The Domain this layout belongs to.
          * @return the Layout or nullopt when not found.
          */
@@ -88,7 +88,7 @@ namespace magnesia {
         /**
          * Retrieve all Certificates from the database.
          *
-         * This can be used to populate drop down menus in the Settings Activity.
+         * This can be used to populate drop down menus in the SettingsActivity.
          *
          * Exit the application on error.
          *
@@ -98,7 +98,7 @@ namespace magnesia {
         /**
          * Retrieve all HistoricServerConnections from the database.
          *
-         * This can be used to populate drop down menus in the Settings Activity.
+         * This can be used to populate drop down menus in the SettingsActivity.
          *
          * Exit the application on error.
          *
@@ -108,39 +108,39 @@ namespace magnesia {
         /**
          * Retrieve all Layouts from the database for a specified group and domain.
          *
-         * This can be used to populate drop down menus in the Settings Activity.
+         * This can be used to populate drop down menus in the SettingsActivity.
          *
          * Exit the application on error.
          *
-         * @param group The Group the layouts belong to.
+         * @param group The LayoutGroup the layouts belong to.
          * @param domain The Domain the layouts belong to.
          * @return a list of all Layouts with the specified group and domain.
          */
         virtual QList<Layout> getAllLayouts(const LayoutGroup& group, const Domain& domain) = 0;
 
         /**
-         * Delete the Certificate with the specified id.
+         * Delete the Certificate with the specified id if it exists.
          *
-         * Exit the application on error. Don't fail when there is no Certificate with the specified id.
+         * Exit the application on error.
          *
          * @param cert_id The id of the Certificate.
          */
         virtual void deleteCertificate(StorageId cert_id) = 0;
         /**
-         * Delete the HistoricServerConnection with the specified id.
+         * Delete the HistoricServerConnection with the specified id if it exists.
          *
-         * Exit the application on error. Don't fail when there is no HistoricServerConnection with the specified id.
+         * Exit the application on error.
          *
          * @param historic_connection_id The id of the HistoricServerConnection.
          */
         virtual void deleteHistoricServerConnection(StorageId historic_connection_id) = 0;
         /**
-         * Delete the Layout with the specified id.
+         * Delete the Layout with the specified id if it exists.
          *
-         * Exit the application on error. Don't fail when there is no Layout with the specified id.
+         * Exit the application on error.
          *
-         * @param layout_id The id the Layout has been stored under.
-         * @param group The Group this layout belongs to.
+         * @param layout_id The id the Layout is stored under.
+         * @param group The LayoutGroup this layout belongs to.
          * @param domain The Domain this layout belongs to.
          */
         virtual void deleteLayout(StorageId layout_id, const LayoutGroup& group, const Domain& domain) = 0;
@@ -158,7 +158,7 @@ namespace magnesia {
         /**
          * Get the value for the specified key in a specified domain.
          *
-         * Exit the application on error. Don't exit when the key-value pair is not set.
+         * Exit the application on error. Don't exit when not set.
          *
          * @param key the key to get the value for.
          * @param domain the key-value pair belongs to.
@@ -166,27 +166,64 @@ namespace magnesia {
          */
         virtual std::optional<QString> getKV(const QString& key, const Domain& domain) = 0;
         /**
-         * Unset a key-value pair.
+         * Unset a key-value pair if it exists.
          *
          * Exit the application on error.
          *
          * @param key the key to delete the key-value pair for.
-         * @param domain the key-value pair belongs to.
+         * @param domain the Domain from which to delete the key-value pair.
          */
         virtual void deleteKV(const QString& key, const Domain& domain) = 0;
 
+      signals:
+        /**
+         * Emitted when a Certificate was set or removed.
+         *
+         * @param cert_id the id of the Certificate that changed
+         */
+        void certificateChanged(StorageId cert_id);
+        /**
+         * Emitted when a Layout was set or removed.
+         *
+         * @param layout_id The id the Layout is stored under.
+         * @param group The LayoutGroup this layout belongs to.
+         * @param domain The Domain this layout belongs to.
+         */
+        void layoutChanged(StorageId layout_id, LayoutGroup group, Domain domain);
+        /**
+         * Emitted when a HistoricServerConnection was set or removed.
+         *
+         * @param historic_connection_id The id the HistoricServerConnection is stored under.
+         */
+        void historicConnectionChanged(StorageId historic_connection_id);
+        /**
+         * Emitted when a key-value pair was set or removed.
+         *
+         * @param key the key of the key-value pair that changed.
+         * @param domain The Domain the key-value pair belongs to.
+         */
+        void kvChanged(QString key, Domain domain);
+        // setting changed signals are sent by the SettingsManager
+
       private:
-        // only the SettingsManager may use these
+        /**
+         * only the SettingsManager may use these
+         */
         friend SettingsManager;
-        // doesn't fail when setting not set
-        virtual void resetSetting(const SettingKey& key)                  = 0;
-        virtual void setBooleanSetting(const SettingKey& key, bool value) = 0;
+        /**
+         * The SettingsManager needs to ensure that the type of a setting doesn't change.
+         * Otherwise you could have two settings with the same name and domain for different types.
+         *
+         * doesn't fail when setting not set
+         */
+        virtual void resetSetting(const SettingKey& key) = 0;
         // Most of these could receive the same name with function overloading.
         // This is not done because doing so causes confusion when types are implicitly cast and the setting is inserted
-        // into the wrong table.
+        // into the wrong relation.
+        virtual void setBooleanSetting(const SettingKey& key, bool value)                                         = 0;
         virtual void setStringSetting(const SettingKey& key, const QString& value)                                = 0;
         virtual void setIntSetting(const SettingKey& key, int value)                                              = 0;
-        virtual void setDoubleSetting(const SettingKey& key, double value)                                          = 0;
+        virtual void setDoubleSetting(const SettingKey& key, double value)                                        = 0;
         virtual void setEnumSetting(const SettingKey& key, const EnumSettingValue& value)                         = 0;
         virtual void setCertificateSetting(const SettingKey& key, StorageId cert_id)                              = 0;
         virtual void setHistoricServerConnectionSetting(const SettingKey& key, StorageId historic_connection_id)  = 0;
@@ -194,40 +231,10 @@ namespace magnesia {
         virtual std::optional<bool>                     getBoolSetting(const SettingKey& key)                     = 0;
         virtual std::optional<QString>                  getStringSetting(const SettingKey& key)                   = 0;
         virtual std::optional<int>                      getIntSetting(const SettingKey& key)                      = 0;
-        virtual std::optional<double>                    getDoubleSetting(const SettingKey& key)                    = 0;
+        virtual std::optional<double>                   getDoubleSetting(const SettingKey& key)                   = 0;
         virtual std::optional<EnumSettingValue>         getEnumSetting(const SettingKey& key)                     = 0;
         virtual std::optional<Certificate>              getCertificateSetting(const SettingKey& key)              = 0;
         virtual std::optional<HistoricServerConnection> getHistoricServerConnectionSetting(const SettingKey& key) = 0;
         virtual std::optional<Layout>                   getLayoutSetting(const SettingKey& key)                   = 0;
-
-      signals:
-        /**
-         * Qt Signal called when a Certificate was set or removed.
-         *
-         * @param cert_id the id of the Certificate that changed
-         */
-        void certificateChanged(StorageId cert_id);
-        /**
-         * Qt Signal called when a Layout was set or removed.
-         *
-         * @param layout_id The id the Layout has been stored under.
-         * @param group The Group this layout belongs to.
-         * @param domain The Domain this layout belongs to.
-         */
-        void layoutChanged(StorageId layout_id, LayoutGroup group, Domain domain);
-        /**
-         * Qt Signal called when a HistoricServerConnection was set or removed.
-         *
-         * @param historic_connection_id The id the HistoricServerConnection has been stored under.
-         */
-        void historicConnectionChanged(StorageId historic_connection_id);
-        /**
-         * Qt Signal called when a key-value pair was set or removed.
-         *
-         * @param key the key of the key-value pair that changed.
-         * @param domain The Domain the key-value pair belongs to.
-         */
-        void kvChanged(QString key, Domain domain);
-        // setting changed signals are sent by the SettingsManager
     };
 } // namespace magnesia

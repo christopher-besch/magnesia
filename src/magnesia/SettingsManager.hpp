@@ -9,24 +9,24 @@
 #include <QList>
 #include <QMap>
 #include <QObject>
+#include <QPointer>
 #include <QSharedPointer>
 #include <QString>
 #include <qtmetamacros.h>
 
 namespace magnesia {
-
     /*
      * Settings layer on top of StorageManager.
      */
-    class SettingsManager : QObject {
+    class SettingsManager : public QObject {
         Q_OBJECT
 
       public:
         /*
-         * @param storage_manager The StorageManager to be used by the SettingsManager.
-         *     The StorageManager must live at least as long as the Settingsmanager.
+         * @param storage_manager The StorageManager to be used as underlying storage.
+         *     It must live for at least the lifetime of this object.
          */
-        explicit SettingsManager(StorageManager* storage_manager);
+        explicit SettingsManager(QPointer<StorageManager> storage_manager, QObject* parent = nullptr);
         /*
          * Define or redefine all settings for a domain.
          *
@@ -40,9 +40,9 @@ namespace magnesia {
          *
          * Fail when the setting can't be found.
          *
-         * @param key The SettingKey of the setting to be reset.
+         * @param key The SettingKey of the setting to reset.
          *
-         * @return false on failure.
+         * @return false on failure, true otherwise.
          */
         bool resetSetting(const SettingKey& key);
 
@@ -55,78 +55,78 @@ namespace magnesia {
         /*
          * Change a BooleanSetting.
          *
-         * Fail when the setting can't be found or doesn't fulfill the setting's type.
+         * Fail when the setting can't be found or value is invalid.
          *
-         * @param key The SettingKey of the setting to be set.
+         * @param key The SettingKey of the setting to set.
          * @param value the new value.
          *
-         * @return false on failure.
+         * @return false on failure, true otherwise.
          */
         bool setBooleanSetting(const SettingKey& key, bool value);
         /*
          * Change a StringSetting.
          *
-         * Fail when the setting can't be found or doesn't fulfill the setting's type.
+         * Fail when the setting can't be found or value is invalid.
          *
-         * @param key The SettingKey of the setting to be set.
+         * @param key The SettingKey of the setting to set.
          * @param value the new value.
          *
-         * @return false on failure.
+         * @return false on failure, true otherwise.
          */
         bool setStringSetting(const SettingKey& key, const QString& value);
         /*
          * Change an IntSetting.
          *
-         * Fail when the setting can't be found or doesn't fulfill the setting's type.
+         * Fail when the setting can't be found or value is invalid.
          *
-         * @param key The SettingKey of the setting to be set.
+         * @param key The SettingKey of the setting to set.
          * @param value the new value.
          *
-         * @return false on failure.
+         * @return false on failure, true otherwise.
          */
         bool setIntSetting(const SettingKey& key, int value);
         /*
          * Change a setDoubleSetting.
          *
-         * Fail when the setting can't be found or doesn't fulfill the setting's type.
+         * Fail when the setting can't be found or value is invalid.
          *
-         * @param key The SettingKey of the setting to be set.
+         * @param key The SettingKey of the setting to set.
          * @param value the new value.
          *
-         * @return false on failure.
+         * @return false on failure, true otherwise.
          */
         bool setDoubleSetting(const SettingKey& key, double value);
         /*
          * Change an EnumSetting.
          *
-         * Fail when the setting can't be found or doesn't fulfill the setting's type.
+         * Fail when the setting can't be found or value is invalid.
          *
-         * @param key The SettingKey of the setting to be set.
+         * @param key The SettingKey of the setting to set.
          * @param value the new value.
          *
-         * @return false on failure.
+         * @return false on failure, true otherwise.
          */
         bool setEnumSetting(const SettingKey& key, const EnumSettingValue& value);
         /*
          * Change a CertificateSetting.
          *
-         * Fail when the setting can't be found or doesn't fulfill the setting's type.
+         * Fail when the setting can't be found or value is invalid.
          *
-         * @param key The SettingKey of the setting to be set.
+         * @param key The SettingKey of the setting to set.
          * @param cert_id the id of the Certificate.
          *
-         * @return false on failure.
+         * @return false on failure, true otherwise.
          */
         bool setCertificateSetting(const SettingKey& key, StorageId cert_id);
         /*
          * Change a HistoricServerConnectionSetting.
          *
-         * Fail when the setting can't be found or doesn't fulfill the setting's type.
+         * Fail when the setting can't be found or value is invalid.
          *
-         * @param key The SettingKey of the setting to be set.
+         * @param key The SettingKey of the setting to set.
          * @param historic_connection_id The HistoricServerConnection's id.
          *
-         * @return false on failure.
+         * @return false on failure, true otherwise.
          */
         bool setHistoricServerConnectionSetting(const SettingKey& key, StorageId historic_connection_id);
         /*
@@ -134,88 +134,89 @@ namespace magnesia {
          *
          * The layout must belong to the Domain of the setting and the Group defined in the setting.
          *
-         * Fail when the setting can't be found or doesn't fulfill the setting's type.
+         * Fail when the setting can't be found or value is invalid.
          *
-         * @param key The SettingKey of the setting to be set.
+         * @param key The SettingKey of the setting to set.
          * @param layout_id the id of the Layout.
          *
-         * @return false on failure.
+         * @return false on failure, true otherwise.
          */
         bool setLayoutSetting(const SettingKey& key, StorageId layout_id);
 
         /*
          * Get a BooleanSetting.
          *
-         * @param key The SettingKey of the setting to be get.
+         * @param key The SettingKey of the setting to get.
          *
-         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        std::optional<bool> getBoolSetting(const SettingKey& key);
+        [[nodiscard]] std::optional<bool> getBoolSetting(const SettingKey& key) const;
         /*
          * Get a StringSetting.
          *
-         * @param key The SettingKey of the setting to be get.
+         * @param key The SettingKey of the setting to get.
          *
-         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        std::optional<QString> getStringSetting(const SettingKey& key);
+        [[nodiscard]] std::optional<QString> getStringSetting(const SettingKey& key) const;
         /*
          * Get an IntSetting.
          *
-         * @param key The SettingKey of the setting to be get.
+         * @param key The SettingKey of the setting to get.
          *
-         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        std::optional<int> getIntSetting(const SettingKey& key);
+        [[nodiscard]] std::optional<int> getIntSetting(const SettingKey& key) const;
         /*
          * Get a DoubleSetting.
          *
-         * @param key The SettingKey of the setting to be get.
+         * @param key The SettingKey of the setting to get.
          *
-         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        std::optional<double> getDoubleSetting(const SettingKey& key);
+        [[nodiscard]] std::optional<double> getDoubleSetting(const SettingKey& key) const;
         /*
          * Get an EnumSetting.
          *
-         * @param key The SettingKey of the setting to be get.
+         * @param key The SettingKey of the setting to get.
          *
-         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        std::optional<EnumSettingValue> getEnumSetting(const SettingKey& key);
+        [[nodiscard]] std::optional<EnumSettingValue> getEnumSetting(const SettingKey& key) const;
         /*
          * Get a CertificateSetting.
          *
-         * @param key The SettingKey of the setting to be get.
+         * @param key The SettingKey of the setting to get.
          *
-         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        std::optional<Certificate> getCertificateSetting(const SettingKey& key);
+        [[nodiscard]] std::optional<Certificate> getCertificateSetting(const SettingKey& key) const;
         /*
          * Get a HistoricServerConnectionSetting.
          *
-         * @param key The SettingKey of the setting to be get.
+         * @param key The SettingKey of the setting to get.
          *
-         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        std::optional<HistoricServerConnection> getHistoricServerConnectionSetting(const SettingKey& key);
+        [[nodiscard]] std::optional<HistoricServerConnection>
+        getHistoricServerConnectionSetting(const SettingKey& key) const;
         /*
          * Get a LayoutSetting.
          *
-         * @param key The SettingKey of the setting to be get.
+         * @param key The SettingKey of the setting to get.
          *
-         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        std::optional<Layout> getLayoutSetting(const SettingKey& key);
+        [[nodiscard]] std::optional<Layout> getLayoutSetting(const SettingKey& key) const;
 
         /**
-         * Get all Domains in correct order.
+         * Get all Domains in the order they're defined in.
          *
          * @return the ordered list of domains.
          */
-        QList<Domain> getAllDomains();
+        [[nodiscard]] QList<Domain> getAllDomains() const;
         /**
-         * Get all settings in correct order for a Domain.
+         * Get all settings for a domain in the order they're defined in.
          *
          * When the domain is not defined return an empty list.
          *
@@ -223,27 +224,39 @@ namespace magnesia {
          *
          * @return the ordered list of settings.
          */
-        QList<QSharedPointer<Setting>> getSettingDefinitionsInDomain(const Domain& domain);
+        [[nodiscard]] QList<QSharedPointer<Setting>> getSettingDefinitions(const Domain& domain) const;
+
+      signals:
+        /**
+         * Emitted when a setting was set or reset.
+         *
+         * @param key The key of the Setting that was (re)set.
+         */
+        void settingChanged(SettingKey key);
+        /**
+         * Emitted when a setting domain was (re)defined.
+         *
+         * @param domain The Domain that was (re)defined.
+         */
+        void settingDomainDefined(Domain domain);
 
       private:
+        [[nodiscard]] std::optional<QSharedPointer<Setting>> findSettingDefinition(const SettingKey& key) const;
+
         /**
-         * Delete all Setting definitions for a domain.
+         * Check if a value can be used for a specific setting.
          *
-         * This doesn't touch the StorageManager.
-         *
-         * @param domain The domain to be deleted.
+         * @param key The key of the setting the value is for.
+         * @param value The value to check.
+         * @return nullptr when the value is not valid, return the setting definition otherwise.
          */
-        void deleteDomain(const Domain& domain);
-
-        std::optional<QSharedPointer<Setting>> getSettingDefinition(const SettingKey& key);
-
-        template<typename S, typename V>
-        S* validate(const SettingKey& key, V value) {
-            auto setting = getSettingDefinition(key);
+        template<typename SettingsType, typename ValueType>
+        SettingsType* validate(const SettingKey& key, ValueType value) const {
+            auto setting = findSettingDefinition(key);
             if (setting == std::nullopt) {
                 return nullptr;
             }
-            auto* specific_setting = dynamic_cast<S*>(setting.value().get());
+            auto* specific_setting = dynamic_cast<SettingsType*>(setting.value().get());
             if (specific_setting == nullptr) {
                 return nullptr;
             }
@@ -253,23 +266,8 @@ namespace magnesia {
             return specific_setting;
         }
 
-      signals:
-        /**
-         * Qt signal called when a setting was set or reset.
-         *
-         * @param key The key of the Setting that was (re)set.
-         */
-        void settingChanged(SettingKey key);
-        /**
-         * Qt signal called when a setting domain was (re)defined.
-         *
-         * @param domain The Domain that was (re)defined.
-         */
-        void settingDomainDefined(Domain domain);
-
       private:
         QMap<Domain, QList<QSharedPointer<Setting>>> m_settings;
-        StorageManager*                              m_storage_manager{nullptr};
+        QPointer<StorageManager>                     m_storage_manager;
     };
-
 } // namespace magnesia
