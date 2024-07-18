@@ -12,6 +12,7 @@
 #include <QSqlQuery>
 #include <QString>
 #include <qlogging.h>
+#include <qtmetamacros.h>
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtLogging>
@@ -54,7 +55,7 @@ namespace magnesia {
             terminate();
         }
         auto cert_id = getLastRowId();
-        certificateChanged(cert_id);
+        Q_EMIT certificateChanged(cert_id);
         return cert_id;
     }
 
@@ -77,7 +78,7 @@ VALUES (NULL, :address, :port, :cert_id, :layout_id, :layout_group, :layout_doma
             terminate();
         }
         auto server_con_id = getLastRowId();
-        historicConnectionChanged(server_con_id);
+        Q_EMIT historicConnectionChanged(server_con_id);
         return server_con_id;
     }
 
@@ -96,7 +97,7 @@ INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURR
             terminate();
         }
         auto layout_id = getLastRowId();
-        layoutChanged(layout_id, group, domain);
+        Q_EMIT layoutChanged(layout_id, group, domain);
         return layout_id;
     }
 
@@ -244,7 +245,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
             warnQuery("database Certificate deletion failed.", query);
             terminate();
         }
-        certificateChanged(cert_id);
+        Q_EMIT certificateChanged(cert_id);
     }
 
     void SQLStorageManager::deleteHistoricServerConnection(StorageId historic_connection_id) {
@@ -256,7 +257,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
             warnQuery("database HistoricServerConnection deletion failed.", query);
             terminate();
         }
-        historicConnectionChanged(historic_connection_id);
+        Q_EMIT historicConnectionChanged(historic_connection_id);
     }
 
     void SQLStorageManager::deleteLayout(StorageId layout_id, LayoutGroup group, Domain domain) {
@@ -272,7 +273,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
             warnQuery("database Layout deletion failed.", query);
             terminate();
         }
-        layoutChanged(layout_id, group, domain);
+        Q_EMIT layoutChanged(layout_id, group, domain);
     }
 
     void SQLStorageManager::setKV(QString key, Domain domain, QString value) {
@@ -286,7 +287,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
             warnQuery("database KeyValue replace failed.", query);
             terminate();
         }
-        kvChanged(key, domain);
+        Q_EMIT kvChanged(key, domain);
     }
 
     std::optional<QString> SQLStorageManager::getKV(QString key, Domain domain) {
@@ -316,7 +317,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
             warnQuery("database KeyValue deletion failed.", query);
             terminate();
         }
-        kvChanged(key, domain);
+        Q_EMIT kvChanged(key, domain);
     }
 
     void SQLStorageManager::resetSetting(SettingKey key) {

@@ -10,6 +10,7 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QtDebug>
+#include <qtmetamacros.h>
 
 namespace magnesia {
 
@@ -20,7 +21,7 @@ namespace magnesia {
         if (!settings.empty()) {
             m_settings[domain] = settings;
         }
-        settingDomainDefined(domain);
+        Q_EMIT settingDomainDefined(domain);
     }
 
     bool SettingsManager::resetSetting(const SettingKey& key) {
@@ -29,7 +30,7 @@ namespace magnesia {
             return false;
         }
         m_storage_manager->resetSetting(key);
-        settingChanged(key);
+        Q_EMIT settingChanged(key);
         return true;
     }
 
@@ -39,7 +40,7 @@ namespace magnesia {
             return false;
         }
         m_storage_manager->setBooleanSetting(key, value);
-        settingChanged(key);
+        Q_EMIT settingChanged(key);
         return true;
     }
 
@@ -49,7 +50,7 @@ namespace magnesia {
             return false;
         }
         m_storage_manager->setStringSetting(key, value);
-        settingChanged(key);
+        Q_EMIT settingChanged(key);
         return true;
     }
 
@@ -59,7 +60,7 @@ namespace magnesia {
             return false;
         }
         m_storage_manager->setIntSetting(key, value);
-        settingChanged(key);
+        Q_EMIT settingChanged(key);
         return true;
     }
 
@@ -69,7 +70,7 @@ namespace magnesia {
             return false;
         }
         m_storage_manager->setFloatSetting(key, value);
-        settingChanged(key);
+        Q_EMIT settingChanged(key);
         return true;
     }
 
@@ -79,7 +80,7 @@ namespace magnesia {
             return false;
         }
         m_storage_manager->setEnumSetting(key, value);
-        settingChanged(key);
+        Q_EMIT settingChanged(key);
         return true;
     }
 
@@ -89,7 +90,7 @@ namespace magnesia {
             return false;
         }
         m_storage_manager->setCertificateSetting(key, cert_id);
-        settingChanged(key);
+        Q_EMIT settingChanged(key);
         return true;
     }
 
@@ -99,7 +100,7 @@ namespace magnesia {
             return false;
         }
         m_storage_manager->setHistoricServerConnectionSetting(key, historic_connection_id);
-        settingChanged(key);
+        Q_EMIT settingChanged(key);
         return true;
     }
 
@@ -109,7 +110,7 @@ namespace magnesia {
             return false;
         }
         m_storage_manager->setLayoutSetting(key, layout_id, setting->getGroup());
-        settingChanged(key);
+        Q_EMIT settingChanged(key);
         return true;
     }
 
