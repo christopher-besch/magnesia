@@ -25,12 +25,17 @@ run_clang_tidy() {
         | xargs -0 run-clang-tidy -warnings-as-errors='*' -use-color -p "$BUILD_DIR"
 }
 
+run_codespell() {
+    codespell
+}
+
 main() {
     set -xeu
 
     run_cmake_format
     run_clang_format
     run_clang_tidy
+    run_codespell
 }
 
 main
