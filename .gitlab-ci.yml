@@ -27,4 +27,6 @@ build_linux:
 lint:
   stage: lint
   tags: [ubuntu]
-  script: ./.ci/lint.sh
+  script:
+    - .ci/setup_nix.sh
+    - nix develop -ic .ci/lint.sh
