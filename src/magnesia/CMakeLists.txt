@@ -11,6 +11,8 @@ set(SOURCES
     activities/dataviewer/Panel.cpp
     activities/dataviewer/PanelMetadata.cpp
     activities/dataviewer/panels.cpp
+    activities/dataviewer/panels/LogViewModel.cpp
+    activities/dataviewer/panels/LogViewPanel.cpp
     Activity.cpp
     ActivityMetadata.cpp
     Application.cpp

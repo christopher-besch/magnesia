@@ -2,6 +2,7 @@
 
 #include "activities/dataviewer/PanelMetadata.hpp"
 #include "activities/dataviewer/dataviewer_fwd.hpp"
+#include "activities/dataviewer/panels/LogViewPanel.hpp"
 #include "qt_version_check.hpp"
 
 #include <array>
@@ -32,12 +33,16 @@ namespace magnesia::activities::dataviewer::panels {
     /**
      * List of registered panels used to fill the UI. Add your panels metadata here and an entry to `panels::Panels`.
      */
-    inline constexpr std::array<PanelMetadata, 0> all{};
+    inline constexpr std::array all{
+        log_view_panel::metadata,
+    };
 
     /**
      * Bitset used internally for identifying panel types. Add your panel here and it's metadata to `panels::all`.
      */
-    enum class Panels : unsigned {};
+    enum class Panels : unsigned {
+        log_view = 0x1 << 3,
+    };
 
     /**
      * `operator&` and `operator&=` implementation

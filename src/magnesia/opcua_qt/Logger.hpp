@@ -1,7 +1,6 @@
 #pragma once
 
 #include "LogEntry.hpp"
-#include "abstraction/LogLevel.hpp"
 
 #include <open62541pp/Logger.h>
 
@@ -25,7 +24,7 @@ namespace magnesia::opcua_qt {
          *
          * @param entry a LogEntry
          */
-        void log(const LogEntry& entry) noexcept;
+        void log(LogEntry entry) noexcept;
         /**
          * @brief returns a list of entries that match the log level
          *
@@ -41,6 +40,6 @@ namespace magnesia::opcua_qt {
         QList<LogEntry> m_log_entries;
 
       signals:
-        void logEntryAdded(const LogEntry& entry);
+        void logEntryAdded(LogEntry& entry);
     };
 } // namespace magnesia::opcua_qt
