@@ -48,10 +48,11 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
-        if (m_storage_manager.isNull()) {
+        auto* storage_manager = m_storage_manager.get();
+        if (storage_manager == nullptr) {
             terminate();
         }
-        m_storage_manager->setBooleanSetting(key, value);
+        storage_manager->setBooleanSetting(key, value);
         Q_EMIT settingChanged(key);
         return true;
     }
@@ -61,10 +62,11 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
-        if (m_storage_manager.isNull()) {
+        auto* storage_manager = m_storage_manager.get();
+        if (storage_manager == nullptr) {
             terminate();
         }
-        m_storage_manager->setStringSetting(key, value);
+        storage_manager->setStringSetting(key, value);
         Q_EMIT settingChanged(key);
         return true;
     }
@@ -74,10 +76,11 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
-        if (m_storage_manager.isNull()) {
+        auto* storage_manager = m_storage_manager.get();
+        if (storage_manager == nullptr) {
             terminate();
         }
-        m_storage_manager->setIntSetting(key, value);
+        storage_manager->setIntSetting(key, value);
         Q_EMIT settingChanged(key);
         return true;
     }
@@ -87,10 +90,11 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
-        if (m_storage_manager.isNull()) {
+        auto* storage_manager = m_storage_manager.get();
+        if (storage_manager == nullptr) {
             terminate();
         }
-        m_storage_manager->setDoubleSetting(key, value);
+        storage_manager->setDoubleSetting(key, value);
         Q_EMIT settingChanged(key);
         return true;
     }
@@ -100,10 +104,11 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
-        if (m_storage_manager.isNull()) {
+        auto* storage_manager = m_storage_manager.get();
+        if (storage_manager == nullptr) {
             terminate();
         }
-        m_storage_manager->setEnumSetting(key, value);
+        storage_manager->setEnumSetting(key, value);
         Q_EMIT settingChanged(key);
         return true;
     }
@@ -113,10 +118,11 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
-        if (m_storage_manager.isNull()) {
+        auto* storage_manager = m_storage_manager.get();
+        if (storage_manager == nullptr) {
             terminate();
         }
-        m_storage_manager->setCertificateSetting(key, cert_id);
+        storage_manager->setCertificateSetting(key, cert_id);
         Q_EMIT settingChanged(key);
         return true;
     }
@@ -126,10 +132,11 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
-        if (m_storage_manager.isNull()) {
+        auto* storage_manager = m_storage_manager.get();
+        if (storage_manager == nullptr) {
             terminate();
         }
-        m_storage_manager->setHistoricServerConnectionSetting(key, historic_connection_id);
+        storage_manager->setHistoricServerConnectionSetting(key, historic_connection_id);
         Q_EMIT settingChanged(key);
         return true;
     }
@@ -139,10 +146,11 @@ namespace magnesia {
         if (setting == nullptr) {
             return false;
         }
-        if (m_storage_manager.isNull()) {
+        auto* storage_manager = m_storage_manager.get();
+        if (storage_manager == nullptr) {
             terminate();
         }
-        m_storage_manager->setLayoutSetting(key, layout_id, setting->getGroup());
+        storage_manager->setLayoutSetting(key, layout_id, setting->getGroup());
         Q_EMIT settingChanged(key);
         return true;
     }
