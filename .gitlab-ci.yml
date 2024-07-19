@@ -2,7 +2,7 @@ stages:
   - lint
   - build
 
-build_linux:
+build_linux: &build_linux
   stage: build
   tags: [ubuntu]
   parallel:
@@ -21,6 +21,16 @@ build_linux:
       sudo --preserve-env=DEBIAN_FRONTEND apt-get install -y git cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen
 
     - .ci/build.sh
+
+build_linux_nix:
+  <<: *build_linux
+  script:
+    - .ci/setup_nix.sh
+    - |
+      set -xeuo pipefail
+      TMPDIR=$(mktemp -d)
+      trap 'rm -rf "'"$TMPDIR"'"' EXIT
+      nix develop -ic env XDG_CACHE_HOME=$TMPDIR CC=$CC CXX=$CXX BUILD_TYPE=$BUILD_TYPE .ci/build.sh
 
 lint:
   stage: lint
