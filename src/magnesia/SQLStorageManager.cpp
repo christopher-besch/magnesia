@@ -138,8 +138,8 @@ SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used
             return {};
         }
         return HistoricServerConnection{
-            .port               = query.value("port").toInt(),
             .address            = query.value("address").toString(),
+            .port               = query.value("port").toInt(),
             .certificate_id     = query.value("cert_id").toULongLong(),
             .last_layout_id     = query.value("layout_id").toULongLong(),
             .last_layout_group  = query.value("layout_group").toString(),
@@ -203,8 +203,8 @@ SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used
         QList<HistoricServerConnection> historic_connections{};
         while (query.next()) {
             historic_connections.append({
-                .port               = query.value("port").toInt(),
                 .address            = query.value("address").toString(),
+                .port               = query.value("port").toInt(),
                 .certificate_id     = query.value("cert_id").toULongLong(),
                 .last_layout_id     = query.value("layout_id").toULongLong(),
                 .last_layout_group  = query.value("layout_group").toString(),
@@ -600,8 +600,8 @@ WHERE HistoricServerConnectionSetting.name = :name
             return {};
         }
         return HistoricServerConnection{
-            .port               = query.value("HistoricServerConnection.port").toInt(),
             .address            = query.value("HistoricServerConnection.address").toString(),
+            .port               = query.value("HistoricServerConnection.port").toInt(),
             .certificate_id     = query.value("HistoricServerConnection.cert_id").toULongLong(),
             .last_layout_id     = query.value("HistoricServerConnection.layout_id").toULongLong(),
             .last_layout_group  = query.value("HistoricServerConnection.layout_group").toString(),
@@ -643,6 +643,57 @@ WHERE LayoutSetting.name = :name
         // Instead append a query to drop that table.
         // This allows users to smoothly update.
         QList<QString> migrations{
+            R"sql(
+CREATE TABLE Certificate (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    path TEXT NOT NULL,
+    last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+) STRICT;
+)sql",
+            R"sql(
+CREATE TABLE HistoricServerConnection (
+    id INTEGER PRIMARY KEY,
+    address TEXT NOT NULL,
+    port INT NOT NULL,
+    cert_id INT NOT NULL,
+    layout_id INT NOT NULL,
+    layout_group TEXT NOT NULL,
+    layout_domain TEXT NOT NULL,
+    last_used TEXT NOT NULL,
+    last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    --
+    CONSTRAINT HistoricServerConnection_TO_Certificate_FK FOREIGN KEY (cert_id)
+        REFERENCES Certificate (id),
+    CONSTRAINT HistoricServerConnection_TO_Layout_FK FOREIGN KEY (layout_id, layout_group, layout_domain)
+        REFERENCES Layout (id, layout_group, domain)
+) STRICT;
+)sql",
+            R"sql(
+CREATE TABLE Layout (
+    -- unique for each (domain, layout_group) combination
+    id INTEGER PRIMARY KEY,
+    -- different types of layout in a domain (e.g. main-panel, side-panel)
+    layout_group TEXT NOT NULL,
+    -- same as the setting domain (e.g. DataViewer, HistoryViewer, ...)
+    domain TEXT NOT NULL,
+    -- the name can be set by the user and is not unique
+    name TEXT NOT NULL,
+    json_data TEXT NOT NULL,
+    last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(id, layout_group, domain)
+) STRICT;
+)sql",
+            R"sql(
+CREATE TABLE KeyValue (
+    key TEXT NOT NULL,
+    domain TEXT NOT NULL,
+    value TEXT NOT NULL,
+    last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    --
+    CONSTRAINT KeyValue_PK PRIMARY KEY (key, domain)
+) STRICT;
+)sql",
             R"sql(
 -- always needs to be in company of a specific setting type
 CREATE TABLE Setting (
@@ -754,57 +805,6 @@ CREATE TABLE LayoutSetting (
         ON DELETE CASCADE,
     CONSTRAINT LayoutSetting_TO_Layout_FK FOREIGN KEY (layout_id, layout_group, domain)
         REFERENCES Layout (id, layout_group, domain)
-) STRICT;
-)sql",
-            R"sql(
-CREATE TABLE Certificate (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    path TEXT NOT NULL,
-    last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-) STRICT;
-)sql",
-            R"sql(
-CREATE TABLE HistoricServerConnection (
-    id INTEGER PRIMARY KEY,
-    address TEXT NOT NULL,
-    port INT NOT NULL,
-    cert_id INT NOT NULL,
-    layout_id INT NOT NULL,
-    layout_group TEXT NOT NULL,
-    layout_domain TEXT NOT NULL,
-    last_used TEXT NOT NULL,
-    last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    --
-    CONSTRAINT HistoricServerConnection_TO_Certificate_FK FOREIGN KEY (cert_id)
-        REFERENCES Certificate (id),
-    CONSTRAINT HistoricServerConnection_TO_Layout_FK FOREIGN KEY (layout_id, layout_group, layout_domain)
-        REFERENCES Layout (id, layout_group, domain)
-) STRICT;
-)sql",
-            R"sql(
-CREATE TABLE Layout (
-    -- unique for each (domain, layout_group) combination
-    id INTEGER PRIMARY KEY,
-    -- different types of layout in a domain (e.g. main-panel, side-panel)
-    layout_group TEXT NOT NULL,
-    -- same as the setting domain (e.g. DataViewer, HistoryViewer, ...)
-    domain TEXT NOT NULL,
-    -- the name can be set by the user and is not unique
-    name TEXT NOT NULL,
-    json_data TEXT NOT NULL,
-    last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(id, layout_group, domain)
-) STRICT;
-)sql",
-            R"sql(
-CREATE TABLE KeyValue (
-    key TEXT NOT NULL,
-    domain TEXT NOT NULL,
-    value TEXT NOT NULL,
-    last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    --
-    CONSTRAINT KeyValue_PK PRIMARY KEY (key, domain)
 ) STRICT;
 )sql",
         };
