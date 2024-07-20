@@ -252,7 +252,7 @@ namespace magnesia {
          * @return nullptr when the value is not valid, return the setting definition otherwise.
          */
         template<typename SettingsType, typename ValueType>
-        SettingsType* validate(const SettingKey& key, ValueType value) const;
+        [[nodiscard]] SettingsType* validate(const SettingKey& key, ValueType value) const;
 
       private:
         QMap<Domain, QList<QSharedPointer<Setting>>> m_settings;
