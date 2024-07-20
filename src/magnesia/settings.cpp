@@ -3,6 +3,7 @@
 #include "database_types.hpp"
 #include "terminate.hpp"
 
+#include <cstdint>
 #include <utility>
 
 #include <QSet>
@@ -49,16 +50,16 @@ namespace magnesia {
         : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
           m_default_value{std::move(default_value)} {}
 
-    int IntSetting::getDefault() const {
+    std::int64_t IntSetting::getDefault() const {
         return m_default_value;
     }
 
-    bool IntSetting::isValid(int value) const {
+    bool IntSetting::isValid(std::int64_t value) const {
         return value >= m_min && value <= m_max;
     }
 
-    IntSetting::IntSetting(QString name, QString human_readable_name, QString description, int default_value, int min,
-                           int max)
+    IntSetting::IntSetting(QString name, QString human_readable_name, QString description, std::int64_t default_value,
+                           std::int64_t min, std::int64_t max)
         : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
           m_default_value{default_value}, m_min{min}, m_max{max} {
         if (!isValid(m_default_value)) {

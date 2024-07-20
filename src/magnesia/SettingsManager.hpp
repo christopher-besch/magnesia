@@ -4,6 +4,7 @@
 #include "database_types.hpp"
 #include "settings.hpp"
 
+#include <cstdint>
 #include <optional>
 
 #include <QList>
@@ -84,7 +85,7 @@ namespace magnesia {
          *
          * @return false on failure, true otherwise.
          */
-        bool setIntSetting(const SettingKey& key, int value);
+        bool setIntSetting(const SettingKey& key, std::int64_t value);
         /*
          * Change a setDoubleSetting.
          *
@@ -166,7 +167,7 @@ namespace magnesia {
          *
          * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        [[nodiscard]] std::optional<int> getIntSetting(const SettingKey& key) const;
+        [[nodiscard]] std::optional<std::int64_t> getIntSetting(const SettingKey& key) const;
         /*
          * Get a DoubleSetting.
          *

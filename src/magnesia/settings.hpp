@@ -2,6 +2,8 @@
 
 #include "database_types.hpp"
 
+#include <cstdint>
+
 #include <QSet>
 #include <QString>
 
@@ -91,19 +93,20 @@ namespace magnesia {
         /**
          *  @return the value.
          */
-        [[nodiscard]] int getDefault() const;
+        [[nodiscard]] std::int64_t getDefault() const;
 
         /**
          *  @return true iff value the requirements for int settings.
          */
-        [[nodiscard]] bool isValid(int value) const;
+        [[nodiscard]] bool isValid(std::int64_t value) const;
 
-        IntSetting(QString name, QString human_readable_name, QString description, int default_value, int min, int max);
+        IntSetting(QString name, QString human_readable_name, QString description, std::int64_t default_value,
+                   std::int64_t min, std::int64_t max);
 
       private:
-        int m_default_value;
-        int m_min;
-        int m_max;
+        std::int64_t m_default_value;
+        std::int64_t m_min;
+        std::int64_t m_max;
     };
 
     /**

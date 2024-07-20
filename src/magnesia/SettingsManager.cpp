@@ -5,6 +5,7 @@
 #include "settings.hpp"
 #include "terminate.hpp"
 
+#include <cstdint>
 #include <optional>
 #include <utility>
 
@@ -71,7 +72,7 @@ namespace magnesia {
         return true;
     }
 
-    bool SettingsManager::setIntSetting(const SettingKey& key, int value) {
+    bool SettingsManager::setIntSetting(const SettingKey& key, std::int64_t value) {
         auto* setting = validate<IntSetting>(key, value);
         if (setting == nullptr) {
             return false;
@@ -185,7 +186,7 @@ namespace magnesia {
         return m_storage_manager->getStringSetting(key).value_or(string_setting->getDefault());
     }
 
-    std::optional<int> SettingsManager::getIntSetting(const SettingKey& key) const {
+    std::optional<std::int64_t> SettingsManager::getIntSetting(const SettingKey& key) const {
         auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return {};
