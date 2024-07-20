@@ -298,4 +298,20 @@ namespace magnesia {
         }
         return std::nullopt;
     }
+
+    template<typename SettingsType, typename ValueType>
+    SettingsType* SettingsManager::validate(const SettingKey& key, ValueType value) const {
+        auto setting = findSettingDefinition(key);
+        if (setting == std::nullopt) {
+            return nullptr;
+        }
+        auto* specific_setting = dynamic_cast<SettingsType*>(setting.value().get());
+        if (specific_setting == nullptr) {
+            return nullptr;
+        }
+        if (!specific_setting->isValid(value)) {
+            return nullptr;
+        }
+        return specific_setting;
+    }
 } // namespace magnesia
