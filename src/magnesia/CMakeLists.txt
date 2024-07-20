@@ -1,8 +1,10 @@
 set(SOURCES
     # this comment doesn't seem to work in qt_add_executable
     # cmake-format: sortable
+    activities/activities.cpp
     Activity.cpp
     ActivityMetadata.cpp
+    Application.cpp
     ConfigWidget.cpp
     database_types.cpp
     Router.cpp

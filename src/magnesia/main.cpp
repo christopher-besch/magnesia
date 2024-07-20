@@ -1,18 +1,12 @@
-#include <open62541pp/Server.h>
+#include "Application.hpp"
 
 #include <QApplication>
-#include <QLabel>
-#include <qnamespace.h>
 
 int main(int argc, char** argv) {
-    const QApplication app(argc, argv);
+    const QApplication qapp(argc, argv);
 
-    opcua::Server server;
-    server.run();
-
-    QLabel label("Hello, World!");
-    label.setAlignment(Qt::AlignCenter);
-    label.show();
+    const magnesia::Application app;
+    magnesia::Application::initializeActivities();
 
     return QApplication::exec();
 }
