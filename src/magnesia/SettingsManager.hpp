@@ -266,6 +266,17 @@ namespace magnesia {
         template<typename SettingType>
         bool setSetting(const SettingKey& key, auto&& value, auto&& setter);
 
+        /**
+         * Helper to implement get[...]Setting functions.
+         *
+         * @param key The SettingKey of the setting to get.
+         * @param setter The StorageManager function invoked to actually set the value.
+         *
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
+         */
+        template<typename SettingType, typename T>
+        [[nodiscard]] std::optional<T> getSetting(const SettingKey& key, auto&& getter) const;
+
       private:
         QMap<Domain, QList<QSharedPointer<Setting>>> m_settings;
         QPointer<StorageManager>                     m_storage_manager;
