@@ -1,9 +1,6 @@
 #pragma once
 
 #include "database_types.hpp"
-#include "terminate.hpp"
-
-#include <utility>
 
 #include <QSet>
 #include <QString>
@@ -22,17 +19,9 @@ namespace magnesia {
       public:
         virtual ~Setting() = default;
 
-        QString getName() {
-            return m_name;
-        }
-
-        QString getHumanReadableName() {
-            return m_human_readable_name;
-        }
-
-        QString getDescription() {
-            return m_description;
-        }
+        QString getName();
+        QString getHumanReadableName();
+        QString getDescription();
 
       protected:
         /**
@@ -40,9 +29,7 @@ namespace magnesia {
          * @param human_readable_name The name displayed to the user.
          * @param description The description displayed to the user.
          */
-        Setting(QString name, QString human_readable_name, QString description)
-            : m_name{std::move(name)}, m_human_readable_name{std::move(human_readable_name)},
-              m_description{std::move(description)} {};
+        Setting(QString name, QString human_readable_name, QString description);
         Setting(const Setting&)            = default;
         Setting(Setting&&)                 = default;
         Setting& operator=(const Setting&) = default;
@@ -62,20 +49,14 @@ namespace magnesia {
         /**
          *  @return the default value.
          */
-        [[nodiscard]] bool getDefault() const {
-            return m_default_value;
-        }
+        [[nodiscard]] bool getDefault() const;
 
         /**
          *  @return true iff value the requirements for boolean settings.
          */
-        [[nodiscard]] static bool isValid(bool /*value*/) {
-            return true;
-        }
+        [[nodiscard]] static bool isValid(bool value);
 
-        BooleanSetting(QString name, QString human_readable_name, QString description, bool default_value)
-            : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
-              m_default_value{default_value} {}
+        BooleanSetting(QString name, QString human_readable_name, QString description, bool default_value);
 
       private:
         bool m_default_value;
@@ -89,20 +70,14 @@ namespace magnesia {
         /**
          *  @return the default value.
          */
-        [[nodiscard]] QString getDefault() const {
-            return m_default_value;
-        }
+        [[nodiscard]] QString getDefault() const;
 
         /**
          *  @return true iff value the requirements for string settings.
          */
-        [[nodiscard]] static bool isValid(const QString& /*value*/) {
-            return true;
-        }
+        [[nodiscard]] static bool isValid(const QString& value);
 
-        StringSetting(QString name, QString human_readable_name, QString description, QString default_value)
-            : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
-              m_default_value{std::move(default_value)} {}
+        StringSetting(QString name, QString human_readable_name, QString description, QString default_value);
 
       private:
         QString m_default_value;
@@ -116,24 +91,14 @@ namespace magnesia {
         /**
          *  @return the value.
          */
-        [[nodiscard]] int getDefault() const {
-            return m_default_value;
-        }
+        [[nodiscard]] int getDefault() const;
 
         /**
          *  @return true iff value the requirements for int settings.
          */
-        [[nodiscard]] bool isValid(int value) const {
-            return value >= m_min && value <= m_max;
-        }
+        [[nodiscard]] bool isValid(int value) const;
 
-        IntSetting(QString name, QString human_readable_name, QString description, int default_value, int min, int max)
-            : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
-              m_default_value{default_value}, m_min{min}, m_max{max} {
-            if (!isValid(m_default_value)) {
-                terminate();
-            }
-        }
+        IntSetting(QString name, QString human_readable_name, QString description, int default_value, int min, int max);
 
       private:
         int m_default_value;
@@ -149,25 +114,15 @@ namespace magnesia {
         /**
          *  @return the value.
          */
-        [[nodiscard]] double getDefault() const {
-            return m_default_value;
-        }
+        [[nodiscard]] double getDefault() const;
 
         /**
          *  @return true iff value the requirements for double settings.
          */
-        [[nodiscard]] bool isValid(double value) const {
-            return value >= m_min && value <= m_max;
-        }
+        [[nodiscard]] bool isValid(double value) const;
 
         DoubleSetting(QString name, QString human_readable_name, QString description, double default_value, double min,
-                      double max)
-            : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
-              m_default_value{default_value}, m_min{min}, m_max{max} {
-            if (!isValid(m_default_value)) {
-                terminate();
-            }
-        }
+                      double max);
 
       private:
         double m_default_value;
@@ -184,25 +139,15 @@ namespace magnesia {
         /**
          *  @return the value.
          */
-        [[nodiscard]] EnumSettingValue getDefault() const {
-            return m_default_value;
-        }
+        [[nodiscard]] EnumSettingValue getDefault() const;
 
         /**
          *  @return true iff value the requirements for enum settings.
          */
-        [[nodiscard]] bool isValid(const EnumSettingValue& value) const {
-            return m_possible_values.contains(value);
-        }
+        [[nodiscard]] bool isValid(const EnumSettingValue& value) const;
 
         EnumSetting(QString name, QString human_readable_name, QString description, EnumSettingValue default_value,
-                    QSet<EnumSettingValue> possible_values)
-            : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
-              m_default_value{std::move(default_value)}, m_possible_values{std::move(possible_values)} {
-            if (!isValid(m_default_value)) {
-                terminate();
-            }
-        }
+                    QSet<EnumSettingValue> possible_values);
 
       private:
         EnumSettingValue       m_default_value;
@@ -224,12 +169,9 @@ namespace magnesia {
          *
          *  @return true iff value the requirements for historic server connection settings.
          */
-        [[nodiscard]] static bool isValid(StorageId /*value*/) {
-            return true;
-        }
+        [[nodiscard]] static bool isValid(StorageId value);
 
-        HistoricServerConnectionSetting(QString name, QString human_readable_name, QString description)
-            : Setting{std::move(name), std::move(human_readable_name), std::move(description)} {}
+        HistoricServerConnectionSetting(QString name, QString human_readable_name, QString description);
     };
 
     /*
@@ -247,12 +189,9 @@ namespace magnesia {
          *
          *  @return true iff value the requirements for certificate settings.
          */
-        [[nodiscard]] static bool isValid(StorageId /*value*/) {
-            return true;
-        }
+        [[nodiscard]] static bool isValid(StorageId value);
 
-        CertificateSetting(QString name, QString human_readable_name, QString description)
-            : Setting{std::move(name), std::move(human_readable_name), std::move(description)} {}
+        CertificateSetting(QString name, QString human_readable_name, QString description);
     };
 
     /*
@@ -265,9 +204,7 @@ namespace magnesia {
         /**
          *  @return the value.
          */
-        [[nodiscard]] LayoutGroup getGroup() const {
-            return m_layout_group;
-        }
+        [[nodiscard]] LayoutGroup getGroup() const;
 
         // The default is nullopt.
         // Therefore, no getDefault function is needed.
@@ -277,13 +214,9 @@ namespace magnesia {
          *
          *  @return true iff value the requirements for layout settings.
          */
-        [[nodiscard]] static bool isValid(StorageId /*value*/) {
-            return true;
-        }
+        [[nodiscard]] static bool isValid(StorageId value);
 
-        LayoutSetting(QString name, QString human_readable_name, QString description, LayoutGroup layout_group)
-            : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
-              m_layout_group{std::move(layout_group)} {}
+        LayoutSetting(QString name, QString human_readable_name, QString description, LayoutGroup layout_group);
 
       private:
         LayoutGroup m_layout_group;
