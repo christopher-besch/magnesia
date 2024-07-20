@@ -10,7 +10,8 @@ run_clang_format() {
 }
 
 run_clang_tidy() {
-    BUILD_DIR="$(pwd)/build/clang-tidy"
+    mkdir -p build
+    BUILD_DIR="$(mktemp -dp build clang-tidy.XXXXXXXXX)"
     trap 'rm -rf "'"$BUILD_DIR"'"' EXIT
 
     cmake --fresh -G Ninja -B "$BUILD_DIR" . \

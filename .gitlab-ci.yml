@@ -2,27 +2,35 @@ stages:
   - lint
   - build
 
-build_linux:
+build_linux: &build_linux
   stage: build
   tags: [ubuntu]
   parallel:
     matrix:
-      - c_compiler: gcc
-        cxx_compiler: g++
-        build_type: [Release, Debug]
-      - c_compiler: clang
-        cxx_compiler: clang++
-        build_type: [Release, Debug]
+      - CC: gcc
+        CXX: g++
+        BUILD_TYPE: [Release, Debug]
+      - CC: clang
+        CXX: clang++
+        BUILD_TYPE: [Release, Debug]
   script:
     - |
       DEBIAN_FRONTEND=noninteractive
 
-      sudo apt-get update
-      sudo apt-get install -y git cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen
+      sudo --preserve-env=DEBIAN_FRONTEND apt-get update
+      sudo --preserve-env=DEBIAN_FRONTEND apt-get install -y git cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen
 
+    - .ci/build.sh
+
+build_linux_nix:
+  <<: *build_linux
+  script:
+    - .ci/setup_nix.sh
     - |
-      cmake -B build -DCMAKE_BUILD_TYPE=$build_type -G Ninja -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler .
-      cmake --build build --config $build_type
+      set -xeuo pipefail
+      TMPDIR=$(mktemp -d)
+      trap 'rm -rf "'"$TMPDIR"'"' EXIT
+      nix develop -ic env XDG_CACHE_HOME=$TMPDIR CC=$CC CXX=$CXX BUILD_TYPE=$BUILD_TYPE .ci/build.sh
 
 lint:
   stage: lint
