@@ -6,6 +6,7 @@
 #include "terminate.hpp"
 
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <utility>
 
@@ -44,8 +45,9 @@ namespace magnesia {
         return true;
     }
 
-    bool SettingsManager::setBooleanSetting(const SettingKey& key, bool value) {
-        auto* setting = validate<BooleanSetting>(key, value);
+    template<typename SettingType>
+    bool SettingsManager::setSetting(const SettingKey& key, auto&& value, auto&& setter) {
+        auto* setting = validate<SettingType>(key, value);
         if (setting == nullptr) {
             return false;
         }
@@ -53,93 +55,38 @@ namespace magnesia {
         if (storage_manager == nullptr) {
             terminate();
         }
-        storage_manager->setBooleanSetting(key, value);
+        std::invoke(std::forward<decltype(setter)>(setter), storage_manager, key, std::forward<decltype(value)>(value));
         Q_EMIT settingChanged(key);
         return true;
+    }
+
+    bool SettingsManager::setBooleanSetting(const SettingKey& key, bool value) {
+        return setSetting<BooleanSetting>(key, value, &StorageManager::setBooleanSetting);
     }
 
     bool SettingsManager::setStringSetting(const SettingKey& key, const QString& value) {
-        auto* setting = validate<StringSetting>(key, value);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setStringSetting(key, value);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<StringSetting>(key, value, &StorageManager::setStringSetting);
     }
 
     bool SettingsManager::setIntSetting(const SettingKey& key, std::int64_t value) {
-        auto* setting = validate<IntSetting>(key, value);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setIntSetting(key, value);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<IntSetting>(key, value, &StorageManager::setIntSetting);
     }
 
     bool SettingsManager::setDoubleSetting(const SettingKey& key, double value) {
-        auto* setting = validate<DoubleSetting>(key, value);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setDoubleSetting(key, value);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<DoubleSetting>(key, value, &StorageManager::setDoubleSetting);
     }
 
     bool SettingsManager::setEnumSetting(const SettingKey& key, const EnumSettingValue& value) {
-        auto* setting = validate<EnumSetting>(key, value);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setEnumSetting(key, value);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<EnumSetting>(key, value, &StorageManager::setEnumSetting);
     }
 
     bool SettingsManager::setCertificateSetting(const SettingKey& key, StorageId cert_id) {
-        auto* setting = validate<CertificateSetting>(key, cert_id);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setCertificateSetting(key, cert_id);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<CertificateSetting>(key, cert_id, &StorageManager::setCertificateSetting);
     }
 
     bool SettingsManager::setHistoricServerConnectionSetting(const SettingKey& key, StorageId historic_connection_id) {
-        auto* setting = validate<HistoricServerConnectionSetting>(key, historic_connection_id);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setHistoricServerConnectionSetting(key, historic_connection_id);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<HistoricServerConnectionSetting>(key, historic_connection_id,
+                                                           &StorageManager::setHistoricServerConnectionSetting);
     }
 
     bool SettingsManager::setLayoutSetting(const SettingKey& key, StorageId layout_id) {

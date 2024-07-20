@@ -254,6 +254,18 @@ namespace magnesia {
         template<typename SettingsType, typename ValueType>
         [[nodiscard]] SettingsType* validate(const SettingKey& key, ValueType value) const;
 
+        /**
+         * Helper to implement set[...]Setting functions.
+         *
+         * @param key The SettingKey of the setting to set.
+         * @param value the new value.
+         * @param setter The StorageManager function invoked to actually set the value.
+         *
+         * @return false on failure, true otherwise.
+         */
+        template<typename SettingType>
+        bool setSetting(const SettingKey& key, auto&& value, auto&& setter);
+
       private:
         QMap<Domain, QList<QSharedPointer<Setting>>> m_settings;
         QPointer<StorageManager>                     m_storage_manager;
