@@ -2,6 +2,7 @@ set(SOURCES
     # this comment doesn't seem to work in qt_add_executable
     # cmake-format: sortable
     activities/activities.cpp
+    activities/add_activity/AddActivity.cpp
     Activity.cpp
     ActivityMetadata.cpp
     Application.cpp
@@ -15,6 +16,8 @@ set(SOURCES
     terminate.cpp
 )
 qt_add_executable(magnesia main.cpp ${SOURCES})
+
+target_include_directories(magnesia PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
     magnesia
