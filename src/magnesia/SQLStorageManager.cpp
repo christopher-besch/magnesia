@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <optional>
 
-#include <QJsonDocument>
 #include <QList>
 #include <QObject>
 #include <QSqlDriver>

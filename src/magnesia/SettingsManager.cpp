@@ -11,6 +11,8 @@
 #include <utility>
 
 #include <QList>
+#include <QObject>
+#include <QPointer>
 #include <QSharedPointer>
 #include <QString>
 #include <qtmetamacros.h>
