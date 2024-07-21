@@ -853,10 +853,10 @@ CREATE TABLE LayoutSetting (
         QSqlQuery integrity_check_query{R"sql(PRAGMA integrity_check;)sql", m_database};
         if (integrity_check_query.lastError().isValid() || !integrity_check_query.next()
             || integrity_check_query.value(0).toString() != "ok") {
-            warnQuery("database integrity_check failed.", integrity_check_query);
+            warnQuery("database integrity check failed.", integrity_check_query);
             terminate();
         }
-        qDebug() << "Database: integrity_check ok";
+        qDebug() << "Database: integrity check successful";
     }
 
     StorageId SQLStorageManager::getLastRowId() {
