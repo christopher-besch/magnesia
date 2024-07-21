@@ -21,6 +21,7 @@ build_linux: &build_linux
       sudo --preserve-env=DEBIAN_FRONTEND apt-get install -y git cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen
 
     - .ci/build.sh
+  when: always
 
 build_linux_nix:
   <<: *build_linux
