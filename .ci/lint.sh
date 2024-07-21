@@ -30,13 +30,29 @@ run_codespell() {
     codespell
 }
 
-main() {
-    set -xeu
-
+fast() {
     run_cmake_format
     run_clang_format
-    run_clang_tidy
     run_codespell
 }
 
-main
+slow() {
+    run_clang_tidy
+}
+
+main() {
+    set -xeu
+
+    if [ $# -ge 1 ]; then
+        if [ "$1" = "fast" ]; then
+            fast
+        else
+            "run_$(printf '%s' "$1" | tr '-' '_')"
+        fi
+    else
+        fast
+        slow
+    fi
+}
+
+main "$@"
