@@ -31,6 +31,9 @@ namespace magnesia {
         QList<Certificate>              getAllCertificates() override;
         QList<HistoricServerConnection> getAllHistoricServerConnections() override;
         QList<Layout>                   getAllLayouts(const LayoutGroup& group, const Domain& domain) override;
+        QList<StorageId>                getAllCertificateIds() override;
+        QList<StorageId>                getAllHistoricServerConnectionIds() override;
+        QList<StorageId>                getAllLayoutIds(const LayoutGroup& group, const Domain& domain) override;
 
         void deleteCertificate(StorageId cert_id) override;
         void deleteHistoricServerConnection(StorageId historic_connection_id) override;

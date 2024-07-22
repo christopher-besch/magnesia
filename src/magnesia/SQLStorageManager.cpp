@@ -241,6 +241,54 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
         return layouts;
     }
 
+    QList<StorageId> SQLStorageManager::getAllCertificateIds() {
+        QSqlQuery query{R"sql(SELECT id FROM Certificate;)sql", m_database};
+        if (query.lastError().isValid()) {
+            warnQuery("database all Certificate IDs retrieval failed.", query);
+            terminate();
+        }
+
+        QList<StorageId> certificate_ids{};
+        while (query.next()) {
+            certificate_ids.append(query.value("id").toULongLong());
+        }
+        return certificate_ids;
+    }
+
+    QList<StorageId> SQLStorageManager::getAllHistoricServerConnectionIds() {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(SELECT id FROM HistoricServerConnection;)sql");
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database all HistoricServerConnection IDs retrieval failed.", query);
+            terminate();
+        }
+
+        QList<StorageId> historic_connection_ids{};
+        while (query.next()) {
+            historic_connection_ids.append(query.value("id").toULongLong());
+        }
+        return historic_connection_ids;
+    }
+
+    QList<StorageId> SQLStorageManager::getAllLayoutIds(const LayoutGroup& group, const Domain& domain) {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(SELECT id FROM Layout WHERE layout_group = :layout_group AND domain = :domain;)sql");
+        query.bindValue(":layout_group", group);
+        query.bindValue(":domain", domain);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database all Layout IDs retrieval failed.", query);
+            terminate();
+        }
+
+        QList<StorageId> layout_ids{};
+        while (query.next()) {
+            layout_ids.append(query.value("id").toULongLong());
+        }
+        return layout_ids;
+    }
+
     void SQLStorageManager::deleteCertificate(StorageId cert_id) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(DELETE FROM Certificate WHERE id = :id;)sql");
