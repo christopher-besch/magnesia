@@ -8,6 +8,36 @@ set(SOURCES
     Application.cpp
     ConfigWidget.cpp
     database_types.cpp
+    opcua_qt/abstraction/AccessLevel.cpp
+    opcua_qt/abstraction/AccessLevelBitmask.cpp
+    opcua_qt/abstraction/AttributeId.cpp
+    opcua_qt/abstraction/DataValue.cpp
+    opcua_qt/abstraction/EventNotifier.cpp
+    opcua_qt/abstraction/EventNotifierBitmask.cpp
+    opcua_qt/abstraction/LocalizedText.cpp
+    opcua_qt/abstraction/MonitoredItem.cpp
+    opcua_qt/abstraction/MonitoringMode.cpp
+    opcua_qt/abstraction/MonitoringParameters.cpp
+    opcua_qt/abstraction/node/DataTypeNode.cpp
+    opcua_qt/abstraction/node/MethodNode.cpp
+    opcua_qt/abstraction/node/Node.cpp
+    opcua_qt/abstraction/node/ObjectNode.cpp
+    opcua_qt/abstraction/node/ObjectTypeNode.cpp
+    opcua_qt/abstraction/node/ReferenceTypeNode.cpp
+    opcua_qt/abstraction/node/VariableNode.cpp
+    opcua_qt/abstraction/node/VariableTypeNode.cpp
+    opcua_qt/abstraction/node/ViewNode.cpp
+    opcua_qt/abstraction/NodeClass.cpp
+    opcua_qt/abstraction/NodeId.cpp
+    opcua_qt/abstraction/QualifiedName.cpp
+    opcua_qt/abstraction/ReferenceDescription.cpp
+    opcua_qt/abstraction/StatusCode.cpp
+    opcua_qt/abstraction/Subscription.cpp
+    opcua_qt/abstraction/SubscriptionParameters.cpp
+    opcua_qt/abstraction/ValueRank.cpp
+    opcua_qt/abstraction/Variant.cpp
+    opcua_qt/abstraction/WriteMask.cpp
+    opcua_qt/abstraction/WriteMaskBitmask.cpp
     Router.cpp
     settings.cpp
     SettingsManager.cpp
