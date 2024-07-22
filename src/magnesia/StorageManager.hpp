@@ -120,6 +120,39 @@ namespace magnesia {
         virtual QList<Layout> getAllLayouts(const LayoutGroup& group, const Domain& domain) = 0;
 
         /**
+         * Retrieve all Certificate IDs from the database.
+         *
+         * This can be used to populate drop down menus in the SettingsActivity.
+         *
+         * Exit the application on error.
+         *
+         * @return a list of all Certificate IDs.
+         */
+        virtual QList<StorageId> getAllCertificateIds() = 0;
+        /**
+         * Retrieve all HistoricServerConnection IDs from the database.
+         *
+         * This can be used to populate drop down menus in the SettingsActivity.
+         *
+         * Exit the application on error.
+         *
+         * @return a list of all HistoricServerConnections IDs.
+         */
+        virtual QList<StorageId> getAllHistoricServerConnectionIds() = 0;
+        /**
+         * Retrieve all Layout IDs from the database for a specified group and domain.
+         *
+         * This can be used to populate drop down menus in the SettingsActivity.
+         *
+         * Exit the application on error.
+         *
+         * @param group The LayoutGroup the layouts belong to.
+         * @param domain The Domain the layouts belong to.
+         * @return a list of all Layout IDs with the specified group and domain.
+         */
+        virtual QList<StorageId> getAllLayoutIds(const LayoutGroup& group, const Domain& domain) = 0;
+
+        /**
          * Delete the Certificate with the specified id if it exists.
          *
          * Exit the application on error.
