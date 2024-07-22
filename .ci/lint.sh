@@ -31,6 +31,11 @@ run_clang_tidy() {
         -D MAGNESIA_WARNINGS_AS_ERRORS=ON \
         -D MAGNESIA_BUILD_DOCS=OFF
 
+    # NOTE: open62541 generates headers during build. This means we have to build open62541 for clang-tidy to find all
+    # includes if using CMake's FetchContent to build it. This is not an issue if the library is provided by the system,
+    # so ignore if the target doesn't exist.
+    cmake --build "$BUILD_DIR" --target libopen62541.a || true
+
     find src -name '*.[ch]pp' -print0 \
         | xargs -0 run-clang-tidy -warnings-as-errors='*' -use-color -p "$BUILD_DIR" || fail clang-tidy $?
 }
