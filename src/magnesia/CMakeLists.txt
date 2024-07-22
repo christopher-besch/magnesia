@@ -12,9 +12,13 @@ set(SOURCES
     opcua_qt/abstraction/AccessLevelBitmask.cpp
     opcua_qt/abstraction/AttributeId.cpp
     opcua_qt/abstraction/DataValue.cpp
+    opcua_qt/abstraction/Endpoint.cpp
     opcua_qt/abstraction/EventNotifier.cpp
     opcua_qt/abstraction/EventNotifierBitmask.cpp
     opcua_qt/abstraction/LocalizedText.cpp
+    opcua_qt/abstraction/LogCategory.cpp
+    opcua_qt/abstraction/LogLevel.cpp
+    opcua_qt/abstraction/MessageSecurityMode.cpp
     opcua_qt/abstraction/MonitoredItem.cpp
     opcua_qt/abstraction/MonitoringMode.cpp
     opcua_qt/abstraction/MonitoringParameters.cpp
@@ -38,6 +42,12 @@ set(SOURCES
     opcua_qt/abstraction/Variant.cpp
     opcua_qt/abstraction/WriteMask.cpp
     opcua_qt/abstraction/WriteMaskBitmask.cpp
+    opcua_qt/ApplicationCertificate.cpp
+    opcua_qt/Connection.cpp
+    opcua_qt/ConnectionBuilder.cpp
+    opcua_qt/ConnectionManager.cpp
+    opcua_qt/LogEntry.cpp
+    opcua_qt/Logger.cpp
     Router.cpp
     settings.cpp
     SettingsManager.cpp
