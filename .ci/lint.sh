@@ -1,12 +1,21 @@
 #!/bin/sh
 
+FAILED=0
+STEP_MESSAGES=
+
+fail() {
+    FAILED=1
+    STEP_MESSAGES="${STEP_MESSAGES}  Step \"$1\" failed with code $2
+"
+}
+
 run_cmake_format() {
     find . \( -name 'CMakeLists.txt' -or -name '*.cmake' \) -and -not -path './build/*' -print0 \
-        | xargs -0 cmake-format --check
+        | xargs -0 cmake-format --check || fail cmake-format $?
 }
 
 run_clang_format() {
-    find src -name '*.[ch]pp' -print0 | xargs -0 clang-format -Werror --dry-run --verbose
+    find src -name '*.[ch]pp' -print0 | xargs -0 clang-format -Werror --dry-run --verbose || fail clang-format $?
 }
 
 run_clang_tidy() {
@@ -23,20 +32,43 @@ run_clang_tidy() {
         -D MAGNESIA_BUILD_DOCS=OFF
 
     find src -name '*.[ch]pp' -print0 \
-        | xargs -0 run-clang-tidy -warnings-as-errors='*' -use-color -p "$BUILD_DIR"
+        | xargs -0 run-clang-tidy -warnings-as-errors='*' -use-color -p "$BUILD_DIR" || fail clang-tidy $?
 }
 
 run_codespell() {
-    codespell
+    codespell || fail codespell $?
+}
+
+fast() {
+    run_cmake_format
+    run_clang_format
+    run_codespell
+}
+
+slow() {
+    run_clang_tidy
 }
 
 main() {
     set -xeu
 
-    run_cmake_format
-    run_clang_format
-    run_clang_tidy
-    run_codespell
+    if [ $# -ge 1 ]; then
+        if [ "$1" = "fast" ]; then
+            fast
+        else
+            "run_$(printf '%s' "$1" | tr '-' '_')"
+        fi
+    else
+        fast
+        slow
+    fi
+
+    if [ $FAILED -eq 0 ]; then
+        printf "\nSUMMARY: All jobs succesfull\n"
+    else
+        printf "\nSUMMARY:\n%s" "$STEP_MESSAGES"
+    fi
+    return $FAILED
 }
 
-main
+main "$@"

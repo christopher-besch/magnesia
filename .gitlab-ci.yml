@@ -21,20 +21,41 @@ build_linux: &build_linux
       sudo --preserve-env=DEBIAN_FRONTEND apt-get install -y git cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen
 
     - .ci/build.sh
+  when: always
 
 build_linux_nix:
   <<: *build_linux
-  script:
+  before_script:
     - .ci/setup_nix.sh
+  script:
     - |
       set -xeuo pipefail
       TMPDIR=$(mktemp -d)
       trap 'rm -rf "'"$TMPDIR"'"' EXIT
       nix develop -ic env XDG_CACHE_HOME=$TMPDIR CC=$CC CXX=$CXX BUILD_TYPE=$BUILD_TYPE .ci/build.sh
 
-lint:
+.lint-base: &lint-base
   stage: lint
   tags: [ubuntu]
-  script:
+  before_script:
     - .ci/setup_nix.sh
-    - nix develop -ic .ci/lint.sh
+
+cmake-format:
+  <<: *lint-base
+  script:
+    - nix develop -ic .ci/lint.sh cmake-format
+
+clang-format:
+  <<: *lint-base
+  script:
+    - nix develop -ic .ci/lint.sh clang-format
+
+codespell:
+  <<: *lint-base
+  script:
+    - nix develop -ic .ci/lint.sh codespell
+
+clang-tidy:
+  <<: *lint-base
+  script:
+    - nix develop -ic .ci/lint.sh clang-tidy
