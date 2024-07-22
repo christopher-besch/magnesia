@@ -15,6 +15,7 @@
 #include <span>
 
 #include <QObject>
+#include <QString>
 #include <QTabWidget>
 
 #ifdef MAGNESIA_HAS_QT_6_5

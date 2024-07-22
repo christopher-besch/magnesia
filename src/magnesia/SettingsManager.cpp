@@ -5,10 +5,14 @@
 #include "settings.hpp"
 #include "terminate.hpp"
 
+#include <cstdint>
+#include <functional>
 #include <optional>
 #include <utility>
 
 #include <QList>
+#include <QObject>
+#include <QPointer>
 #include <QSharedPointer>
 #include <QString>
 #include <qtmetamacros.h>
@@ -43,8 +47,9 @@ namespace magnesia {
         return true;
     }
 
-    bool SettingsManager::setBooleanSetting(const SettingKey& key, bool value) {
-        auto* setting = validate<BooleanSetting>(key, value);
+    template<typename SettingType>
+    bool SettingsManager::setSetting(const SettingKey& key, auto&& value, auto&& setter) {
+        auto* setting = validate<SettingType>(key, value);
         if (setting == nullptr) {
             return false;
         }
@@ -52,93 +57,38 @@ namespace magnesia {
         if (storage_manager == nullptr) {
             terminate();
         }
-        storage_manager->setBooleanSetting(key, value);
+        std::invoke(std::forward<decltype(setter)>(setter), storage_manager, key, std::forward<decltype(value)>(value));
         Q_EMIT settingChanged(key);
         return true;
+    }
+
+    bool SettingsManager::setBooleanSetting(const SettingKey& key, bool value) {
+        return setSetting<BooleanSetting>(key, value, &StorageManager::setBooleanSetting);
     }
 
     bool SettingsManager::setStringSetting(const SettingKey& key, const QString& value) {
-        auto* setting = validate<StringSetting>(key, value);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setStringSetting(key, value);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<StringSetting>(key, value, &StorageManager::setStringSetting);
     }
 
-    bool SettingsManager::setIntSetting(const SettingKey& key, int value) {
-        auto* setting = validate<IntSetting>(key, value);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setIntSetting(key, value);
-        Q_EMIT settingChanged(key);
-        return true;
+    bool SettingsManager::setIntSetting(const SettingKey& key, std::int64_t value) {
+        return setSetting<IntSetting>(key, value, &StorageManager::setIntSetting);
     }
 
     bool SettingsManager::setDoubleSetting(const SettingKey& key, double value) {
-        auto* setting = validate<DoubleSetting>(key, value);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setDoubleSetting(key, value);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<DoubleSetting>(key, value, &StorageManager::setDoubleSetting);
     }
 
     bool SettingsManager::setEnumSetting(const SettingKey& key, const EnumSettingValue& value) {
-        auto* setting = validate<EnumSetting>(key, value);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setEnumSetting(key, value);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<EnumSetting>(key, value, &StorageManager::setEnumSetting);
     }
 
     bool SettingsManager::setCertificateSetting(const SettingKey& key, StorageId cert_id) {
-        auto* setting = validate<CertificateSetting>(key, cert_id);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setCertificateSetting(key, cert_id);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<CertificateSetting>(key, cert_id, &StorageManager::setCertificateSetting);
     }
 
     bool SettingsManager::setHistoricServerConnectionSetting(const SettingKey& key, StorageId historic_connection_id) {
-        auto* setting = validate<HistoricServerConnectionSetting>(key, historic_connection_id);
-        if (setting == nullptr) {
-            return false;
-        }
-        auto* storage_manager = m_storage_manager.get();
-        if (storage_manager == nullptr) {
-            terminate();
-        }
-        storage_manager->setHistoricServerConnectionSetting(key, historic_connection_id);
-        Q_EMIT settingChanged(key);
-        return true;
+        return setSetting<HistoricServerConnectionSetting>(key, historic_connection_id,
+                                                           &StorageManager::setHistoricServerConnectionSetting);
     }
 
     bool SettingsManager::setLayoutSetting(const SettingKey& key, StorageId layout_id) {
@@ -155,128 +105,59 @@ namespace magnesia {
         return true;
     }
 
-    std::optional<bool> SettingsManager::getBoolSetting(const SettingKey& key) const {
+    template<typename SettingType, typename T>
+    std::optional<T> SettingsManager::getSetting(const SettingKey& key, auto&& getter) const {
         auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
-            return {};
+            return std::nullopt;
         }
-        auto* bool_setting = dynamic_cast<BooleanSetting*>(setting.value().get());
-        if (bool_setting == nullptr) {
-            return {};
+        auto* setting_type = dynamic_cast<SettingType*>(setting.value().get());
+        if (setting_type == nullptr) {
+            return std::nullopt;
         }
         if (m_storage_manager.isNull()) {
             terminate();
         }
-        return m_storage_manager->getBoolSetting(key).value_or(bool_setting->getDefault());
+        auto res = std::invoke(std::forward<decltype(getter)>(getter), m_storage_manager, key);
+        if constexpr (requires { setting_type->getDefault(); }) {
+            return res.value_or(setting_type->getDefault());
+        } else {
+            return res;
+        }
+    }
+
+    std::optional<bool> SettingsManager::getBoolSetting(const SettingKey& key) const {
+        return getSetting<BooleanSetting, bool>(key, &StorageManager::getBoolSetting);
     }
 
     std::optional<QString> SettingsManager::getStringSetting(const SettingKey& key) const {
-        auto setting = findSettingDefinition(key);
-        if (setting == std::nullopt) {
-            return {};
-        }
-        auto* string_setting = dynamic_cast<StringSetting*>(setting.value().get());
-        if (string_setting == nullptr) {
-            return {};
-        }
-        if (m_storage_manager.isNull()) {
-            terminate();
-        }
-        return m_storage_manager->getStringSetting(key).value_or(string_setting->getDefault());
+        return getSetting<StringSetting, QString>(key, &StorageManager::getStringSetting);
     }
 
-    std::optional<int> SettingsManager::getIntSetting(const SettingKey& key) const {
-        auto setting = findSettingDefinition(key);
-        if (setting == std::nullopt) {
-            return {};
-        }
-        auto* int_setting = dynamic_cast<IntSetting*>(setting.value().get());
-        if (int_setting == nullptr) {
-            return {};
-        }
-        if (m_storage_manager.isNull()) {
-            terminate();
-        }
-        return m_storage_manager->getIntSetting(key).value_or(int_setting->getDefault());
+    std::optional<std::int64_t> SettingsManager::getIntSetting(const SettingKey& key) const {
+        return getSetting<IntSetting, std::int64_t>(key, &StorageManager::getIntSetting);
     }
 
     std::optional<double> SettingsManager::getDoubleSetting(const SettingKey& key) const {
-        auto setting = findSettingDefinition(key);
-        if (setting == std::nullopt) {
-            return {};
-        }
-        auto* double_setting = dynamic_cast<DoubleSetting*>(setting.value().get());
-        if (double_setting == nullptr) {
-            return {};
-        }
-        if (m_storage_manager.isNull()) {
-            terminate();
-        }
-        return m_storage_manager->getDoubleSetting(key).value_or(double_setting->getDefault());
+        return getSetting<DoubleSetting, std::int64_t>(key, &StorageManager::getDoubleSetting);
     }
 
     std::optional<EnumSettingValue> SettingsManager::getEnumSetting(const SettingKey& key) const {
-        auto setting = findSettingDefinition(key);
-        if (setting == std::nullopt) {
-            return {};
-        }
-        auto* enum_setting = dynamic_cast<EnumSetting*>(setting.value().get());
-        if (enum_setting == nullptr) {
-            return {};
-        }
-        if (m_storage_manager.isNull()) {
-            terminate();
-        }
-        return m_storage_manager->getEnumSetting(key).value_or(enum_setting->getDefault());
+        return getSetting<EnumSetting, EnumSettingValue>(key, &StorageManager::getEnumSetting);
     }
 
     std::optional<Certificate> SettingsManager::getCertificateSetting(const SettingKey& key) const {
-        auto setting = findSettingDefinition(key);
-        if (setting == std::nullopt) {
-            return {};
-        }
-        auto* cert_setting = dynamic_cast<CertificateSetting*>(setting.value().get());
-        if (cert_setting == nullptr) {
-            return {};
-        }
-        if (m_storage_manager.isNull()) {
-            terminate();
-        }
-        // Leave nullopt when not set.
-        return m_storage_manager->getCertificateSetting(key);
+        return getSetting<CertificateSetting, Certificate>(key, &StorageManager::getCertificateSetting);
     }
 
     std::optional<HistoricServerConnection>
     SettingsManager::getHistoricServerConnectionSetting(const SettingKey& key) const {
-        auto setting = findSettingDefinition(key);
-        if (setting == std::nullopt) {
-            return {};
-        }
-        auto* server_con_setting = dynamic_cast<HistoricServerConnectionSetting*>(setting.value().get());
-        if (server_con_setting == nullptr) {
-            return {};
-        }
-        if (m_storage_manager.isNull()) {
-            terminate();
-        }
-        // Leave nullopt when not set.
-        return m_storage_manager->getHistoricServerConnectionSetting(key);
+        return getSetting<HistoricServerConnectionSetting, HistoricServerConnection>(
+            key, &StorageManager::getHistoricServerConnectionSetting);
     }
 
     std::optional<Layout> SettingsManager::getLayoutSetting(const SettingKey& key) const {
-        auto setting = findSettingDefinition(key);
-        if (setting == std::nullopt) {
-            return {};
-        }
-        auto* layout_setting = dynamic_cast<LayoutSetting*>(setting.value().get());
-        if (layout_setting == nullptr) {
-            return {};
-        }
-        if (m_storage_manager.isNull()) {
-            terminate();
-        }
-        // Leave nullopt when not set.
-        return m_storage_manager->getLayoutSetting(key);
+        return getSetting<LayoutSetting, Layout>(key, &StorageManager::getLayoutSetting);
     }
 
     QList<Domain> SettingsManager::getAllDomains() const {
@@ -296,5 +177,21 @@ namespace magnesia {
             }
         }
         return std::nullopt;
+    }
+
+    template<typename SettingsType, typename ValueType>
+    SettingsType* SettingsManager::validate(const SettingKey& key, ValueType value) const {
+        auto setting = findSettingDefinition(key);
+        if (setting == std::nullopt) {
+            return nullptr;
+        }
+        auto* specific_setting = dynamic_cast<SettingsType*>(setting.value().get());
+        if (specific_setting == nullptr) {
+            return nullptr;
+        }
+        if (!specific_setting->isValid(value)) {
+            return nullptr;
+        }
+        return specific_setting;
     }
 } // namespace magnesia

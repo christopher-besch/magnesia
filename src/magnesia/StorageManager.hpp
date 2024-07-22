@@ -2,6 +2,7 @@
 
 #include "database_types.hpp"
 
+#include <cstdint>
 #include <optional>
 
 #include <QList>
@@ -222,7 +223,7 @@ namespace magnesia {
         // into the wrong relation.
         virtual void setBooleanSetting(const SettingKey& key, bool value)                                         = 0;
         virtual void setStringSetting(const SettingKey& key, const QString& value)                                = 0;
-        virtual void setIntSetting(const SettingKey& key, int value)                                              = 0;
+        virtual void setIntSetting(const SettingKey& key, std::int64_t value)                                     = 0;
         virtual void setDoubleSetting(const SettingKey& key, double value)                                        = 0;
         virtual void setEnumSetting(const SettingKey& key, const EnumSettingValue& value)                         = 0;
         virtual void setCertificateSetting(const SettingKey& key, StorageId cert_id)                              = 0;
@@ -230,7 +231,7 @@ namespace magnesia {
         virtual void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group)       = 0;
         virtual std::optional<bool>                     getBoolSetting(const SettingKey& key)                     = 0;
         virtual std::optional<QString>                  getStringSetting(const SettingKey& key)                   = 0;
-        virtual std::optional<int>                      getIntSetting(const SettingKey& key)                      = 0;
+        virtual std::optional<std::int64_t>             getIntSetting(const SettingKey& key)                      = 0;
         virtual std::optional<double>                   getDoubleSetting(const SettingKey& key)                   = 0;
         virtual std::optional<EnumSettingValue>         getEnumSetting(const SettingKey& key)                     = 0;
         virtual std::optional<Certificate>              getCertificateSetting(const SettingKey& key)              = 0;

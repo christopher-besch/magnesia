@@ -5,9 +5,9 @@
 #include "qt_version_check.hpp"
 #include "terminate.hpp"
 
+#include <cstdint>
 #include <optional>
 
-#include <QJsonDocument>
 #include <QList>
 #include <QObject>
 #include <QSqlDriver>
@@ -18,6 +18,7 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtLogging>
+#include <QtTypes>
 #else
 #include <QtDebug>
 #include <QtGlobal>
@@ -377,13 +378,14 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setIntSetting(const SettingKey& key, int value) {
+    void SQLStorageManager::setIntSetting(const SettingKey& key, std::int64_t value) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
         query.prepare(R"sql(REPLACE INTO IntSetting VALUES (:name, :domain, :value);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
-        query.bindValue(":value", value);
+        // qlonglong is guaranteed to be 64 bits: https://doc.qt.io/qt-6/qttypes.html#qlonglong-typedef
+        query.bindValue(":value", static_cast<qlonglong>(value));
         query.exec();
         if (query.lastError().isValid()) {
             warnQuery("database IntSetting replace failed.", query);
@@ -496,7 +498,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toString();
     }
 
-    std::optional<int> SQLStorageManager::getIntSetting(const SettingKey& key) {
+    std::optional<std::int64_t> SQLStorageManager::getIntSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM IntSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -510,7 +512,8 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         if (!query.next()) {
             return {};
         }
-        return query.value("value").toInt();
+        // qlonglong is guaranteed to be 64 bits: https://doc.qt.io/qt-6/qttypes.html#qlonglong-typedef
+        return query.value("value").toLongLong();
     }
 
     std::optional<double> SQLStorageManager::getDoubleSetting(const SettingKey& key) {
@@ -850,10 +853,10 @@ CREATE TABLE LayoutSetting (
         QSqlQuery integrity_check_query{R"sql(PRAGMA integrity_check;)sql", m_database};
         if (integrity_check_query.lastError().isValid() || !integrity_check_query.next()
             || integrity_check_query.value(0).toString() != "ok") {
-            warnQuery("database integrity_check failed.", integrity_check_query);
+            warnQuery("database integrity check failed.", integrity_check_query);
             terminate();
         }
-        qDebug() << "Database: integrity_check ok";
+        qDebug() << "Database: integrity check successful";
     }
 
     StorageId SQLStorageManager::getLastRowId() {

@@ -4,6 +4,7 @@
 #include "database_types.hpp"
 #include "settings.hpp"
 
+#include <cstdint>
 #include <optional>
 
 #include <QList>
@@ -84,7 +85,7 @@ namespace magnesia {
          *
          * @return false on failure, true otherwise.
          */
-        bool setIntSetting(const SettingKey& key, int value);
+        bool setIntSetting(const SettingKey& key, std::int64_t value);
         /*
          * Change a setDoubleSetting.
          *
@@ -166,7 +167,7 @@ namespace magnesia {
          *
          * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        [[nodiscard]] std::optional<int> getIntSetting(const SettingKey& key) const;
+        [[nodiscard]] std::optional<std::int64_t> getIntSetting(const SettingKey& key) const;
         /*
          * Get a DoubleSetting.
          *
@@ -251,20 +252,30 @@ namespace magnesia {
          * @return nullptr when the value is not valid, return the setting definition otherwise.
          */
         template<typename SettingsType, typename ValueType>
-        SettingsType* validate(const SettingKey& key, ValueType value) const {
-            auto setting = findSettingDefinition(key);
-            if (setting == std::nullopt) {
-                return nullptr;
-            }
-            auto* specific_setting = dynamic_cast<SettingsType*>(setting.value().get());
-            if (specific_setting == nullptr) {
-                return nullptr;
-            }
-            if (!specific_setting->isValid(value)) {
-                return nullptr;
-            }
-            return specific_setting;
-        }
+        [[nodiscard]] SettingsType* validate(const SettingKey& key, ValueType value) const;
+
+        /**
+         * Helper to implement set[...]Setting functions.
+         *
+         * @param key The SettingKey of the setting to set.
+         * @param value the new value.
+         * @param setter The StorageManager function invoked to actually set the value.
+         *
+         * @return false on failure, true otherwise.
+         */
+        template<typename SettingType>
+        bool setSetting(const SettingKey& key, auto&& value, auto&& setter);
+
+        /**
+         * Helper to implement get[...]Setting functions.
+         *
+         * @param key The SettingKey of the setting to get.
+         * @param setter The StorageManager function invoked to actually set the value.
+         *
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
+         */
+        template<typename SettingType, typename T>
+        [[nodiscard]] std::optional<T> getSetting(const SettingKey& key, auto&& getter) const;
 
       private:
         QMap<Domain, QList<QSharedPointer<Setting>>> m_settings;

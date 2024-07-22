@@ -3,6 +3,7 @@
 #include "StorageManager.hpp"
 #include "database_types.hpp"
 
+#include <cstdint>
 #include <optional>
 
 #include <QList>
@@ -43,7 +44,7 @@ namespace magnesia {
         void resetSetting(const SettingKey& key) override;
         void setBooleanSetting(const SettingKey& key, bool value) override;
         void setStringSetting(const SettingKey& key, const QString& value) override;
-        void setIntSetting(const SettingKey& key, int value) override;
+        void setIntSetting(const SettingKey& key, std::int64_t value) override;
         void setDoubleSetting(const SettingKey& key, double value) override;
         void setEnumSetting(const SettingKey& key, const EnumSettingValue& value) override;
         void setCertificateSetting(const SettingKey& key, StorageId cert_id) override;
@@ -51,7 +52,7 @@ namespace magnesia {
         void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group) override;
         std::optional<bool>                     getBoolSetting(const SettingKey& key) override;
         std::optional<QString>                  getStringSetting(const SettingKey& key) override;
-        std::optional<int>                      getIntSetting(const SettingKey& key) override;
+        std::optional<std::int64_t>             getIntSetting(const SettingKey& key) override;
         std::optional<double>                   getDoubleSetting(const SettingKey& key) override;
         std::optional<EnumSettingValue>         getEnumSetting(const SettingKey& key) override;
         std::optional<Certificate>              getCertificateSetting(const SettingKey& key) override;
