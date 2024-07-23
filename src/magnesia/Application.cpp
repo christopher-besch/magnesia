@@ -40,6 +40,7 @@ namespace magnesia {
         s_instance = this;
 
         m_tab_widget->setTabsClosable(true);
+        m_tab_widget->setDocumentMode(true);
         connect(m_tab_widget, &QTabWidget::tabCloseRequested, this, [this](int index) {
             auto* activity = m_tab_widget->widget(index);
             auto  closed   = activity->close();
