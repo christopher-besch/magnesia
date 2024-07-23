@@ -28,7 +28,7 @@ IncludeCategories:
   - Regex:           '^<open62541(pp)?/'
     Priority:        3
     CaseSensitive:   false
-  - Regex:           '^<(Qt?[A-Z]|q[^\/]*\.h)'
+  - Regex:           '^<(Qt?[A-Z]?|q[^\/]*\.h)'
     Priority:        4
     CaseSensitive:   true
   - Regex:           '^<'

@@ -11,7 +11,7 @@
 #include <QListWidget>
 #include <QStackedLayout>
 #include <QWidget>
-#include <qnamespace.h>
+#include <Qt>
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
