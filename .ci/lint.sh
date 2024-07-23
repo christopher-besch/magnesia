@@ -85,6 +85,28 @@ run_shfmt() {
         || fail shfmt $?
 }
 
+run_cppcheck() {
+    generate_cmake cppcheck
+    cmake --build "$BUILD_DIR" --target magnesia_autogen
+
+    mkdir "$BUILD_DIR/cppcheck"
+    cppcheck \
+        --error-exitcode=2 \
+        --cppcheck-build-dir="$BUILD_DIR/cppcheck" \
+        --project="$BUILD_DIR/compile_commands.json" \
+        -i build `# ignore generated code` \
+        --library=qt \
+        -D Q_DISABLE_COPY_MOVE `# missing from qt.cfg` \
+        --check-level=exhaustive \
+        --enable=all \
+        --disable=unusedFunction \
+        --suppress=ignoredReturnErrorCode \
+        --suppress=missingIncludeSystem \
+        --inline-suppr \
+        --force \
+        || fail cppcheck $?
+}
+
 fast() {
     run_cmake_format
     run_clang_format
@@ -95,6 +117,7 @@ fast() {
 }
 
 slow() {
+    run_cppcheck
     run_clang_tidy
 }
 
