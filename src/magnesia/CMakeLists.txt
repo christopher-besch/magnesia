@@ -14,6 +14,8 @@ set(SOURCES
     activities/dataviewer/panels.cpp
     activities/dataviewer/panels/LogViewModel.cpp
     activities/dataviewer/panels/LogViewPanel.cpp
+    activities/dataviewer/panels/TreeViewModel.cpp
+    activities/dataviewer/panels/TreeViewPanel.cpp
     Activity.cpp
     ActivityMetadata.cpp
     Application.cpp

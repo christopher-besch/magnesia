@@ -1,0 +1,39 @@
+#pragma once
+
+#include "activities/dataviewer/Panel.hpp"
+#include "activities/dataviewer/PanelMetadata.hpp"
+#include "activities/dataviewer/dataviewer_fwd.hpp"
+#include "activities/dataviewer/panels/TreeViewModel.hpp"
+#include "opcua_qt/abstraction/NodeId.hpp"
+
+#include <QModelIndex>
+#include <QTreeView>
+#include <QWidget>
+#include <qtmetamacros.h>
+
+namespace magnesia::activities::dataviewer::panels::treeview_panel {
+    class TreeViewPanel : public Panel {
+        Q_OBJECT
+
+      public:
+        explicit TreeViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
+
+        [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
+
+      signals:
+        void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients);
+
+      private slots:
+        void onCurrentNodeChanged(const QModelIndex& current, const QModelIndex& previous);
+
+      private:
+        QTreeView*     m_tree_view;
+        TreeViewModel* m_model;
+    };
+
+    inline constexpr PanelMetadata metadata{
+        .id     = u"treeview",
+        .name   = u"TreeView",
+        .create = create_helper<TreeViewPanel>,
+    };
+} // namespace magnesia::activities::dataviewer::panels::treeview_panel
