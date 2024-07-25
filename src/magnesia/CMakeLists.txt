@@ -3,6 +3,10 @@ set(SOURCES
     # cmake-format: sortable
     activities/activities.cpp
     activities/add_activity/AddActivity.cpp
+    activities/dataviewer/DataViewer.cpp
+    activities/dataviewer/layout.cpp
+    activities/dataviewer/PanelMetadata.cpp
+    activities/dataviewer/panels.cpp
     Activity.cpp
     ActivityMetadata.cpp
     Application.cpp
