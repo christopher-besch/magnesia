@@ -47,6 +47,7 @@ Only the following Scope are allowed to use:
 - **docs**: changes related to code docs
 - **linux**: changes to the linux ci configuration
 - **storage**: e.g. StorageManager and SQLStorageManger
+- **opcua**: OPC UA backend
 - ...
 
 To define a new scope add it above.
