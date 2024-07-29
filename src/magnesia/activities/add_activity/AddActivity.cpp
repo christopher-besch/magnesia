@@ -52,7 +52,7 @@ namespace magnesia::activities::add_activity {
     }
 
     void AddActivity::closeEvent(QCloseEvent* event) {
-        Q_ASSERT(event);
+        Q_ASSERT(event != nullptr);
         // This Activity cannot be closed, it is the main entry point for the user.
         qDebug() << "AddActivity: ignoring CloseEvent";
         event->ignore();
