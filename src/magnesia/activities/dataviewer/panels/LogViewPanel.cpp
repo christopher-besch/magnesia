@@ -3,6 +3,7 @@
 #include "LogViewModel.hpp"
 #include "activities/dataviewer/DataViewer.hpp"
 #include "activities/dataviewer/Panel.hpp"
+#include "activities/dataviewer/PanelMetadata.hpp"
 #include "activities/dataviewer/panels.hpp"
 #include "activities/dataviewer/panels/LogViewModel.hpp"
 #include "opcua_qt/LogEntry.hpp"
@@ -113,5 +114,9 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         }
         m_filtered_log_lines = filtered_logs;
         m_log_view_model->setLogLines(m_filtered_log_lines);
+    }
+
+    const PanelMetadata& LogViewPanel::metadata() const noexcept {
+        return log_view_panel::metadata;
     }
 } // namespace magnesia::activities::dataviewer::panels::log_view_panel

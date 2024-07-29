@@ -4,6 +4,7 @@
 #include "activities/dataviewer/panels.hpp"
 #include "opcua_qt/abstraction/NodeId.hpp"
 
+#include <QJsonObject>
 #include <QWidget>
 
 namespace magnesia::activities::dataviewer {
@@ -19,5 +20,15 @@ namespace magnesia::activities::dataviewer {
 
     void Panel::selectNode(const opcua_qt::abstraction::NodeId& /*node*/) {
         // don't do anything in the default implementation
+    }
+
+    QJsonObject Panel::saveState() const {
+        // don't do anything in the default implementation
+        return {};
+    };
+
+    bool Panel::restoreState(const QJsonObject& /*data*/) {
+        // don't do anything in the default implementation
+        return true;
     }
 } // namespace magnesia::activities::dataviewer

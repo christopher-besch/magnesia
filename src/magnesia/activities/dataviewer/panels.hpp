@@ -1,6 +1,5 @@
 #pragma once
 
-#include "activities/dataviewer/PanelMetadata.hpp"
 #include "activities/dataviewer/dataviewer_fwd.hpp"
 #include "activities/dataviewer/panels/LogViewPanel.hpp"
 #include "qt_version_check.hpp"
@@ -38,7 +37,8 @@ namespace magnesia::activities::dataviewer::panels {
     };
 
     /**
-     * Bitset used internally for identifying panel types. Add your panel here and it's metadata to `panels::all`.
+     * Bitset used internally for identifying panel types at runtime. Add your panels here and it's metadata to
+     * `panels::all`.
      */
     enum class Panels : unsigned {
         log_view = 0x1 << 3,
