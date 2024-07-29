@@ -10,6 +10,7 @@
 #include <open62541pp/Node.h>
 
 #include <QList>
+#include <QObject>
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtTypes>
 #else
@@ -27,7 +28,7 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class ReferenceTypeNode : public Node {
       public:
-        explicit ReferenceTypeNode(opcua::Node<opcua::Client> node);
+        explicit ReferenceTypeNode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] std::optional<LocalizedText> getInverseName() override;
         [[nodiscard]] std::optional<bool>          isAbstract() override;
