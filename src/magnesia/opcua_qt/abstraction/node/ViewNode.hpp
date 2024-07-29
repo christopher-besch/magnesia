@@ -10,6 +10,7 @@
 #include <open62541pp/Node.h>
 
 #include <QList>
+#include <QObject>
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtTypes>
 #else
@@ -27,7 +28,7 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class ViewNode : public Node {
       public:
-        explicit ViewNode(opcua::Node<opcua::Client> node);
+        explicit ViewNode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] std::optional<bool>                 containsNoLoops() override;
         [[nodiscard]] std::optional<EventNotifierBitmask> getEventNotifierType() override;

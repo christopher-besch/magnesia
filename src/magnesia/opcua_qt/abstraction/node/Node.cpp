@@ -30,6 +30,7 @@
 #include <open62541pp/Node.h>
 
 #include <QList>
+#include <QObject>
 #include <QSharedPointer>
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtTypes>
@@ -38,7 +39,7 @@
 #endif
 
 namespace magnesia::opcua_qt::abstraction {
-    Node::Node(opcua::Node<opcua::Client> node) : m_node(std::move(node)) {}
+    Node::Node(opcua::Node<opcua::Client> node, QObject* parent) : QObject(parent), m_node(std::move(node)) {}
 
     NodeId Node::getNodeId() const {
         return NodeId(m_node.id());
@@ -68,15 +69,15 @@ namespace magnesia::opcua_qt::abstraction {
         return WriteMaskBitmask(m_node.readUserWriteMask());
     }
 
-    Node Node::getParent() {
-        return Node(m_node.browseParent());
+    Node* Node::getParent() {
+        return fromOPCUANode(m_node.browseParent(), parent());
     }
 
-    QList<QSharedPointer<Node>> Node::getChildren() {
-        QList<QSharedPointer<Node>> nodes{};
+    QList<Node*> Node::getChildren() {
+        QList<Node*> nodes{};
 
         for (const auto& node : m_node.browseChildren()) {
-            if (auto specific_node = Node::fromOPCUANode(node); !specific_node.isNull()) {
+            if (auto* specific_node = Node::fromOPCUANode(node, parent()); specific_node != nullptr) {
                 nodes.append(specific_node);
             }
         }
@@ -205,27 +206,27 @@ namespace magnesia::opcua_qt::abstraction {
         return m_node;
     }
 
-    QSharedPointer<Node> Node::fromOPCUANode(opcua::Node<opcua::Client> node) {
+    Node* Node::fromOPCUANode(opcua::Node<opcua::Client> node, QObject* parent) {
         switch (node.readNodeClass()) {
             case opcua::NodeClass::DataType:
-                return QSharedPointer<Node>{new DataTypeNode(node)};
+                return new DataTypeNode(node, parent);
             case opcua::NodeClass::ReferenceType:
-                return QSharedPointer<Node>{new ReferenceTypeNode(node)};
+                return new ReferenceTypeNode(node, parent);
             case opcua::NodeClass::ObjectType:
-                return QSharedPointer<Node>{new ObjectTypeNode(node)};
+                return new ObjectTypeNode(node, parent);
             case opcua::NodeClass::VariableType:
-                return QSharedPointer<Node>{new VariableTypeNode(node)};
+                return new VariableTypeNode(node, parent);
             case opcua::NodeClass::Variable:
-                return QSharedPointer<Node>{new VariableNode(node)};
+                return new VariableNode(node, parent);
             case opcua::NodeClass::Object:
-                return QSharedPointer<Node>{new ObjectNode(node)};
+                return new ObjectNode(node, parent);
             case opcua::NodeClass::Method:
-                return QSharedPointer<Node>{new MethodNode(node)};
+                return new MethodNode(node, parent);
             case opcua::NodeClass::View:
-                return QSharedPointer<Node>{new ViewNode(node)};
+                return new ViewNode(node, parent);
                 // takes care of opcua::NodeClass::Unspecified
             default:
-                return QSharedPointer<Node>{};
+                return nullptr;
         }
     }
 } // namespace magnesia::opcua_qt::abstraction

@@ -13,6 +13,7 @@
 #include <open62541pp/Node.h>
 
 #include <QList>
+#include <QObject>
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtTypes>
 #else
@@ -30,7 +31,7 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class VariableTypeNode : public Node {
       public:
-        explicit VariableTypeNode(opcua::Node<opcua::Client> node);
+        explicit VariableTypeNode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] std::optional<DataValue>      getDataValue() override;
         [[nodiscard]] std::optional<NodeId>         getDataType() override;

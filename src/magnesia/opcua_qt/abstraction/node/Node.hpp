@@ -18,8 +18,9 @@
 #include <open62541pp/Client.h>
 #include <open62541pp/Node.h>
 
-#include <QSharedPointer>
-#include <QtContainerFwd>
+#include <QList>
+#include <QObject>
+#include <qtmetamacros.h>
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtTypes>
 #else
@@ -42,12 +43,10 @@ namespace magnesia::opcua_qt::abstraction {
      *
      * See https://reference.opcfoundation.org/Core/Part3/v104/docs/5
      */
-    class Node {
-      public:
-        virtual ~Node()              = default;
-        Node& operator=(const Node&) = delete;
-        Node& operator=(Node&&)      = delete;
+    class Node : public QObject {
+        Q_OBJECT
 
+      public:
         /**
          * Get the unique id of this node.
          */
@@ -86,12 +85,12 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the parent node of this node.
          */
-        [[nodiscard]] Node getParent();
+        [[nodiscard]] Node* getParent();
 
         /**
          * Get the child nodes of this node.
          */
-        [[nodiscard]] QList<QSharedPointer<Node>> getChildren();
+        [[nodiscard]] QList<Node*> getChildren();
 
         /**
          * Get all references to and from this node.
@@ -329,16 +328,15 @@ namespace magnesia::opcua_qt::abstraction {
          * Returns nullptr if the node has an invalid node class.
          *
          * @param node the opcua Node to wrap
+         * @param parent the parent QObject
          */
-        [[nodiscard]] static QSharedPointer<Node> fromOPCUANode(opcua::Node<opcua::Client> node);
+        [[nodiscard]] static Node* fromOPCUANode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] const opcua::Node<opcua::Client>& handle() const noexcept;
         [[nodiscard]] opcua::Node<opcua::Client>&       handle() noexcept;
 
       protected:
-        explicit Node(opcua::Node<opcua::Client> node);
-        Node(const Node&) = default;
-        Node(Node&&)      = default;
+        explicit Node(opcua::Node<opcua::Client> node, QObject* parent);
 
       private:
         opcua::Node<opcua::Client> m_node;

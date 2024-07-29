@@ -20,6 +20,7 @@
 #include <open62541pp/Span.h>
 
 #include <QList>
+#include <QObject>
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
 #include <QtTypes>
@@ -28,7 +29,8 @@
 #endif
 
 namespace magnesia::opcua_qt::abstraction {
-    VariableTypeNode::VariableTypeNode(opcua::Node<opcua::Client> node) : Node(std::move(node)) {
+    VariableTypeNode::VariableTypeNode(opcua::Node<opcua::Client> node, QObject* parent)
+        : Node(std::move(node), parent) {
         Q_ASSERT(handle().readNodeClass() == opcua::NodeClass::VariableType);
     }
 
