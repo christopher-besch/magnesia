@@ -11,7 +11,7 @@ namespace magnesia::activities {
      * user to create.
      */
     inline constexpr std::array all{
-        // NOTE: Keep add_activity last. It calls metadata.create_config_widget which may depend on other plugins
+        // NOTE: Keep add_activity last. It calls metadata.create_config_widget which may depend on other activities
         // already being initialized
         add_activity::metadata,
     };
