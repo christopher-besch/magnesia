@@ -3,6 +3,8 @@
 #include "Activity.hpp"
 #include "ActivityMetadata.hpp"
 #include "ConfigWidget.hpp"
+#include "activities/dataviewer/panels.hpp"
+#include "opcua_qt/abstraction/NodeId.hpp"
 #include "qt_version_check.hpp"
 
 #include <cstddef>
@@ -25,6 +27,15 @@ namespace magnesia::activities::dataviewer {
 
       public:
         explicit DataViewer(QWidget* parent = nullptr);
+
+      signals:
+        /**
+         * Mediator signal to enable communication between panels.
+         *
+         * @param node the selected node
+         * @param recipients the target panel types
+         */
+        void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients);
     };
 
     /**
