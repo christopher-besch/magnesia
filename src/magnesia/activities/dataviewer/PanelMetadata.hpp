@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataViewer.hpp"
+#include "dataviewer_fwd.hpp"
 
 #include <QStringView>
 #include <QWidget>
