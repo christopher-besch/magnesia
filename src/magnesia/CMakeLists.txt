@@ -6,6 +6,7 @@ set(SOURCES
     activities/dataviewer/DataViewer.cpp
     activities/dataviewer/dataviewer_fwd.cpp
     activities/dataviewer/layout.cpp
+    activities/dataviewer/Panel.cpp
     activities/dataviewer/PanelMetadata.cpp
     activities/dataviewer/panels.cpp
     Activity.cpp

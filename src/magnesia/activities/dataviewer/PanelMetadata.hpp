@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Panel.hpp"
 #include "dataviewer_fwd.hpp"
 
 #include <QStringView>
@@ -15,6 +16,6 @@ namespace magnesia::activities::dataviewer {
         /**
          * Called with dataviewer instance to create a panel instance.
          */
-        QWidget* (*create)(DataViewer*){};
+        Panel* (*create)(DataViewer*){};
     };
 } // namespace magnesia::activities::dataviewer
