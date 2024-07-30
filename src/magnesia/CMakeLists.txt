@@ -54,6 +54,7 @@ target_link_libraries(
     PRIVATE magnesia::project_options
             Qt::Widgets
             Qt::Sql
+            Qt::Network
             open62541pp::open62541pp
 )
 
