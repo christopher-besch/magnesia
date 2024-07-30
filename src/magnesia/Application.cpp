@@ -2,13 +2,12 @@
 
 #include "Activity.hpp"
 #include "ActivityMetadata.hpp"
-#include "activities/activities.hpp"
-// TODO: uncomment when ConnectionManager is available
-// #include "ConnectionManager.hpp"
 #include "Router.hpp"
 #include "SQLStorageManager.hpp"
 #include "SettingsManager.hpp"
 #include "StorageManager.hpp"
+#include "activities/activities.hpp"
+#include "opcua_qt/ConnectionManager.hpp"
 #include "qt_version_check.hpp"
 
 #include <functional>
@@ -33,9 +32,8 @@ namespace magnesia {
           m_storage_manager(new SQLStorageManager{":memory:", this}),
           // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete): https://github.com/llvm/llvm-project/issues/62985
           m_settings_manager(new SettingsManager{m_storage_manager, this}),
-          // TODO: uncomment when ConnectionManager is available
-          // m_connection_manager{new ConnectionManager{this}},
-          m_router(new Router{this}), m_tab_widget(new QTabWidget{&m_main_window}) {
+          m_connection_manager{new opcua_qt::ConnectionManager{this}}, m_router(new Router{this}),
+          m_tab_widget(new QTabWidget{&m_main_window}) {
         Q_ASSERT(s_instance == nullptr && "You can only have one mangesia::Application at a time");
         s_instance = this;
 
@@ -87,11 +85,10 @@ namespace magnesia {
         return *m_settings_manager;
     }
 
-    // TODO: uncomment when ConnectionManager is available
-    // ConnectionManager& Application::getConnectionManager() {
-    //     Q_ASSERT(m_connection_manager != nullptr);
-    //     return *m_connection_manager;
-    // }
+    opcua_qt::ConnectionManager& Application::getConnectionManager() {
+        Q_ASSERT(m_connection_manager != nullptr);
+        return *m_connection_manager;
+    }
 
     Router& Application::getRouter() {
         Q_ASSERT(m_router != nullptr);
