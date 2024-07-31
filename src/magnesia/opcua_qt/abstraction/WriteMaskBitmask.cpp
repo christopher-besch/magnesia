@@ -7,9 +7,7 @@
 #include <open62541pp/Bitmask.h>
 #include <open62541pp/Common.h>
 
-#include <QDateTime>
 #include <QList>
-#include <QtContainerFwd>
 
 namespace magnesia::opcua_qt::abstraction {
     WriteMaskBitmask::WriteMaskBitmask(opcua::Bitmask<opcua::WriteMask> bitmask) : m_bitmask(bitmask) {}

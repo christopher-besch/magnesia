@@ -7,7 +7,7 @@
 
 #include <open62541pp/types/Composed.h>
 
-#include <QObject>
+#include <QString>
 #include <QUrl>
 
 namespace magnesia::opcua_qt {

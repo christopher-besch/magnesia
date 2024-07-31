@@ -21,6 +21,7 @@
 #include <QList>
 #include <QObject>
 #include <qtmetamacros.h>
+
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtTypes>
 #else

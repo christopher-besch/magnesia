@@ -14,12 +14,13 @@
 #include <open62541pp/Common.h>
 #include <open62541pp/Span.h>
 #include <open62541pp/Subscription.h>
+#include <open62541pp/types/Composed.h>
+#include <open62541pp/types/DataValue.h>
+#include <open62541pp/types/Variant.h>
 
 #include <QList>
 #include <QSharedPointer>
-#include <qlist.h>
 #include <qtmetamacros.h>
-#include <qvariant.h>
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtTypes>

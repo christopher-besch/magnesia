@@ -15,7 +15,6 @@
 #include <open62541pp/AccessControl.h>
 #include <open62541pp/Client.h>
 #include <open62541pp/Common.h>
-#include <open62541pp/Logger.h>
 #include <open62541pp/types/Builtin.h>
 
 #include <QList>
@@ -24,7 +23,6 @@
 #include <QThreadPool>
 #include <QTimer>
 #include <QUrl>
-#include <QVariant>
 #include <qtmetamacros.h>
 
 #ifdef MAGNESIA_HAS_QT_6_5

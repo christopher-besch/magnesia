@@ -8,7 +8,6 @@
 #include <open62541pp/Common.h>
 
 #include <QList>
-#include <QtContainerFwd>
 
 namespace magnesia::opcua_qt::abstraction {
     /**

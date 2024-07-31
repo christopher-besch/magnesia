@@ -11,11 +11,10 @@
 #include <open62541pp/Common.h>
 #include <open62541pp/Node.h>
 
-#include <QList>
 #include <QObject>
+
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
-#include <QtTypes>
 #else
 #include <QtGlobal>
 #endif
