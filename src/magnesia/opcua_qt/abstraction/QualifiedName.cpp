@@ -6,6 +6,8 @@
 
 #include <open62541pp/types/Builtin.h>
 
+#include <QString>
+
 namespace magnesia::opcua_qt::abstraction {
     QualifiedName::QualifiedName(opcua::QualifiedName qualified_name) : m_qualified_name(std::move(qualified_name)) {}
 

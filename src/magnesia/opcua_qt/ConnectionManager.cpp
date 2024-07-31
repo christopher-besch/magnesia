@@ -13,7 +13,6 @@
 #include <QList>
 #include <QObject>
 #include <QString>
-#include <QThreadPool>
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>

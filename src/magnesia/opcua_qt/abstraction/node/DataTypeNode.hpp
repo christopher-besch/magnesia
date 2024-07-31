@@ -1,20 +1,13 @@
 #pragma once
 
 #include "Node.hpp"
-#include "qt_version_check.hpp"
 
 #include <optional>
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Node.h>
 
-#include <QList>
 #include <QObject>
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::opcua_qt::abstraction {
     /**

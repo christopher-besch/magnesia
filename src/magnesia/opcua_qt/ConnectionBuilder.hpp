@@ -7,15 +7,12 @@
 
 #include <optional>
 
-#include <open62541pp/AccessControl.h>
-#include <open62541pp/Logger.h>
-#include <open62541pp/NodeIds.h>
-
 #include <QList>
 #include <QMutex>
 #include <QObject>
 #include <QSslCertificate>
 #include <QString>
+#include <QUrl>
 #include <qtmetamacros.h>
 
 namespace magnesia::opcua_qt {

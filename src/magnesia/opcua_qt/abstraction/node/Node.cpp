@@ -21,7 +21,6 @@
 #include "opcua_qt/abstraction/WriteMaskBitmask.hpp"
 #include "qt_version_check.hpp"
 
-#include <cassert>
 #include <optional>
 #include <utility>
 
@@ -31,7 +30,7 @@
 
 #include <QList>
 #include <QObject>
-#include <QSharedPointer>
+
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtTypes>
 #else

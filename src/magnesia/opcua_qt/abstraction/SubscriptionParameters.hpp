@@ -2,9 +2,7 @@
 
 #include <cstdint>
 
-#include <open62541pp/open62541pp.h>
 #include <open62541pp/services/Subscription.h>
-#include <open62541pp/types/Builtin.h>
 
 namespace magnesia::opcua_qt::abstraction {
     /**

@@ -7,11 +7,8 @@
 #include "SubscriptionParameters.hpp"
 #include "Variant.hpp"
 
-#include <bits/types/__sigval_t.h>
-
 #include <open62541pp/Client.h>
 #include <open62541pp/Subscription.h>
-#include <open62541pp/types/Builtin.h>
 
 #include <QList>
 #include <QObject>

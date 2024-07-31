@@ -4,7 +4,6 @@
 #include "qt_version_check.hpp"
 
 #include <cstdint>
-#include <cstdio>
 #include <optional>
 #include <string>
 #include <utility>
@@ -19,7 +18,6 @@
 #include <QList>
 #include <QString>
 #include <QVariant>
-#include <QtContainerFwd>
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtTypes>

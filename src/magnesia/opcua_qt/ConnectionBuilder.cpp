@@ -12,7 +12,6 @@
 #include <vector>
 
 #include <open62541pp/Client.h>
-#include <open62541pp/Logger.h>
 #include <open62541pp/types/Composed.h>
 
 #include <QList>

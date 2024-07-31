@@ -10,14 +10,13 @@
 
 #include <optional>
 
+#include <open62541pp/AccessControl.h>
 #include <open62541pp/Client.h>
-#include <open62541pp/Logger.h>
 
 #include <QList>
 #include <QMutex>
 #include <QObject>
 #include <QSslCertificate>
-#include <QString>
 #include <QTimer>
 #include <QUrl>
 #include <qtmetamacros.h>

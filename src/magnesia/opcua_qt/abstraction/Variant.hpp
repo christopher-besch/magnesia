@@ -6,7 +6,9 @@
 
 #include <open62541pp/types/Variant.h>
 
-#include <QtContainerFwd>
+#include <QList>
+#include <QString>
+#include <QVariant>
 
 namespace magnesia::opcua_qt::abstraction {
     class Variant {

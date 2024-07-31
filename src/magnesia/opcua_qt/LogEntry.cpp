@@ -9,6 +9,8 @@
 
 #include <open62541pp/Logger.h>
 
+#include <QString>
+
 namespace magnesia::opcua_qt {
     LogEntry::LogEntry(LogLevel level, LogCategory category, QString message)
         : m_message(std::move(message)), m_level(level), m_category(category) {}

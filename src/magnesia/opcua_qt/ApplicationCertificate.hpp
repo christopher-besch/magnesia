@@ -2,11 +2,7 @@
 
 #include <cstddef>
 
-#include <open62541pp/types/Builtin.h>
-
-#include <QByteArray>
 #include <QList>
-#include <QObject>
 #include <QSslCertificate>
 #include <QString>
 

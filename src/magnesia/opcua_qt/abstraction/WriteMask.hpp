@@ -1,9 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <type_traits>
-
-#include <open62541pp/Bitmask.h>
 
 namespace magnesia::opcua_qt::abstraction {
     /**

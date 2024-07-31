@@ -15,6 +15,7 @@
 
 #include <QList>
 #include <QObject>
+
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtTypes>
 #else

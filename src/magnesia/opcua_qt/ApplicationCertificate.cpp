@@ -11,7 +11,6 @@
 
 #include <QByteArray>
 #include <QList>
-#include <QObject>
 #include <QSsl>
 #include <QSslCertificate>
 #include <QString>

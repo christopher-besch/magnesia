@@ -3,8 +3,6 @@
 #include "Connection.hpp"
 #include "ConnectionBuilder.hpp"
 
-#include <open62541pp/Logger.h>
-
 #include <QList>
 #include <QMap>
 #include <QObject>
