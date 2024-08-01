@@ -1,5 +1,7 @@
 #pragma once
 
+#include "HistoricServerConnection.hpp"
+#include "Layout.hpp"
 #include "database_types.hpp"
 
 #include <cstdint>
@@ -7,6 +9,8 @@
 
 #include <QList>
 #include <QObject>
+#include <QSslCertificate>
+#include <QSslKey>
 #include <QString>
 #include <qtmetamacros.h>
 
@@ -25,14 +29,23 @@ namespace magnesia {
 
       public:
         /**
-         * Store a Certificate in the database.
+         * Store an X.509 certificate in the database.
          *
          * Exit the application on error.
          *
-         * @param cert The Certificate to store.
-         * @return the new database id of the Certificate.
+         * @param cert the certificate to store.
+         * @return the new database id of the certificate.
          */
-        virtual StorageId storeCertificate(const Certificate& cert) = 0;
+        virtual StorageId storeCertificate(const QSslCertificate& cert) = 0;
+        /**
+         * Store an X.509 key in the database.
+         *
+         * Exit the application on error.
+         *
+         * @param key the key to store.
+         * @return the new database id of the certificate or key.
+         */
+        virtual StorageId storeKey(const QSslKey& key) = 0;
         /**
          * Store a HistoricServerConnection in the database.
          *
@@ -55,24 +68,33 @@ namespace magnesia {
         virtual StorageId storeLayout(const Layout& layout, const LayoutGroup& group, const Domain& domain) = 0;
 
         /**
-         * Retrieve a Certificate from the database.
+         * Retrieve an X.509 certificate from the database.
          *
          * Exit the application on error.
          *
-         * @param cert_id The id the Certificate is stored under.
-         * @return the Certificate or nullopt when not found.
+         * @param cert_id The id the certificate is stored under.
+         * @return the certificate or nullopt when not found.
          */
-        virtual std::optional<Certificate> getCertificate(StorageId cert_id) = 0;
+        virtual std::optional<QSslCertificate> getCertificate(StorageId cert_id) = 0;
+        /**
+         * Retrieve an X.509 key from the database.
+         *
+         * Exit the application on error.
+         *
+         * @param key_id The id the key is stored under.
+         * @return the key or nullopt when not found.
+         */
+        virtual std::optional<QSslKey> getKey(StorageId key_id) = 0;
         /**
          * Retrieve a HistoricServerConnection from the database.
          *
          * Exit the application on error.
          *
-         * @param historic_connection_id The id the HistoricServerConnection is stored under.
+         * @param historic_server_connection_id The id the HistoricServerConnection is stored under.
          * @return the HistoricServerConnection or nullopt when not found.
          */
         virtual std::optional<HistoricServerConnection>
-        getHistoricServerConnection(StorageId historic_connection_id) = 0;
+        getHistoricServerConnection(StorageId historic_server_connection_id) = 0;
         /**
          * Retrieve a Layout from the database.
          *
@@ -87,15 +109,25 @@ namespace magnesia {
                                                 const Domain& domain) = 0;
 
         /**
-         * Retrieve all Certificates from the database.
+         * Retrieve all X.509 certificates from the database.
          *
          * This can be used to populate drop down menus in the SettingsActivity.
          *
          * Exit the application on error.
          *
-         * @return a list of all Certificates.
+         * @return a list of all certificates.
          */
-        virtual QList<Certificate> getAllCertificates() = 0;
+        virtual QList<QSslCertificate> getAllCertificates() = 0;
+        /**
+         * Retrieve all X.509 keys from the database.
+         *
+         * This can be used to populate drop down menus in the SettingsActivity.
+         *
+         * Exit the application on error.
+         *
+         * @return a list of all keys.
+         */
+        virtual QList<QSslKey> getAllKeys() = 0;
         /**
          * Retrieve all HistoricServerConnections from the database.
          *
@@ -120,15 +152,25 @@ namespace magnesia {
         virtual QList<Layout> getAllLayouts(const LayoutGroup& group, const Domain& domain) = 0;
 
         /**
-         * Retrieve all Certificate IDs from the database.
+         * Retrieve all X.509 certificate IDs from the database.
          *
          * This can be used to populate drop down menus in the SettingsActivity.
          *
          * Exit the application on error.
          *
-         * @return a list of all Certificate IDs.
+         * @return a list of all certificate IDs.
          */
         virtual QList<StorageId> getAllCertificateIds() = 0;
+        /**
+         * Retrieve all X.509 key IDs from the database.
+         *
+         * This can be used to populate drop down menus in the SettingsActivity.
+         *
+         * Exit the application on error.
+         *
+         * @return a list of all key IDs.
+         */
+        virtual QList<StorageId> getAllKeyIds() = 0;
         /**
          * Retrieve all HistoricServerConnection IDs from the database.
          *
@@ -153,21 +195,29 @@ namespace magnesia {
         virtual QList<StorageId> getAllLayoutIds(const LayoutGroup& group, const Domain& domain) = 0;
 
         /**
-         * Delete the Certificate with the specified id if it exists.
+         * Delete the X.509 certificate with the specified id if it exists.
          *
          * Exit the application on error.
          *
-         * @param cert_id The id of the Certificate.
+         * @param cert_id The id of the certificate.
          */
         virtual void deleteCertificate(StorageId cert_id) = 0;
+        /**
+         * Delete the X.509 key with the specified id if it exists.
+         *
+         * Exit the application on error.
+         *
+         * @param key_id The id of the key.
+         */
+        virtual void deleteKey(StorageId key_id) = 0;
         /**
          * Delete the HistoricServerConnection with the specified id if it exists.
          *
          * Exit the application on error.
          *
-         * @param historic_connection_id The id of the HistoricServerConnection.
+         * @param historic_server_connection_id The id of the HistoricServerConnection.
          */
-        virtual void deleteHistoricServerConnection(StorageId historic_connection_id) = 0;
+        virtual void deleteHistoricServerConnection(StorageId historic_server_connection_id) = 0;
         /**
          * Delete the Layout with the specified id if it exists.
          *
@@ -211,11 +261,17 @@ namespace magnesia {
 
       signals:
         /**
-         * Emitted when a Certificate was set or removed.
+         * Emitted when an X.509 certificate was set or removed.
          *
-         * @param cert_id the id of the Certificate that changed
+         * @param cert_id the id of the certificate that changed
          */
         void certificateChanged(StorageId cert_id);
+        /**
+         * Emitted when an X.509 key was set or removed.
+         *
+         * @param key_id the id of the key that changed
+         */
+        void keyChanged(StorageId key_id);
         /**
          * Emitted when a Layout was set or removed.
          *
@@ -227,9 +283,9 @@ namespace magnesia {
         /**
          * Emitted when a HistoricServerConnection was set or removed.
          *
-         * @param historic_connection_id The id the HistoricServerConnection is stored under.
+         * @param historic_server_connection_id The id the HistoricServerConnection is stored under.
          */
-        void historicConnectionChanged(StorageId historic_connection_id);
+        void historicConnectionChanged(StorageId historic_server_connection_id);
         /**
          * Emitted when a key-value pair was set or removed.
          *
@@ -260,14 +316,17 @@ namespace magnesia {
         virtual void setDoubleSetting(const SettingKey& key, double value)                                        = 0;
         virtual void setEnumSetting(const SettingKey& key, const EnumSettingValue& value)                         = 0;
         virtual void setCertificateSetting(const SettingKey& key, StorageId cert_id)                              = 0;
-        virtual void setHistoricServerConnectionSetting(const SettingKey& key, StorageId historic_connection_id)  = 0;
+        virtual void setKeySetting(const SettingKey& key, StorageId key_id)                                       = 0;
+        virtual void setHistoricServerConnectionSetting(const SettingKey& key,
+                                                        StorageId         historic_server_connection_id)                  = 0;
         virtual void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group)       = 0;
         virtual std::optional<bool>                     getBoolSetting(const SettingKey& key)                     = 0;
         virtual std::optional<QString>                  getStringSetting(const SettingKey& key)                   = 0;
         virtual std::optional<std::int64_t>             getIntSetting(const SettingKey& key)                      = 0;
         virtual std::optional<double>                   getDoubleSetting(const SettingKey& key)                   = 0;
         virtual std::optional<EnumSettingValue>         getEnumSetting(const SettingKey& key)                     = 0;
-        virtual std::optional<Certificate>              getCertificateSetting(const SettingKey& key)              = 0;
+        virtual std::optional<QSslCertificate>          getCertificateSetting(const SettingKey& key)              = 0;
+        virtual std::optional<QSslKey>                  getKeySetting(const SettingKey& key)                      = 0;
         virtual std::optional<HistoricServerConnection> getHistoricServerConnectionSetting(const SettingKey& key) = 0;
         virtual std::optional<Layout>                   getLayoutSetting(const SettingKey& key)                   = 0;
     };

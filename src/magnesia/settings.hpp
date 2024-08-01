@@ -198,6 +198,26 @@ namespace magnesia {
     };
 
     /*
+     * A setting of type Key.
+     *
+     * @see Certificate
+     */
+    class KeySetting : public Setting {
+      public:
+        // The default is nullopt.
+        // Therefore, no getDefault function is needed.
+
+        /**
+         * Checking that a Key with that id exists is done by the StorageManager.
+         *
+         *  @return true iff value the requirements for certificate settings.
+         */
+        [[nodiscard]] static bool isValid(StorageId value);
+
+        KeySetting(QString name, QString human_readable_name, QString description);
+    };
+
+    /*
      * A setting of type Layout.
      *
      * @see Layout

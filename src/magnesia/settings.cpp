@@ -116,6 +116,13 @@ namespace magnesia {
     CertificateSetting::CertificateSetting(QString name, QString human_readable_name, QString description)
         : Setting{std::move(name), std::move(human_readable_name), std::move(description)} {}
 
+    bool KeySetting::isValid(StorageId /*value*/) {
+        return true;
+    }
+
+    KeySetting::KeySetting(QString name, QString human_readable_name, QString description)
+        : Setting{std::move(name), std::move(human_readable_name), std::move(description)} {}
+
     LayoutGroup LayoutSetting::getGroup() const {
         return m_layout_group;
     }

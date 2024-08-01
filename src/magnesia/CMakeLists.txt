@@ -8,6 +8,8 @@ set(SOURCES
     Application.cpp
     ConfigWidget.cpp
     database_types.cpp
+    HistoricServerConnection.cpp
+    Layout.cpp
     opcua_qt/abstraction/AccessLevel.cpp
     opcua_qt/abstraction/AccessLevelBitmask.cpp
     opcua_qt/abstraction/AttributeId.cpp

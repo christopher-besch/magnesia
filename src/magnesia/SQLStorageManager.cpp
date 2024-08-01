@@ -1,7 +1,10 @@
 #include "SQLStorageManager.hpp"
 
+#include "HistoricServerConnection.hpp"
+#include "Layout.hpp"
 #include "StorageManager.hpp"
 #include "database_types.hpp"
+#include "opcua_qt/abstraction/MessageSecurityMode.hpp"
 #include "qt_version_check.hpp"
 #include "terminate.hpp"
 
@@ -14,10 +17,13 @@
 #include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QString>
+#include <QSsl>
+#include <QSslCertificate>
+#include <QSslKey>
 #include <qtmetamacros.h>
 
 #ifdef MAGNESIA_HAS_QT_6_5
+#include <QtAssert>
 #include <QtLogging>
 #include <QtTypes>
 #else
@@ -48,11 +54,11 @@ namespace magnesia {
         migrate();
     }
 
-    StorageId SQLStorageManager::storeCertificate(const Certificate& cert) {
+    StorageId SQLStorageManager::storeCertificate(const QSslCertificate& cert) {
+        Q_ASSERT(!cert.isNull());
         QSqlQuery query{m_database};
-        query.prepare(R"sql(INSERT INTO Certificate VALUES (NULL, :name, :path, CURRENT_TIMESTAMP);)sql");
-        query.bindValue(":name", cert.name);
-        query.bindValue(":path", cert.path_to_cert);
+        query.prepare(R"sql(INSERT INTO Certificate VALUES (NULL, :pem, CURRENT_TIMESTAMP);)sql");
+        query.bindValue(":pem", cert.toPem());
         query.exec();
         if (query.lastError().isValid()) {
             warnQuery("database Certificate storing failed.", query);
@@ -63,16 +69,45 @@ namespace magnesia {
         return cert_id;
     }
 
+    StorageId SQLStorageManager::storeKey(const QSslKey& key) {
+        Q_ASSERT(!key.isNull());
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(INSERT INTO Key VALUES (NULL, :pem, CURRENT_TIMESTAMP);)sql");
+        query.bindValue(":pem", key.toPem());
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database Key storing failed.", query);
+            terminate();
+        }
+        auto key_id = getLastRowId();
+        Q_EMIT keyChanged(key_id);
+        return key_id;
+    }
+
     StorageId
     SQLStorageManager::storeHistoricServerConnection(const HistoricServerConnection& historic_server_connection) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 INSERT INTO HistoricServerConnection
-VALUES (NULL, :address, :port, :cert_id, :layout_id, :layout_group, :layout_domain, :last_used, CURRENT_TIMESTAMP);
+VALUES (NULL, :server_url, :endpoint_url, :endpoint_security_policy_uri, :endpoint_message_security_mode, :username, :password, :certificate_id, :private_key_id, :layout_id, :layout_group, :layout_domain, :last_used, CURRENT_TIMESTAMP);
                       )sql");
-        query.bindValue(":address", historic_server_connection.address);
-        query.bindValue(":port", historic_server_connection.port);
-        query.bindValue(":cert_id", historic_server_connection.certificate_id);
+        query.bindValue(":server_url", historic_server_connection.server_url);
+        query.bindValue(":endpoint_url", historic_server_connection.endpoint_url);
+        query.bindValue(":endpoint_security_policy_uri", historic_server_connection.endpoint_security_policy_uri);
+        query.bindValue(":endpoint_message_security_mode",
+                        static_cast<qlonglong>(historic_server_connection.endpoint_message_security_mode));
+        if (historic_server_connection.username.has_value()) {
+            query.bindValue(":username", historic_server_connection.username.value());
+        }
+        if (historic_server_connection.password.has_value()) {
+            query.bindValue(":password", historic_server_connection.password.value());
+        }
+        if (historic_server_connection.certificate_id.has_value()) {
+            query.bindValue(":certificate_id", historic_server_connection.certificate_id.value());
+        }
+        if (historic_server_connection.private_key_certificate_id.has_value()) {
+            query.bindValue(":private_key_id", historic_server_connection.private_key_certificate_id.value());
+        }
         query.bindValue(":layout_id", historic_server_connection.last_layout_id);
         query.bindValue(":layout_group", historic_server_connection.last_layout_group);
         query.bindValue(":layout_domain", historic_server_connection.last_layout_domain);
@@ -82,9 +117,13 @@ VALUES (NULL, :address, :port, :cert_id, :layout_id, :layout_group, :layout_doma
             warnQuery("database HistoricServerConnection storing failed.", query);
             terminate();
         }
-        auto server_con_id = getLastRowId();
-        Q_EMIT historicConnectionChanged(server_con_id);
-        return server_con_id;
+        auto historic_server_connection_id = getLastRowId();
+        setHistoricServerConnectionTrustList(historic_server_connection_id,
+                                             historic_server_connection.trust_list_certificate_ids);
+        setHistoricServerConnectionRevokedList(historic_server_connection_id,
+                                               historic_server_connection.revoked_list_certificate_ids);
+        Q_EMIT historicConnectionChanged(historic_server_connection_id);
+        return historic_server_connection_id;
     }
 
     StorageId SQLStorageManager::storeLayout(const Layout& layout, const LayoutGroup& group, const Domain& domain) {
@@ -106,9 +145,9 @@ INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURR
         return layout_id;
     }
 
-    std::optional<Certificate> SQLStorageManager::getCertificate(StorageId cert_id) {
+    std::optional<QSslCertificate> SQLStorageManager::getCertificate(StorageId cert_id) {
         QSqlQuery query{m_database};
-        query.prepare(R"sql(SELECT name, path FROM Certificate WHERE id = :id;)sql");
+        query.prepare(R"sql(SELECT pem FROM Certificate WHERE id = :id;)sql");
         query.bindValue(":id", cert_id);
         query.exec();
         if (query.lastError().isValid()) {
@@ -119,37 +158,63 @@ INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURR
         if (!query.next()) {
             return {};
         }
-        return Certificate{
-            .name         = query.value("name").toString(),
-            .path_to_cert = query.value("path").toString(),
-        };
+
+        auto certs = QSslCertificate::fromData(query.value("pem").toByteArray(), QSsl::EncodingFormat::Pem);
+        // you may not store more than one certificate
+        if (certs.size() != 1) {
+            return {};
+        }
+        return certs.front();
     }
 
-    std::optional<HistoricServerConnection>
-    SQLStorageManager::getHistoricServerConnection(StorageId historic_connection_id) {
+    std::optional<QSslKey> SQLStorageManager::getKey(StorageId key_id) {
         QSqlQuery query{m_database};
-        query.prepare(R"sql(
-SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used FROM HistoricServerConnection WHERE id = :id;
-                      )sql");
-        query.bindValue(":id", historic_connection_id);
+        query.prepare(R"sql(SELECT pem FROM Key WHERE id = :id;)sql");
+        query.bindValue(":id", key_id);
         query.exec();
         if (query.lastError().isValid()) {
-            warnQuery("database HistoricServerConnection retrieval failed.", query);
+            warnQuery("database Key retrieval failed.", query);
             terminate();
         }
 
         if (!query.next()) {
             return {};
         }
-        return HistoricServerConnection{
-            .address            = query.value("address").toString(),
-            .port               = query.value("port").toInt(),
-            .certificate_id     = query.value("cert_id").toULongLong(),
-            .last_layout_id     = query.value("layout_id").toULongLong(),
-            .last_layout_group  = query.value("layout_group").toString(),
-            .last_layout_domain = query.value("layout_domain").toString(),
-            .last_used          = query.value("last_used").toDateTime(),
-        };
+        // TODO: use actual key type
+        QSslKey key{query.value("pem").toByteArray(), QSsl::Rsa, QSsl::Pem};
+        Q_ASSERT(!key.isNull());
+        return key;
+    }
+
+    std::optional<HistoricServerConnection>
+    SQLStorageManager::getHistoricServerConnection(StorageId historic_server_connection_id) {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(
+SELECT
+    server_url,
+    endpoint_url,
+    endpoint_security_policy_uri,
+    endpoint_message_security_mode,
+    username,
+    password,
+    certificate_id,
+    private_key_id,
+    layout_id,
+    layout_group,
+    layout_domain,
+    last_used
+FROM HistoricServerConnection WHERE id = :id;
+                      )sql");
+        query.bindValue(":id", historic_server_connection_id);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database HistoricServerConnection retrieval failed.", query);
+            terminate();
+        }
+        if (!query.next()) {
+            return {};
+        }
+        return queryToHistoricServerConnection(query, historic_server_connection_id);
     }
 
     std::optional<Layout> SQLStorageManager::getLayout(StorageId layout_id, const LayoutGroup& group,
@@ -176,27 +241,69 @@ SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_gro
         };
     }
 
-    QList<Certificate> SQLStorageManager::getAllCertificates() {
-        QSqlQuery query{R"sql(SELECT name, path FROM Certificate;)sql", m_database};
+    QList<QSslCertificate> SQLStorageManager::getAllCertificates() {
+        QSqlQuery query{R"sql(SELECT pem FROM Certificate;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database all Certificate retrieval failed.", query);
             terminate();
         }
 
-        QList<Certificate> certificates{};
+        QList<QSslCertificate> certificates{};
         while (query.next()) {
-            certificates.append({
-                .name         = query.value("name").toString(),
-                .path_to_cert = query.value("path").toString(),
-            });
+            certificates.append(QSslCertificate::fromData(query.value("pem").toByteArray(), QSsl::EncodingFormat::Pem));
         }
         return certificates;
+    }
+
+    QList<QSslKey> SQLStorageManager::getAllKeys() {
+        QSqlQuery query{R"sql(SELECT pem FROM Key;)sql", m_database};
+        if (query.lastError().isValid()) {
+            warnQuery("database all Key retrieval failed.", query);
+            terminate();
+        }
+
+        QList<QSslKey> keys{};
+        while (query.next()) {
+            // TODO: use actual key type
+            const QSslKey key{query.value("pem").toByteArray(), QSsl::Rsa, QSsl::Pem};
+            Q_ASSERT(!key.isNull());
+            keys.append(key);
+        }
+        return keys;
     }
 
     QList<HistoricServerConnection> SQLStorageManager::getAllHistoricServerConnections() {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
-SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used FROM HistoricServerConnection;
+
+SELECT
+    id,
+    server_url,
+    endpoint_url,
+    endpoint_security_policy_uri,
+    endpoint_message_security_mode,
+    username,
+    password,
+    certificate_id,
+    private_key_id,
+    layout_id,
+    layout_group,
+    layout_domain,
+    last_used
+AS historic_server_connection_id,
+    server_url,
+    endpoint_url,
+    endpoint_security_policy_uri,
+    endpoint_message_security_mode,
+    username,
+    password,
+    certificate_id,
+    private_key_id,
+    layout_id,
+    layout_group,
+    layout_domain,
+    last_used
+FROM HistoricServerConnection;
                       )sql");
         query.exec();
         if (query.lastError().isValid()) {
@@ -206,15 +313,7 @@ SELECT address, port, cert_id, layout_id, layout_group, layout_domain, last_used
 
         QList<HistoricServerConnection> historic_connections{};
         while (query.next()) {
-            historic_connections.append({
-                .address            = query.value("address").toString(),
-                .port               = query.value("port").toInt(),
-                .certificate_id     = query.value("cert_id").toULongLong(),
-                .last_layout_id     = query.value("layout_id").toULongLong(),
-                .last_layout_group  = query.value("layout_group").toString(),
-                .last_layout_domain = query.value("layout_domain").toString(),
-                .last_used          = query.value("last_used").toDateTime(),
-            });
+            historic_connections.append(queryToHistoricServerConnection(query));
         }
         return historic_connections;
     }
@@ -256,6 +355,20 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
         return certificate_ids;
     }
 
+    QList<StorageId> SQLStorageManager::getAllKeyIds() {
+        QSqlQuery query{R"sql(SELECT id FROM Key;)sql", m_database};
+        if (query.lastError().isValid()) {
+            warnQuery("database all Key IDs retrieval failed.", query);
+            terminate();
+        }
+
+        QList<StorageId> key_ids{};
+        while (query.next()) {
+            key_ids.append(query.value("id").toULongLong());
+        }
+        return key_ids;
+    }
+
     QList<StorageId> SQLStorageManager::getAllHistoricServerConnectionIds() {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT id FROM HistoricServerConnection;)sql");
@@ -265,11 +378,11 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
             terminate();
         }
 
-        QList<StorageId> historic_connection_ids{};
+        QList<StorageId> historic_server_connection_ids{};
         while (query.next()) {
-            historic_connection_ids.append(query.value("id").toULongLong());
+            historic_server_connection_ids.append(query.value("id").toULongLong());
         }
-        return historic_connection_ids;
+        return historic_server_connection_ids;
     }
 
     QList<StorageId> SQLStorageManager::getAllLayoutIds(const LayoutGroup& group, const Domain& domain) {
@@ -302,16 +415,28 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
         Q_EMIT certificateChanged(cert_id);
     }
 
-    void SQLStorageManager::deleteHistoricServerConnection(StorageId historic_connection_id) {
+    void SQLStorageManager::deleteKey(StorageId key_id) {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(DELETE FROM Key WHERE id = :id;)sql");
+        query.bindValue(":id", key_id);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database Key deletion failed.", query);
+            terminate();
+        }
+        Q_EMIT keyChanged(key_id);
+    }
+
+    void SQLStorageManager::deleteHistoricServerConnection(StorageId historic_server_connection_id) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(DELETE FROM HistoricServerConnection WHERE id = :id;)sql");
-        query.bindValue(":id", historic_connection_id);
+        query.bindValue(":id", historic_server_connection_id);
         query.exec();
         if (query.lastError().isValid()) {
             warnQuery("database HistoricServerConnection deletion failed.", query);
             terminate();
         }
-        Q_EMIT historicConnectionChanged(historic_connection_id);
+        Q_EMIT historicConnectionChanged(historic_server_connection_id);
     }
 
     void SQLStorageManager::deleteLayout(StorageId layout_id, const LayoutGroup& group, const Domain& domain) {
@@ -484,14 +609,29 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    void SQLStorageManager::setHistoricServerConnectionSetting(const SettingKey& key,
-                                                               StorageId         historic_connection_id) {
+    void SQLStorageManager::setKeySetting(const SettingKey& key, StorageId key_id) {
         setGenericSetting(key);
         QSqlQuery query{m_database};
-        query.prepare(R"sql(REPLACE INTO HistoricServerConnectionSetting VALUES (:name, :domain, :server_con_id);)sql");
+        query.prepare(R"sql(REPLACE INTO KeySetting VALUES (:name, :domain, :key_id);)sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
-        query.bindValue(":server_con_id", historic_connection_id);
+        query.bindValue(":key_id", key_id);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database KeySetting replace failed.", query);
+            terminate();
+        }
+    }
+
+    void SQLStorageManager::setHistoricServerConnectionSetting(const SettingKey& key,
+                                                               StorageId         historic_server_connection_id) {
+        setGenericSetting(key);
+        QSqlQuery query{m_database};
+        query.prepare(
+            R"sql(REPLACE INTO HistoricServerConnectionSetting VALUES (:name, :domain, :historic_server_connection_id);)sql");
+        query.bindValue(":name", key.name);
+        query.bindValue(":domain", key.domain);
+        query.bindValue(":historic_server_connection_id", historic_server_connection_id);
         query.exec();
         if (query.lastError().isValid()) {
             warnQuery("database HistoricServerConnectionSetting replace failed.", query);
@@ -599,11 +739,11 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return EnumSettingValue{query.value("value").toString()};
     }
 
-    std::optional<Certificate> SQLStorageManager::getCertificateSetting(const SettingKey& key) {
+    std::optional<QSslCertificate> SQLStorageManager::getCertificateSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
-SELECT Certificate.name,
-    Certificate.path
+SELECT CertificateSetting.name,
+    Certificate.pem
 FROM CertificateSetting, Certificate
 WHERE CertificateSetting.name = :name
     AND CertificateSetting.domain = :domain
@@ -620,27 +760,77 @@ WHERE CertificateSetting.name = :name
         if (!query.next()) {
             return {};
         }
-        return Certificate{
-            .name         = query.value("Certificate.name").toString(),
-            .path_to_cert = query.value("Certificate.path").toString(),
-        };
+
+        auto certs = QSslCertificate::fromData(query.value("pem").toByteArray(), QSsl::EncodingFormat::Pem);
+        // you may not store more than one certificate
+        if (certs.size() != 1) {
+            return {};
+        }
+        return certs.front();
+    }
+
+    std::optional<QSslKey> SQLStorageManager::getKeySetting(const SettingKey& key) {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(
+SELECT KeySetting.name,
+    Key.pem
+FROM KeySetting, Key
+WHERE KeySetting.name = :name
+    AND KeySetting.domain = :domain
+    AND Key.id = KeySetting.key_id;
+                      )sql");
+        query.bindValue(":name", key.name);
+        query.bindValue(":domain", key.domain);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database KeySetting retrieval failed.", query);
+            terminate();
+        }
+
+        if (!query.next()) {
+            return {};
+        }
+        // TODO: use actual key type
+        QSslKey qkey{query.value("pem").toByteArray(), QSsl::Rsa, QSsl::Pem};
+        Q_ASSERT(!qkey.isNull());
+        return qkey;
     }
 
     std::optional<HistoricServerConnection>
     SQLStorageManager::getHistoricServerConnectionSetting(const SettingKey& key) {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
-SELECT HistoricServerConnection.address,
-    HistoricServerConnection.port,
-    HistoricServerConnection.cert_id,
+SELECT
+    HistoricServerConnection.id,
+    HistoricServerConnection.server_url,
+    HistoricServerConnection.endpoint_url,
+    HistoricServerConnection.endpoint_security_policy_uri,
+    HistoricServerConnection.endpoint_message_security_mode,
+    HistoricServerConnection.username,
+    HistoricServerConnection.password,
+    HistoricServerConnection.certificate_id,
+    HistoricServerConnection.private_key_id,
     HistoricServerConnection.layout_id,
     HistoricServerConnection.layout_group,
     HistoricServerConnection.layout_domain,
     HistoricServerConnection.last_used
+AS historic_server_connection_id,
+    server_url,
+    endpoint_url,
+    endpoint_security_policy_uri,
+    endpoint_message_security_mode,
+    username,
+    password,
+    certificate_id,
+    private_key_id,
+    layout_id,
+    layout_group,
+    layout_domain,
+    last_used
 FROM HistoricServerConnectionSetting, HistoricServerConnection
 WHERE HistoricServerConnectionSetting.name = :name
     AND HistoricServerConnectionSetting.domain = :domain
-    AND HistoricServerConnection.id = HistoricServerConnectionSetting.server_con_id;
+    AND HistoricServerConnection.id = HistoricServerConnectionSetting.historic_server_connection_id;
                       )sql");
         query.bindValue(":name", key.name);
         query.bindValue(":domain", key.domain);
@@ -653,15 +843,7 @@ WHERE HistoricServerConnectionSetting.name = :name
         if (!query.next()) {
             return {};
         }
-        return HistoricServerConnection{
-            .address            = query.value("HistoricServerConnection.address").toString(),
-            .port               = query.value("HistoricServerConnection.port").toInt(),
-            .certificate_id     = query.value("HistoricServerConnection.cert_id").toULongLong(),
-            .last_layout_id     = query.value("HistoricServerConnection.layout_id").toULongLong(),
-            .last_layout_group  = query.value("HistoricServerConnection.layout_group").toString(),
-            .last_layout_domain = query.value("HistoricServerConnection.layout_domain").toString(),
-            .last_used          = query.value("HistoricServerConnection.last_used").toDateTime(),
-        };
+        return queryToHistoricServerConnection(query);
     }
 
     std::optional<Layout> SQLStorageManager::getLayoutSetting(const SettingKey& key) {
@@ -700,27 +882,71 @@ WHERE LayoutSetting.name = :name
             R"sql(
 CREATE TABLE Certificate (
     id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    path TEXT NOT NULL,
+    pem BLOB NOT NULL,
+    last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+) STRICT;
+)sql",
+            R"sql(
+CREATE TABLE Key (
+    id INTEGER PRIMARY KEY,
+    pem BLOB NOT NULL,
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) STRICT;
 )sql",
             R"sql(
 CREATE TABLE HistoricServerConnection (
     id INTEGER PRIMARY KEY,
-    address TEXT NOT NULL,
-    port INT NOT NULL,
-    cert_id INT NOT NULL,
+
+    server_url TEXT NOT NULL,
+
+    endpoint_url TEXT NOT NULL,
+    endpoint_security_policy_uri TEXT NOT NULL,
+    endpoint_message_security_mode INT NOT NULL,
+
+    username TEXT,
+    password TEXT,
+    certificate_id INT,
+    private_key_id INT,
+
     layout_id INT NOT NULL,
     layout_group TEXT NOT NULL,
     layout_domain TEXT NOT NULL,
+
     last_used TEXT NOT NULL,
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     --
-    CONSTRAINT HistoricServerConnection_TO_Certificate_FK FOREIGN KEY (cert_id)
+    CONSTRAINT HistoricServerConnection_TO_Certificate_FK FOREIGN KEY (certificate_id)
         REFERENCES Certificate (id),
+    CONSTRAINT HistoricServerConnection_TO_Key_FK FOREIGN KEY (private_key_id)
+        REFERENCES Key (id),
     CONSTRAINT HistoricServerConnection_TO_Layout_FK FOREIGN KEY (layout_id, layout_group, layout_domain)
         REFERENCES Layout (id, layout_group, domain)
+) STRICT;
+)sql",
+            R"sql(
+CREATE TABLE HistoricServerConnectionTrustList (
+    historic_server_connection_id INTEGER NOT NULL,
+    certificate_id INTEGER NOT NULL,
+    --
+    CONSTRAINT HistoricServerConnectionTrustList_PK PRIMARY KEY (historic_server_connection_id, certificate_id),
+    CONSTRAINT HistoricServerConnectionTrustList_TO_HistoricServerConnection_FK FOREIGN KEY (historic_server_connection_id)
+        REFERENCES HistoricServerConnection (id)
+        ON DELETE CASCADE,
+    CONSTRAINT HistoricServerConnectionTrustList_TO_Certificate_FK FOREIGN KEY (certificate_id)
+        REFERENCES Certificate (id)
+) STRICT;
+)sql",
+            R"sql(
+CREATE TABLE HistoricServerConnectionRevokedList (
+    historic_server_connection_id INTEGER NOT NULL,
+    certificate_id INTEGER NOT NULL,
+    --
+    CONSTRAINT HistoricServerConnectionRevokedList_PK PRIMARY KEY (historic_server_connection_id, certificate_id),
+    CONSTRAINT HistoricServerConnectionRevokedList_TO_HistoricServerConnection_FK FOREIGN KEY (historic_server_connection_id)
+        REFERENCES HistoricServerConnection (id)
+        ON DELETE CASCADE,
+    CONSTRAINT HistoricServerConnectionRevokedList_TO_Certificate_FK FOREIGN KEY (certificate_id)
+        REFERENCES Certificate (id)
 ) STRICT;
 )sql",
             R"sql(
@@ -831,20 +1057,37 @@ CREATE TABLE CertificateSetting (
         ON DELETE CASCADE,
     CONSTRAINT CertificateSetting_TO_Certificate_FK FOREIGN KEY (cert_id)
         REFERENCES Certificate (id)
+        ON DELETE CASCADE
+) STRICT;
+)sql",
+            R"sql(
+CREATE TABLE KeySetting (
+    name TEXT NOT NULL,
+    domain TEXT NOT NULL,
+    key_id INT NOT NULL,
+    --
+    CONSTRAINT KeySetting_PK PRIMARY KEY (name, domain),
+    CONSTRAINT KeySetting_TO_Setting_FK FOREIGN KEY (name, domain)
+        REFERENCES Setting (name, domain)
+        ON DELETE CASCADE,
+    CONSTRAINT KeySetting_TO_Key_FK FOREIGN KEY (key_id)
+        REFERENCES Key (id)
+        ON DELETE CASCADE
 ) STRICT;
 )sql",
             R"sql(
 CREATE TABLE HistoricServerConnectionSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
-    server_con_id INT NOT NULL,
+    historic_server_connection_id INT NOT NULL,
     --
     CONSTRAINT HistoricServerConnectionSetting_PK PRIMARY KEY (name, domain),
     CONSTRAINT HistoricServerConnectionSetting_TO_Setting_FK FOREIGN KEY (name, domain)
         REFERENCES Setting (name, domain)
         ON DELETE CASCADE,
-    CONSTRAINT HistoricServerConnectionSetting_TO_HistoricServerConnection_FK FOREIGN KEY (server_con_id)
+    CONSTRAINT HistoricServerConnectionSetting_TO_HistoricServerConnection_FK FOREIGN KEY (historic_server_connection_id)
         REFERENCES HistoricServerConnection (id)
+        ON DELETE CASCADE
 ) STRICT;
 )sql",
             R"sql(
@@ -860,6 +1103,7 @@ CREATE TABLE LayoutSetting (
         ON DELETE CASCADE,
     CONSTRAINT LayoutSetting_TO_Layout_FK FOREIGN KEY (layout_id, layout_group, domain)
         REFERENCES Layout (id, layout_group, domain)
+        ON DELETE CASCADE
 ) STRICT;
 )sql",
         };
@@ -920,5 +1164,136 @@ CREATE TABLE LayoutSetting (
     void SQLStorageManager::warnQuery(const QString& message, const QSqlQuery& query) {
         qWarning() << "Error:" << message << "\nQuery:" << query.executedQuery()
                    << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+    }
+
+    QList<StorageId> SQLStorageManager::getHistoricServerConnectionTrustList(StorageId historic_server_connection_id) {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(
+SELECT certificate_id FROM HistoricServerConnectionTrustList WHERE historic_server_connection_id = :historic_server_connection_id;
+                      )sql");
+        query.bindValue(":id", historic_server_connection_id);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database HistoricServerConnectionTrustList retrieval failed.", query);
+            terminate();
+        }
+
+        QList<StorageId> certificate_ids{};
+        while (query.next()) {
+            certificate_ids.append(query.value("certificate_id").toULongLong());
+        }
+        return certificate_ids;
+    }
+
+    QList<StorageId>
+    SQLStorageManager::getHistoricServerConnectionRevokedList(StorageId historic_server_connection_id) {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(
+SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_server_connection_id = :historic_server_connection_id;
+                      )sql");
+        query.bindValue(":id", historic_server_connection_id);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database HistoricServerConnectionRevokedList retrieval failed.", query);
+            terminate();
+        }
+
+        QList<StorageId> certificate_ids{};
+        while (query.next()) {
+            certificate_ids.append(query.value("certificate_id").toULongLong());
+        }
+        return certificate_ids;
+    }
+
+    void SQLStorageManager::deleteHistoricServerConnectionTrustList(StorageId historic_server_connection_id) {
+        QSqlQuery query{m_database};
+        query.prepare(
+            R"sql(DELETE FROM HistoricServerConnectionTrustList WHERE historic_server_connection_id = :historic_server_connection_id;)sql");
+        query.bindValue(":historic_server_connection_id", historic_server_connection_id);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database HistoricServerConnectionTrustList deletion failed.", query);
+            terminate();
+        }
+    }
+
+    void SQLStorageManager::deleteHistoricServerConnectionRevokedList(StorageId historic_server_connection_id) {
+        QSqlQuery query{m_database};
+        query.prepare(
+            R"sql(DELETE FROM HistoricServerConnectionRevokedList WHERE historic_server_connection_id = :historic_server_connection_id;)sql");
+        query.bindValue(":historic_server_connection_id", historic_server_connection_id);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database HistoricServerConnectionRevokedList deletion failed.", query);
+            terminate();
+        }
+    }
+
+    void SQLStorageManager::setHistoricServerConnectionTrustList(StorageId historic_server_connection_id,
+
+                                                                 const QList<StorageId>& certificates) {
+        deleteHistoricServerConnectionRevokedList(historic_server_connection_id);
+        for (auto cert_id : certificates) {
+            QSqlQuery query{m_database};
+            query.prepare(
+                R"sql(INSERT INTO HistoricServerConnectionTrustList VALUES (:historic_server_connection_id, :cert_id);)sql");
+            query.bindValue(":historic_server_connection_id", historic_server_connection_id);
+            query.bindValue(":cert_id", cert_id);
+            query.exec();
+            if (query.lastError().isValid()) {
+                warnQuery("database HistoricServerConnectionTrustList storing failed.", query);
+                terminate();
+            }
+        }
+    }
+
+    void SQLStorageManager::setHistoricServerConnectionRevokedList(StorageId historic_server_connection_id,
+
+                                                                   const QList<StorageId>& certificates) {
+        deleteHistoricServerConnectionRevokedList(historic_server_connection_id);
+        for (auto cert_id : certificates) {
+            QSqlQuery query{m_database};
+            query.prepare(
+                R"sql(INSERT INTO HistoricServerConnectionRevokedList VALUES (:historic_server_connection_id, :cert_id);)sql");
+            query.bindValue(":historic_server_connection_id", historic_server_connection_id);
+            query.bindValue(":cert_id", cert_id);
+            query.exec();
+            if (query.lastError().isValid()) {
+                warnQuery("database HistoricServerConnectionRevokedList storing failed.", query);
+                terminate();
+            }
+        }
+    }
+
+    HistoricServerConnection
+    SQLStorageManager::queryToHistoricServerConnection(const QSqlQuery& query,
+                                                       StorageId        historic_server_connection_id) {
+        return {
+            .server_url                   = query.value("server_url").toString(),
+            .endpoint_url                 = query.value("endpoint_url").toString(),
+            .endpoint_security_policy_uri = query.value("endpoint_security_policy_uri").toString(),
+            .endpoint_message_security_mode =
+                static_cast<opcua_qt::MessageSecurityMode>(query.value("endpoint_message_security_mode").toUInt()),
+            .username =
+                query.value("username").isValid() ? std::optional{query.value("username").toString()} : std::nullopt,
+            .password =
+                query.value("password").isValid() ? std::optional{query.value("password").toString()} : std::nullopt,
+            .certificate_id               = query.value("certificate_id").isValid()
+                                                ? std::optional{query.value("certificate_id").toULongLong()}
+                                                : std::nullopt,
+            .private_key_certificate_id   = query.value("private_key_id").isValid()
+                                                ? std::optional{query.value("private_key_id").toULongLong()}
+                                                : std::nullopt,
+            .trust_list_certificate_ids   = getHistoricServerConnectionTrustList(historic_server_connection_id),
+            .revoked_list_certificate_ids = getHistoricServerConnectionRevokedList(historic_server_connection_id),
+            .last_layout_id               = query.value("layout_id").toULongLong(),
+            .last_layout_group            = query.value("layout_group").toString(),
+            .last_layout_domain           = query.value("layout_domain").toString(),
+            .last_used                    = query.value("last_used").toDateTime(),
+        };
+    }
+
+    HistoricServerConnection SQLStorageManager::queryToHistoricServerConnection(const QSqlQuery& query) {
+        return queryToHistoricServerConnection(query, query.value("historic_server_connection_id").toULongLong());
     }
 } // namespace magnesia
