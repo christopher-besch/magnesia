@@ -55,6 +55,11 @@ codespell:
   script:
     - nix develop -ic .ci/lint.sh codespell
 
+qt headers:
+  <<: *lint-base
+  script:
+    - nix develop -ic .ci/lint.sh qt_headers
+
 clang-tidy:
   <<: *lint-base
   script:
