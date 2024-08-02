@@ -4,6 +4,7 @@
 #include "dataviewer_fwd.hpp"
 #include "panels/AttributeViewPanel.hpp"
 #include "panels/LogViewPanel.hpp"
+#include "panels/NodeViewPanel.hpp"
 #include "panels/ReferenceViewPanel.hpp"
 #include "panels/TreeViewPanel.hpp"
 
@@ -39,10 +40,8 @@ namespace magnesia::activities::dataviewer::panels {
      * List of registered panels used to fill the UI. Add your panels metadata here and an entry to `panels::Panels`.
      */
     inline constexpr std::array all{
-        log_view_panel::metadata,
-        treeview_panel::metadata,
-        attribute_view_panel::metadata,
-        reference_view_panel::metadata,
+        log_view_panel::metadata,       treeview_panel::metadata,  attribute_view_panel::metadata,
+        reference_view_panel::metadata, node_view_panel::metadata,
     };
 
     /**
@@ -54,6 +53,7 @@ namespace magnesia::activities::dataviewer::panels {
         attribute      = 0x1 << 2,
         log_view       = 0x1 << 3,
         reference_view = 0x1 << 4,
+        node           = 0x1 << 5,
     };
 
     /**

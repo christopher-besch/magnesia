@@ -33,8 +33,13 @@ namespace magnesia::opcua_qt::abstraction {
         : Node(std::move(node), parent) {}
 
     std::optional<DataValue> VariableTypeNode::getDataValue() {
+        if (m_cache_data_value.has_value()) {
+            return m_cache_data_value;
+        }
+
         try {
-            return DataValue(handle().readDataValue());
+            m_cache_data_value = DataValue(handle().readDataValue());
+            return m_cache_data_value;
         } catch (opcua::BadStatus&) {
             return std::nullopt;
         }

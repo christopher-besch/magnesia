@@ -341,6 +341,9 @@ namespace magnesia::opcua_qt::abstraction {
       protected:
         explicit Node(opcua::Node<opcua::Client> node, QObject* parent);
 
+      protected:
+        std::optional<DataValue> m_cache_data_value; // NOLINT cppcoreguidelines-non-private-member-variables-in-classes
+
       private:
         opcua::Node<opcua::Client>   m_node;
         std::optional<Node*>         m_cache_parent;

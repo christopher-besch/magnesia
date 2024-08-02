@@ -8,6 +8,7 @@
 #include <open62541pp/types/DataValue.h>
 
 #include <QDateTime>
+#include <QString>
 
 namespace magnesia::opcua_qt::abstraction {
     /**
@@ -52,6 +53,11 @@ namespace magnesia::opcua_qt::abstraction {
          * @see Variant
          */
         [[nodiscard]] Variant getValue() const noexcept;
+
+        /**
+         * Get the name of the data type.
+         */
+        [[nodiscard]] QString getDataTypeName() const noexcept;
 
         /**
          * Set the value as a variant.
