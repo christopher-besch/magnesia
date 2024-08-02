@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <optional>
 
+#include <QJsonDocument>
 #include <QList>
 #include <QObject>
 #include <QSqlDriver>
@@ -94,7 +95,7 @@ INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURR
         query.bindValue(":layout_group", group);
         query.bindValue(":domain", domain);
         query.bindValue(":name", layout.name);
-        query.bindValue(":json_data", layout.json_data);
+        query.bindValue(":json_data", layout.json_data.toJson());
         query.exec();
         if (query.lastError().isValid()) {
             warnQuery("database Layout storing failed.", query);
@@ -171,7 +172,7 @@ SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_gro
         }
         return Layout{
             .name      = query.value("name").toString(),
-            .json_data = query.value("json_data").toJsonDocument(),
+            .json_data = QJsonDocument::fromJson(query.value("json_data").toString().toUtf8()),
         };
     }
 
@@ -235,7 +236,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
         while (query.next()) {
             layouts.append({
                 .name      = query.value("name").toString(),
-                .json_data = query.value("json_data").toJsonDocument(),
+                .json_data = QJsonDocument::fromJson(query.value("json_data").toString().toUtf8()),
             });
         }
         return layouts;
@@ -686,7 +687,7 @@ WHERE LayoutSetting.name = :name
         }
         return Layout{
             .name      = query.value("Layout.name").toString(),
-            .json_data = query.value("Layout.json_data").toJsonDocument(),
+            .json_data = QJsonDocument::fromJson(query.value("Layout.json_data").toString().toUtf8()),
         };
     }
 
@@ -732,7 +733,7 @@ CREATE TABLE Layout (
     domain TEXT NOT NULL,
     -- the name can be set by the user and is not unique
     name TEXT NOT NULL,
-    json_data TEXT NOT NULL,
+    json_data BLOB NOT NULL,
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     --
     UNIQUE(id, layout_group, domain)
