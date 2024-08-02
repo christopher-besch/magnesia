@@ -1,8 +1,10 @@
 #pragma once
 
+#include "activities/dataviewer/PanelMetadata.hpp"
 #include "activities/dataviewer/dataviewer_fwd.hpp"
 #include "opcua_qt/abstraction/NodeId.hpp"
 
+#include <QJsonObject>
 #include <QWidget>
 #include <qtmetamacros.h>
 
@@ -12,6 +14,12 @@ namespace magnesia::activities::dataviewer {
      */
     class Panel : public QWidget {
         Q_OBJECT
+
+      public:
+        [[nodiscard]] virtual QJsonObject saveState() const;
+        [[nodiscard]] virtual bool        restoreState(const QJsonObject& data);
+
+        [[nodiscard]] virtual const PanelMetadata& metadata() const noexcept = 0;
 
       protected:
         /**

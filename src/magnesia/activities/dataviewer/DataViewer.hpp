@@ -1,12 +1,21 @@
 #pragma once
 
 #include "Activity.hpp"
-#include "activities/dataviewer/panels.hpp"
+#include "Layout.hpp"
+#include "database_types.hpp"
+#include "dataviewer_fwd.hpp"
 #include "opcua_qt/Connection.hpp"
 #include "opcua_qt/Logger.hpp"
 #include "opcua_qt/abstraction/NodeId.hpp"
 
+#include <QAbstractListModel>
+#include <QLayout>
+#include <QList>
+#include <QModelIndex>
+#include <QObject>
+#include <QVariant>
 #include <QWidget>
+#include <Qt>
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::dataviewer {
@@ -15,6 +24,9 @@ namespace magnesia::activities::dataviewer {
      */
     class DataViewer : public Activity {
         Q_OBJECT
+
+        static constexpr auto s_storage_domain = "DataViewer";
+        static constexpr auto s_layout_group   = "main";
 
       public:
         explicit DataViewer(opcua_qt::Connection* connection, opcua_qt::Logger* logger, QWidget* parent = nullptr);
@@ -32,7 +44,31 @@ namespace magnesia::activities::dataviewer {
         void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients);
 
       private:
-        opcua_qt::Connection* m_connection{nullptr};
-        opcua_qt::Logger*     m_logger{nullptr};
+        QLayout* buildLayoutSelector();
+
+      private:
+        layout::PanelLayout*  m_root_layout;
+        opcua_qt::Connection* m_connection;
+        opcua_qt::Logger*     m_logger;
     };
+
+    namespace detail {
+        class LayoutSelectorModel : public QAbstractListModel {
+            Q_OBJECT
+
+          public:
+            explicit LayoutSelectorModel(Domain domain, LayoutGroup group, QObject* parent = nullptr);
+
+            [[nodiscard]] int      rowCount(const QModelIndex& parent = QModelIndex()) const override;
+            [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+
+          public:
+            void reload();
+
+          private:
+            Domain        m_domain;
+            LayoutGroup   m_group;
+            QList<Layout> m_layouts;
+        };
+    } // namespace detail
 } // namespace magnesia::activities::dataviewer

@@ -1,11 +1,13 @@
 #pragma once
 
-#include "activities/dataviewer/DataViewer.hpp"
+#include "activities/dataviewer/dataviewer_fwd.hpp"
 #include "qt_version_check.hpp"
 
 #include <QChildEvent>
 #include <QComboBox>
 #include <QFrame>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -31,10 +33,10 @@ namespace magnesia::activities::dataviewer::layout {
          * Builds a (potentially empty) panel.
          *
          * @param dataviewer `DataViewer` to pass to panels `PanelMetadata::create` function.
-         * @param widget a widget to wrap. An empty panel is created if this parameter is nullptr or omitted.
+         * @param panel a widget to wrap. An empty panel is created if this parameter is nullptr or omitted.
          * @param parent the parent QWidget passed to Qt.
          */
-        explicit PanelWrapper(DataViewer* dataviewer, QWidget* widget = nullptr, QWidget* parent = nullptr);
+        explicit PanelWrapper(DataViewer* dataviewer, class Panel* panel = nullptr, QWidget* parent = nullptr);
 
         /**
          * Extracts the wrapped widget. This passes ownership of the widget to the caller and removes the
@@ -42,7 +44,14 @@ namespace magnesia::activities::dataviewer::layout {
          *
          * @returns the contained `QWidget`.
          */
-        QWidget* unwrap();
+        class Panel* unwrap();
+
+        /**
+         * Returns the wrapped widget. This does not change the ownership over the returned widget.
+         *
+         * @returns the contained `QWidget`.
+         */
+        [[nodiscard]] class Panel* get() const;
 
       signals:
         /**
@@ -94,22 +103,25 @@ namespace magnesia::activities::dataviewer::layout {
         /**
          * Wraps a widget in a `PanelWrapper` and appends it to the end of the layout.
          *
-         * @param widget the widget to add
+         * @param panel the widget to add
          */
-        void addWidget(QWidget* widget = nullptr);
+        void addWidget(class Panel* panel = nullptr);
         /**
          * Appends a wrapped widget to the end of the layout.
          *
-         * @param widget the wrapped widget to add
+         * @param wrapper the wrapped widget to add
          */
-        void addWidget(PanelWrapper* widget);
+        void addWidget(PanelWrapper* wrapper);
         /**
          * Wraps a widget in a `PanelWrapper` and inserts it at the specified index.
          *
          * @param index the index where to add the widget
-         * @param widget the widget to add
+         * @param panel the widget to add
          */
-        void insertWidget(int index, QWidget* widget = nullptr);
+        void insertWidget(int index, class Panel* panel = nullptr);
+
+        [[nodiscard]] QJsonDocument saveState() const;
+        bool                        restoreState(const QJsonDocument& state);
 
       protected:
         /**
@@ -124,19 +136,23 @@ namespace magnesia::activities::dataviewer::layout {
         /**
          * Helper that wraps a widget into a `PanelWrapper`.
          *
-         * @param widget the widget to wrap
+         * @param panel the widget to wrap
          * @returns the wrapped widget
          */
-        [[nodiscard]] PanelWrapper* wrapWidget(QWidget* widget) const;
+        [[nodiscard]] PanelWrapper* wrapPanel(class Panel* panel) const;
+
+        [[nodiscard]] QJsonObject saveLayout() const;
+        [[nodiscard]] bool        restoreLayout(const QJsonObject& layout);
+        [[nodiscard]] bool        restorePanel(const QJsonObject& panel);
 
       private slots:
         /**
          * Splits a panel in the specified orientation, adding a child layout if necessary.
          *
-         * @param widget the `PanelWrapper` to split. Usually `this`.
+         * @param wrapper the `PanelWrapper` to split. Usually `this`.
          * @param orientation the direction in which to split.
          */
-        void split(PanelWrapper* widget, Qt::Orientation orientation);
+        void split(PanelWrapper* wrapper, Qt::Orientation orientation);
 
       private:
         DataViewer*  m_dataviewer{nullptr};
