@@ -12,7 +12,7 @@
 namespace magnesia::opcua_qt::abstraction {
     AccessLevelBitmask::AccessLevelBitmask(opcua::Bitmask<opcua::AccessLevel> bitmask) : m_bitmask(bitmask) {}
 
-    QList<std::pair<AccessLevel, bool>> AccessLevelBitmask::getFlags() {
+    QList<std::pair<AccessLevel, bool>> AccessLevelBitmask::getFlags() const {
         return {
             {getFlagPair(AccessLevel::CURRENT_READ)},    {getFlagPair(AccessLevel::CURRENT_WRITE)},
             {getFlagPair(AccessLevel::HISTORY_READ)},    {getFlagPair(AccessLevel::HISTORY_WRITE)},
@@ -21,11 +21,11 @@ namespace magnesia::opcua_qt::abstraction {
         };
     }
 
-    std::pair<AccessLevel, bool> AccessLevelBitmask::getFlagPair(AccessLevel flag) {
+    std::pair<AccessLevel, bool> AccessLevelBitmask::getFlagPair(AccessLevel flag) const {
         return {flag, getFlag(flag)};
     }
 
-    bool AccessLevelBitmask::getFlag(AccessLevel flag) {
+    bool AccessLevelBitmask::getFlag(AccessLevel flag) const {
         return m_bitmask.anyOf(static_cast<opcua::AccessLevel>(flag));
     }
 

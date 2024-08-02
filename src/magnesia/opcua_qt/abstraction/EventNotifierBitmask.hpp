@@ -26,12 +26,12 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * See https://reference.opcfoundation.org/Core/Part3/v104/docs/8.57
          */
-        [[nodiscard]] QList<std::pair<EventNotifier, bool>> getFlags();
+        [[nodiscard]] QList<std::pair<EventNotifier, bool>> getFlags() const;
 
         /**
          * Get a specific flag from EventNotifier.
          */
-        [[nodiscard]] bool getFlag(EventNotifier flag);
+        [[nodiscard]] bool getFlag(EventNotifier flag) const;
 
         /**
          * Get the underlying bitmask.
@@ -49,7 +49,7 @@ namespace magnesia::opcua_qt::abstraction {
         void setFlag(EventNotifier flag, bool set);
 
       private:
-        [[nodiscard]] std::pair<EventNotifier, bool> getFlagPair(EventNotifier flag);
+        [[nodiscard]] std::pair<EventNotifier, bool> getFlagPair(EventNotifier flag) const;
 
       private:
         opcua::Bitmask<opcua::EventNotifier> m_bitmask;

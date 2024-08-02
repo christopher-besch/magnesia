@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include <QString>
+
 namespace magnesia::opcua_qt::abstraction {
     /**
      * All NodeClasses.
@@ -28,4 +30,27 @@ namespace magnesia::opcua_qt::abstraction {
         DATA_TYPE      = 0b01000000,
         VIEW           = 0b10000000,
     };
+
+    inline QString node_class_to_string(NodeClass node_class) {
+        switch (node_class) {
+            case NodeClass::OBJECT:
+                return "Object";
+            case NodeClass::VARIABLE:
+                return "Variable";
+            case NodeClass::METHOD:
+                return "Method";
+            case NodeClass::OBJECT_TYPE:
+                return "Object Type";
+            case NodeClass::VARIABLE_TYPE:
+                return "Variable Type";
+            case NodeClass::REFERENCE_TYPE:
+                return "Reference Type";
+            case NodeClass::DATA_TYPE:
+                return "Data Type";
+            case NodeClass::VIEW:
+                return "View";
+            default:
+                return "<invalid>";
+        }
+    }
 } // namespace magnesia::opcua_qt::abstraction

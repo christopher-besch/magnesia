@@ -12,7 +12,7 @@
 namespace magnesia::opcua_qt::abstraction {
     EventNotifierBitmask::EventNotifierBitmask(opcua::Bitmask<opcua::EventNotifier> bitmask) : m_bitmask(bitmask) {}
 
-    QList<std::pair<EventNotifier, bool>> EventNotifierBitmask::getFlags() {
+    QList<std::pair<EventNotifier, bool>> EventNotifierBitmask::getFlags() const {
         return {
             {getFlagPair(EventNotifier::SUBSCRIBE_TO_EVENTS)},
             {getFlagPair(EventNotifier::HISTORY_READ)},
@@ -20,11 +20,11 @@ namespace magnesia::opcua_qt::abstraction {
         };
     }
 
-    std::pair<EventNotifier, bool> EventNotifierBitmask::getFlagPair(EventNotifier flag) {
+    std::pair<EventNotifier, bool> EventNotifierBitmask::getFlagPair(EventNotifier flag) const {
         return {flag, getFlag(flag)};
     }
 
-    bool EventNotifierBitmask::getFlag(EventNotifier flag) {
+    bool EventNotifierBitmask::getFlag(EventNotifier flag) const {
         return m_bitmask.anyOf(static_cast<opcua::EventNotifier>(flag));
     }
 

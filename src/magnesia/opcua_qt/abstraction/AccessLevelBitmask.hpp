@@ -26,12 +26,12 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * See https://reference.opcfoundation.org/Core/Part3/v104/docs/8.57
          */
-        [[nodiscard]] QList<std::pair<AccessLevel, bool>> getFlags();
+        [[nodiscard]] QList<std::pair<AccessLevel, bool>> getFlags() const;
 
         /**
          * Get a specific flag from AccessLevel.
          */
-        [[nodiscard]] bool getFlag(AccessLevel flag);
+        [[nodiscard]] bool getFlag(AccessLevel flag) const;
 
         /**
          * Get the underlying bitmask.
@@ -49,7 +49,7 @@ namespace magnesia::opcua_qt::abstraction {
         void setFlag(AccessLevel flag, bool set);
 
       private:
-        [[nodiscard]] std::pair<AccessLevel, bool> getFlagPair(AccessLevel flag);
+        [[nodiscard]] std::pair<AccessLevel, bool> getFlagPair(AccessLevel flag) const;
 
       private:
         opcua::Bitmask<opcua::AccessLevel> m_bitmask;

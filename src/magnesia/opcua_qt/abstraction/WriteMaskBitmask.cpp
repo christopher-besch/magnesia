@@ -12,7 +12,7 @@
 namespace magnesia::opcua_qt::abstraction {
     WriteMaskBitmask::WriteMaskBitmask(opcua::Bitmask<opcua::WriteMask> bitmask) : m_bitmask(bitmask) {}
 
-    QList<std::pair<WriteMask, bool>> WriteMaskBitmask::getFlags() {
+    QList<std::pair<WriteMask, bool>> WriteMaskBitmask::getFlags() const {
         return {
             {getFlagPair(WriteMask::ACCESS_LEVEL)},
             {getFlagPair(WriteMask::ARRAY_DIMENSIONS)},
@@ -43,11 +43,11 @@ namespace magnesia::opcua_qt::abstraction {
         };
     }
 
-    std::pair<WriteMask, bool> WriteMaskBitmask::getFlagPair(WriteMask flag) {
+    std::pair<WriteMask, bool> WriteMaskBitmask::getFlagPair(WriteMask flag) const {
         return {flag, getFlag(flag)};
     }
 
-    bool WriteMaskBitmask::getFlag(WriteMask flag) {
+    bool WriteMaskBitmask::getFlag(WriteMask flag) const {
         return m_bitmask.anyOf(static_cast<opcua::WriteMask>(flag));
     }
 
