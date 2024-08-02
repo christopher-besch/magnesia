@@ -15,7 +15,7 @@
 namespace magnesia::opcua_qt {
     Logger::Logger(QObject* parent) : QObject(parent) {}
 
-    void Logger::log(const LogEntry& entry) noexcept {
+    void Logger::log(LogEntry entry) noexcept {
         m_log_entries.append(entry);
         Q_EMIT logEntryAdded(entry);
     }
