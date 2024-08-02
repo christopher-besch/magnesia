@@ -5,6 +5,7 @@
 #include <open62541pp/types/NodeId.h>
 
 #include <QString>
+#include <QVariant>
 
 namespace magnesia::opcua_qt::abstraction {
     /**
@@ -21,6 +22,11 @@ namespace magnesia::opcua_qt::abstraction {
          * Get the namespace index.
          */
         [[nodiscard]] uint16_t getNamespaceIndex() const noexcept;
+
+        /**
+         * Get the Identifier.
+         */
+        [[nodiscard]] QVariant getIdentifier() const;
 
         /**
          * Get a string representation of this node id.

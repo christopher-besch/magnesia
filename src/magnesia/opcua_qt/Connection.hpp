@@ -86,7 +86,7 @@ namespace magnesia::opcua_qt {
          *
          * @return Returns a Node Wrapper
          */
-        [[nodiscard]] abstraction::Node* getNode(abstraction::NodeId& node_id);
+        [[nodiscard]] abstraction::Node* getNode(const abstraction::NodeId& node_id);
         /**
          * @brief Creates a Subscription Object
          *

@@ -108,7 +108,7 @@ namespace magnesia::opcua_qt {
         return abstraction::Node::fromOPCUANode(m_client.getRootNode(), this);
     }
 
-    abstraction::Node* Connection::getNode(abstraction::NodeId& node_id) {
+    abstraction::Node* Connection::getNode(const abstraction::NodeId& node_id) {
         return abstraction::Node::fromOPCUANode(m_client.getNode(node_id.handle()), this);
     }
 

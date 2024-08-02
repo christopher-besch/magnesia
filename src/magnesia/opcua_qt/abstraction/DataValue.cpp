@@ -37,7 +37,7 @@ namespace magnesia::opcua_qt::abstraction {
         return StatusCode(m_data_value.getStatus());
     }
 
-    Variant DataValue::getValue() noexcept {
+    Variant DataValue::getValue() const noexcept {
         return Variant(m_data_value.getValue());
     }
 

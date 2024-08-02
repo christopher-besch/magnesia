@@ -27,7 +27,7 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the name.
          */
-        [[nodiscard]] QString getName();
+        [[nodiscard]] QString getName() const;
 
         /**
          * Get the underlying qualified name
