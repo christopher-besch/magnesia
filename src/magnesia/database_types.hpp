@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QDateTime>
-#include <QJsonDocument>
 #include <QString>
 
 namespace magnesia {
@@ -38,37 +36,5 @@ namespace magnesia {
     struct SettingKey {
         SettingName name;
         Domain      domain;
-    };
-
-    // TODO: convert these into classes with getters/setters
-    // TODO: move these into their own files
-
-    /**
-     * An OPC UA Certificate.
-     */
-    struct Certificate {
-        QString name;
-        QString path_to_cert;
-    };
-
-    /**
-     * The layout of panels inside a tab.
-     */
-    struct Layout {
-        QString       name;
-        QJsonDocument json_data;
-    };
-
-    /**
-     * A past connection with an OPC UA server.
-     */
-    struct HistoricServerConnection {
-        QString   address;
-        int       port;
-        StorageId certificate_id;
-        StorageId last_layout_id;
-        QString   last_layout_group;
-        Domain    last_layout_domain;
-        QDateTime last_used;
     };
 } // namespace magnesia

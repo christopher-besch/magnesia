@@ -1,5 +1,7 @@
 #pragma once
 
+#include "HistoricServerConnection.hpp"
+#include "Layout.hpp"
 #include "StorageManager.hpp"
 #include "database_types.hpp"
 #include "settings.hpp"
@@ -12,7 +14,8 @@
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
-#include <QString>
+#include <QSslCertificate>
+#include <QSslKey>
 #include <qtmetamacros.h>
 
 namespace magnesia {
@@ -109,7 +112,7 @@ namespace magnesia {
          */
         bool setEnumSetting(const SettingKey& key, const EnumSettingValue& value);
         /*
-         * Change a CertificateSetting.
+         * Change an X.509 CertificateSetting.
          *
          * Fail when the setting can't be found or value is invalid.
          *
@@ -120,16 +123,27 @@ namespace magnesia {
          */
         bool setCertificateSetting(const SettingKey& key, StorageId cert_id);
         /*
+         * Change an X.509 KeySetting.
+         *
+         * Fail when the setting can't be found or value is invalid.
+         *
+         * @param key The SettingKey of the setting to set.
+         * @param cert_id the id of the Key.
+         *
+         * @return false on failure, true otherwise.
+         */
+        bool setKeySetting(const SettingKey& key, StorageId key_id);
+        /*
          * Change a HistoricServerConnectionSetting.
          *
          * Fail when the setting can't be found or value is invalid.
          *
          * @param key The SettingKey of the setting to set.
-         * @param historic_connection_id The HistoricServerConnection's id.
+         * @param historic_server_connection_id The HistoricServerConnection's id.
          *
          * @return false on failure, true otherwise.
          */
-        bool setHistoricServerConnectionSetting(const SettingKey& key, StorageId historic_connection_id);
+        bool setHistoricServerConnectionSetting(const SettingKey& key, StorageId historic_server_connection_id);
         /*
          * Change a LayoutSetting.
          *
@@ -185,13 +199,21 @@ namespace magnesia {
          */
         [[nodiscard]] std::optional<EnumSettingValue> getEnumSetting(const SettingKey& key) const;
         /*
-         * Get a CertificateSetting.
+         * Get an X.509 CertificateSetting.
          *
          * @param key The SettingKey of the setting to get.
          *
          * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
-        [[nodiscard]] std::optional<Certificate> getCertificateSetting(const SettingKey& key) const;
+        [[nodiscard]] std::optional<QSslCertificate> getCertificateSetting(const SettingKey& key) const;
+        /*
+         * Get an X.509 KeySetting.
+         *
+         * @param key The SettingKey of the setting to get.
+         *
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
+         */
+        [[nodiscard]] std::optional<QSslKey> getKeySetting(const SettingKey& key) const;
         /*
          * Get a HistoricServerConnectionSetting.
          *

@@ -1,5 +1,7 @@
 #include "SettingsManager.hpp"
 
+#include "HistoricServerConnection.hpp"
+#include "Layout.hpp"
 #include "StorageManager.hpp"
 #include "database_types.hpp"
 #include "settings.hpp"
@@ -14,6 +16,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
+#include <QSslCertificate>
 #include <QString>
 #include <qtmetamacros.h>
 
@@ -86,8 +89,13 @@ namespace magnesia {
         return setSetting<CertificateSetting>(key, cert_id, &StorageManager::setCertificateSetting);
     }
 
-    bool SettingsManager::setHistoricServerConnectionSetting(const SettingKey& key, StorageId historic_connection_id) {
-        return setSetting<HistoricServerConnectionSetting>(key, historic_connection_id,
+    bool SettingsManager::setKeySetting(const SettingKey& key, StorageId key_id) {
+        return setSetting<KeySetting>(key, key_id, &StorageManager::setKeySetting);
+    }
+
+    bool SettingsManager::setHistoricServerConnectionSetting(const SettingKey& key,
+                                                             StorageId         historic_server_connection_id) {
+        return setSetting<HistoricServerConnectionSetting>(key, historic_server_connection_id,
                                                            &StorageManager::setHistoricServerConnectionSetting);
     }
 
@@ -146,8 +154,12 @@ namespace magnesia {
         return getSetting<EnumSetting, EnumSettingValue>(key, &StorageManager::getEnumSetting);
     }
 
-    std::optional<Certificate> SettingsManager::getCertificateSetting(const SettingKey& key) const {
-        return getSetting<CertificateSetting, Certificate>(key, &StorageManager::getCertificateSetting);
+    std::optional<QSslCertificate> SettingsManager::getCertificateSetting(const SettingKey& key) const {
+        return getSetting<CertificateSetting, QSslCertificate>(key, &StorageManager::getCertificateSetting);
+    }
+
+    std::optional<QSslKey> SettingsManager::getKeySetting(const SettingKey& key) const {
+        return getSetting<KeySetting, QSslKey>(key, &StorageManager::getKeySetting);
     }
 
     std::optional<HistoricServerConnection>
