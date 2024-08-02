@@ -2,6 +2,7 @@
 
 #include "activities/dataviewer/dataviewer_fwd.hpp"
 #include "activities/dataviewer/panels/LogViewPanel.hpp"
+#include "activities/dataviewer/panels/TreeViewPanel.hpp"
 #include "qt_version_check.hpp"
 
 #include <array>
@@ -34,6 +35,7 @@ namespace magnesia::activities::dataviewer::panels {
      */
     inline constexpr std::array all{
         log_view_panel::metadata,
+        treeview_panel::metadata,
     };
 
     /**
@@ -41,7 +43,9 @@ namespace magnesia::activities::dataviewer::panels {
      * `panels::all`.
      */
     enum class Panels : unsigned {
-        log_view = 0x1 << 3,
+        log_view  = 0x1 << 3,
+        treeview  = 0x1 << 1,
+        attribute = 0x1 << 2,
     };
 
     /**
