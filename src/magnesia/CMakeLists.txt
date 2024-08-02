@@ -1,6 +1,7 @@
 set(SOURCES
     # this comment doesn't seem to work in qt_add_executable
     # cmake-format: sortable
+    activities/about/About.cpp
     activities/activities.cpp
     activities/add_activity/AddActivity.cpp
     activities/dataviewer/ConfigWidget.cpp
