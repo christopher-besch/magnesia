@@ -336,10 +336,15 @@ namespace magnesia::opcua_qt::abstraction {
         [[nodiscard]] const opcua::Node<opcua::Client>& handle() const noexcept;
         [[nodiscard]] opcua::Node<opcua::Client>&       handle() noexcept;
 
+        [[nodiscard]] bool operator==(const Node& other) const;
+
       protected:
         explicit Node(opcua::Node<opcua::Client> node, QObject* parent);
 
       private:
-        opcua::Node<opcua::Client> m_node;
+        opcua::Node<opcua::Client>   m_node;
+        std::optional<Node*>         m_cache_parent;
+        std::optional<QList<Node*>>  m_cache_children;
+        std::optional<LocalizedText> m_cache_display_name;
     };
 } // namespace magnesia::opcua_qt::abstraction

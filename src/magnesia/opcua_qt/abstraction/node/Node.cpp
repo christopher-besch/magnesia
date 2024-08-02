@@ -53,7 +53,12 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     LocalizedText Node::getDisplayName() {
-        return LocalizedText(m_node.readDisplayName());
+        if (m_cache_display_name.has_value()) {
+            return m_cache_display_name.value();
+        }
+
+        m_cache_display_name = LocalizedText(m_node.readDisplayName());
+        return m_cache_display_name.value();
     }
 
     LocalizedText Node::getDescription() {
@@ -69,17 +74,29 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     Node* Node::getParent() {
-        return fromOPCUANode(m_node.browseParent(), parent());
+        if (m_cache_parent.has_value()) {
+            return m_cache_parent.value();
+        }
+
+        m_cache_parent = fromOPCUANode(m_node.browseParent(), parent());
+        return m_cache_parent.value();
     }
 
     QList<Node*> Node::getChildren() {
+        if (m_cache_children.has_value()) {
+            return m_cache_children.value();
+        }
+
         QList<Node*> nodes{};
 
         for (const auto& node : m_node.browseChildren()) {
             if (auto* specific_node = Node::fromOPCUANode(node, parent()); specific_node != nullptr) {
+                specific_node->m_cache_parent = this;
                 nodes.append(specific_node);
             }
         }
+
+        m_cache_children = nodes;
         return nodes;
     }
 
@@ -227,5 +244,9 @@ namespace magnesia::opcua_qt::abstraction {
             default:
                 return nullptr;
         }
+    }
+
+    bool Node::operator==(const Node& other) const {
+        return m_node == other.m_node;
     }
 } // namespace magnesia::opcua_qt::abstraction
