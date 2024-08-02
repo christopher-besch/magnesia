@@ -26,7 +26,7 @@ namespace magnesia::opcua_qt {
          *
          * @return Returns a QString
          */
-        [[nodiscard]] QString getSecurityPolicyUri() noexcept;
+        [[nodiscard]] QString getSecurityPolicyUri() const noexcept;
         /**
          * @brief Gets the security mode
          *

@@ -5,7 +5,7 @@
 
 #include <open62541pp/types/NodeId.h>
 
-#include <qvariant.h>
+#include <QVariant>
 
 namespace magnesia::opcua_qt::abstraction {
     NodeId::NodeId(opcua::NodeId node_id) : m_node_id(std::move(node_id)) {}
