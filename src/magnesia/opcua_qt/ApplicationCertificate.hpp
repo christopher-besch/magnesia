@@ -4,6 +4,7 @@
 
 #include <QList>
 #include <QSslCertificate>
+#include <QSslKey>
 #include <QString>
 
 namespace magnesia::opcua_qt {
@@ -31,7 +32,7 @@ namespace magnesia::opcua_qt {
          * @param private_key Private key
          * @param certificate Certificate
          */
-        ApplicationCertificate(const QSslCertificate& private_key, const QSslCertificate& certificate);
+        ApplicationCertificate(QSslKey private_key, const QSslCertificate& certificate);
         /**
          * @brief Returns the certificate
          */
@@ -39,11 +40,11 @@ namespace magnesia::opcua_qt {
         /**
          * @brief Returns the private key
          */
-        [[nodiscard]] const QSslCertificate& getPrivateKey() const noexcept;
+        [[nodiscard]] const QSslKey& getPrivateKey() const noexcept;
 
       private:
         static const std::size_t s_default_key_size = 2048;
-        QSslCertificate          m_private_key;
+        QSslKey                  m_private_key;
         QSslCertificate          m_certificate;
     };
 } // namespace magnesia::opcua_qt

@@ -1,8 +1,10 @@
 #include "ApplicationCertificate.hpp"
 
+#include "qt_version_check.hpp"
+
 #include <cstddef>
 #include <ranges>
-#include <string>
+#include <utility>
 #include <vector>
 
 #include <open62541pp/Crypto.h>
@@ -13,7 +15,14 @@
 #include <QList>
 #include <QSsl>
 #include <QSslCertificate>
+#include <QSslKey>
 #include <QString>
+
+#ifdef MAGNESIA_HAS_QT_6_5
+#include <QtTypes>
+#else
+#include <QtGlobal>
+#endif
 
 namespace magnesia::opcua_qt {
     opcua::Span<opcua::String> to_span(const QList<QString>& list) {
@@ -28,19 +37,27 @@ namespace magnesia::opcua_qt {
         const auto result_pair = opcua::crypto::createCertificate(to_span(subject), to_span(subject_alt_name),
                                                                   key_size_bits, opcua::crypto::CertificateFormat::DER);
 
-        m_certificate = QSslCertificate{QByteArray{std::string{result_pair.certificate.get()}.c_str()}, QSsl::Der};
-        m_private_key = QSslCertificate{QByteArray{std::string{result_pair.privateKey.get()}.c_str()}, QSsl::Der};
+        auto certificate = result_pair.certificate.get();
+        m_certificate    = QSslCertificate{
+            QByteArray{certificate.data(), static_cast<qsizetype>(certificate.size())},
+            QSsl::Der
+        };
+        auto private_key = result_pair.privateKey.get();
+        m_private_key    = QSslKey{
+            QByteArray{private_key.data(), static_cast<qsizetype>(private_key.size())},
+            // TODO: use actual key algorithm type, not just always rsa
+            QSsl::Rsa, QSsl::Der
+        };
     }
 
-    ApplicationCertificate::ApplicationCertificate(const QSslCertificate& private_key,
-                                                   const QSslCertificate& certificate)
-        : m_private_key(private_key), m_certificate(certificate) {}
+    ApplicationCertificate::ApplicationCertificate(QSslKey private_key, const QSslCertificate& certificate)
+        : m_private_key(std::move(private_key)), m_certificate(certificate) {}
 
     const QSslCertificate& ApplicationCertificate::getCertificate() const noexcept {
         return m_certificate;
     }
 
-    const QSslCertificate& ApplicationCertificate::getPrivateKey() const noexcept {
+    const QSslKey& ApplicationCertificate::getPrivateKey() const noexcept {
         return m_private_key;
     }
 } // namespace magnesia::opcua_qt

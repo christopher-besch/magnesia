@@ -25,7 +25,6 @@ namespace magnesia::opcua_qt {
     /**
      * @class Connection
      * @brief Models a OPC UA Connection
-     *
      */
     class Connection : public QObject {
         Q_OBJECT
