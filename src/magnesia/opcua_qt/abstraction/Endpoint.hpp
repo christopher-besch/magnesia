@@ -15,6 +15,8 @@ namespace magnesia::opcua_qt {
     class Endpoint {
       public:
         explicit Endpoint(opcua::EndpointDescription endpoint);
+        explicit Endpoint(const QUrl& endpoint_url, const QString& endpoint_security_policy_uri,
+                          opcua_qt::MessageSecurityMode endpoint_message_security_mode);
         /**
          * @brief Gets the endpoint url
          *
