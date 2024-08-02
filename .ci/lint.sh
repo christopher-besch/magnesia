@@ -44,10 +44,16 @@ run_codespell() {
     codespell || fail codespell $?
 }
 
+run_qt_headers() {
+    find src -name '*.[ch]pp' -print0 \
+        | xargs -0 grep -nE '#include <q.*\.h>' | grep -vF '#include <qtmetamacros.h>' && fail "qt_headers" $?; true
+}
+
 fast() {
     run_cmake_format
     run_clang_format
     run_codespell
+    run_qt_headers
 }
 
 slow() {
