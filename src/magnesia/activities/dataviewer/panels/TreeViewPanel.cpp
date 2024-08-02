@@ -48,7 +48,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
             return;
         }
 
-        Q_EMIT nodeSelected(node->getNodeId(), Panels::attribute);
+        Q_EMIT nodeSelected(node->getNodeId(), Panels::attribute | Panels::reference_view);
     }
 
     const PanelMetadata& TreeViewPanel::metadata() const noexcept {
