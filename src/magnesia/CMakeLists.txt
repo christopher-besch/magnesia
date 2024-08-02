@@ -3,9 +3,11 @@ set(SOURCES
     # cmake-format: sortable
     activities/activities.cpp
     activities/add_activity/AddActivity.cpp
+    activities/dataviewer/ConfigWidget.cpp
     activities/dataviewer/DataViewer.cpp
     activities/dataviewer/dataviewer_fwd.cpp
     activities/dataviewer/layout.cpp
+    activities/dataviewer/metadata.cpp
     activities/dataviewer/Panel.cpp
     activities/dataviewer/PanelMetadata.cpp
     activities/dataviewer/panels.cpp

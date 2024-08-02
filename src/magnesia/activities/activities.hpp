@@ -1,7 +1,7 @@
 #pragma once
 
 #include "add_activity/AddActivity.hpp"
-#include "dataviewer/DataViewer.hpp"
+#include "dataviewer/metadata.hpp"
 
 #include <array>
 

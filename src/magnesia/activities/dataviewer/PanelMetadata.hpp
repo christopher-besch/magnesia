@@ -18,4 +18,9 @@ namespace magnesia::activities::dataviewer {
          */
         Panel* (*create)(DataViewer*){};
     };
+
+    template<typename PanelType>
+    constexpr Panel* create_helper(DataViewer* dataviewer) {
+        return new PanelType(dataviewer);
+    };
 } // namespace magnesia::activities::dataviewer

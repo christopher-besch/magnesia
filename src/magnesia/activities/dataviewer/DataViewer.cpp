@@ -1,19 +1,28 @@
 #include "DataViewer.hpp"
 
 #include "Activity.hpp"
-#include "Application.hpp"
-#include "ConfigWidget.hpp"
 #include "layout.hpp"
+#include "opcua_qt/Connection.hpp"
+#include "opcua_qt/Logger.hpp"
 
-#include <QPushButton>
-#include <QString>
+#include <QHBoxLayout>
+#include <QLineEdit>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <Qt>
 
 namespace magnesia::activities::dataviewer {
-    DataViewer::DataViewer(QWidget* parent) : Activity(parent) {
-        auto* layout       = new QVBoxLayout;
+    DataViewer::DataViewer(opcua_qt::Connection* connection, opcua_qt::Logger* logger, QWidget* parent)
+        : Activity(parent), m_connection(connection), m_logger(logger) {
+        auto* layout = new QVBoxLayout;
+
+        auto* address_layout = new QVBoxLayout;
+        auto* address_view   = new QLineEdit;
+        address_view->setReadOnly(true);
+        address_view->setText(m_connection->getEndpointUrl().toString());
+        address_layout->addWidget(address_view);
+        layout->addLayout(address_layout);
+
         auto* panel_layout = new layout::PanelLayout(this, Qt::Horizontal, nullptr);
 
         layout->addWidget(panel_layout);
@@ -22,18 +31,11 @@ namespace magnesia::activities::dataviewer {
         setLayout(layout);
     }
 
-    ConfigWidget::ConfigWidget(QWidget* parent) : magnesia::ConfigWidget(parent) {
-        auto* layout = new QVBoxLayout;
-
-        // TODO: build connection when ConnectionManager is available
-        auto* create_button = new QPushButton("Create");
-        connect(create_button, &QPushButton::clicked, this, &ConfigWidget::create);
-        layout->addWidget(create_button);
-
-        setLayout(layout);
+    opcua_qt::Connection* DataViewer::getConnection() const {
+        return m_connection;
     }
 
-    void ConfigWidget::create() {
-        Application::instance().openActivity(new DataViewer, "DataViewer " + QString::number(++m_count));
+    opcua_qt::Logger* DataViewer::getLogger() const {
+        return m_logger;
     }
 } // namespace magnesia::activities::dataviewer

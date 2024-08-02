@@ -1,22 +1,13 @@
 #pragma once
 
 #include "Activity.hpp"
-#include "ActivityMetadata.hpp"
-#include "ConfigWidget.hpp"
 #include "activities/dataviewer/panels.hpp"
+#include "opcua_qt/Connection.hpp"
+#include "opcua_qt/Logger.hpp"
 #include "opcua_qt/abstraction/NodeId.hpp"
-#include "qt_version_check.hpp"
-
-#include <cstddef>
 
 #include <QWidget>
 #include <qtmetamacros.h>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtLogging>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::activities::dataviewer {
     /**
@@ -26,7 +17,10 @@ namespace magnesia::activities::dataviewer {
         Q_OBJECT
 
       public:
-        explicit DataViewer(QWidget* parent = nullptr);
+        explicit DataViewer(opcua_qt::Connection* connection, opcua_qt::Logger* logger, QWidget* parent = nullptr);
+
+        [[nodiscard]] opcua_qt::Connection* getConnection() const;
+        [[nodiscard]] opcua_qt::Logger*     getLogger() const;
 
       signals:
         /**
@@ -36,27 +30,9 @@ namespace magnesia::activities::dataviewer {
          * @param recipients the target panel types
          */
         void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients);
-    };
-
-    /**
-     * `magnesia::ConfigWidget` for the `DataViewer` activity.
-     */
-    class ConfigWidget : public magnesia::ConfigWidget {
-        Q_OBJECT
-
-      public:
-        explicit ConfigWidget(QWidget* parent = nullptr);
-
-      private slots:
-        void create();
 
       private:
-        std::size_t m_count{};
-    };
-
-    inline constexpr ActivityMetadata metadata{
-        .name                 = u"DataViewer",
-        .global_init          = []() { qDebug() << "Initialized DataViewer"; },
-        .create_config_widget = []() -> magnesia::ConfigWidget* { return new ConfigWidget; },
+        opcua_qt::Connection* m_connection{nullptr};
+        opcua_qt::Logger*     m_logger{nullptr};
     };
 } // namespace magnesia::activities::dataviewer
