@@ -5,11 +5,17 @@
 
 #include <open62541pp/types/NodeId.h>
 
+#include <QVariant>
+
 namespace magnesia::opcua_qt::abstraction {
     NodeId::NodeId(opcua::NodeId node_id) : m_node_id(std::move(node_id)) {}
 
     uint16_t NodeId::getNamespaceIndex() const noexcept {
         return m_node_id.getNamespaceIndex();
+    }
+
+    QVariant NodeId::getIdentifier() const {
+        return QVariant::fromStdVariant(m_node_id.getIdentifier());
     }
 
     QString NodeId::toString() const {

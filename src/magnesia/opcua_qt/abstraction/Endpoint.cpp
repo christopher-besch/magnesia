@@ -17,7 +17,7 @@ namespace magnesia::opcua_qt {
         return {QString::fromStdString(std::string(m_endpoint.getEndpointUrl()))};
     }
 
-    QString Endpoint::getSecurityPolicyUri() noexcept {
+    QString Endpoint::getSecurityPolicyUri() const noexcept {
         return QString::fromStdString(std::string(m_endpoint.getSecurityPolicyUri()));
     }
 

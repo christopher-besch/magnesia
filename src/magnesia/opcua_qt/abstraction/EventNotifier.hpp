@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include <QString>
+
 namespace magnesia::opcua_qt::abstraction {
     /**
      * Indicates if a node can be used to subscribe to events or read/write historic events.
@@ -13,4 +15,17 @@ namespace magnesia::opcua_qt::abstraction {
         HISTORY_READ        = 4,
         HISTORY_WRITE       = 8,
     };
+
+    inline QString event_notifier_to_string(EventNotifier event_notifier) {
+        switch (event_notifier) {
+            case EventNotifier::SUBSCRIBE_TO_EVENTS:
+                return "Subscribe to events";
+            case EventNotifier::HISTORY_READ:
+                return "History read";
+            case EventNotifier::HISTORY_WRITE:
+                return "History Write";
+            default:
+                return "";
+        }
+    }
 } // namespace magnesia::opcua_qt::abstraction

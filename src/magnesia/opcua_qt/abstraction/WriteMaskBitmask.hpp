@@ -26,12 +26,12 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * See https://reference.opcfoundation.org/Core/Part3/v104/docs/8.57
          */
-        [[nodiscard]] QList<std::pair<WriteMask, bool>> getFlags();
+        [[nodiscard]] QList<std::pair<WriteMask, bool>> getFlags() const;
 
         /**
          * Get a specific flag from WriteMask.
          */
-        [[nodiscard]] bool getFlag(WriteMask flag);
+        [[nodiscard]] bool getFlag(WriteMask flag) const;
 
         /**
          * Get the underlying bitmask.
@@ -49,7 +49,7 @@ namespace magnesia::opcua_qt::abstraction {
         void setFlag(WriteMask flag, bool set);
 
       private:
-        [[nodiscard]] std::pair<WriteMask, bool> getFlagPair(WriteMask flag);
+        [[nodiscard]] std::pair<WriteMask, bool> getFlagPair(WriteMask flag) const;
 
       private:
         opcua::Bitmask<opcua::WriteMask> m_bitmask;

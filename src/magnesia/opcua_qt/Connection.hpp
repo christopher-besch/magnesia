@@ -25,7 +25,6 @@ namespace magnesia::opcua_qt {
     /**
      * @class Connection
      * @brief Models a OPC UA Connection
-     *
      */
     class Connection : public QObject {
         Q_OBJECT
@@ -86,7 +85,7 @@ namespace magnesia::opcua_qt {
          *
          * @return Returns a Node Wrapper
          */
-        [[nodiscard]] abstraction::Node* getNode(abstraction::NodeId& node_id);
+        [[nodiscard]] abstraction::Node* getNode(const abstraction::NodeId& node_id);
         /**
          * @brief Creates a Subscription Object
          *

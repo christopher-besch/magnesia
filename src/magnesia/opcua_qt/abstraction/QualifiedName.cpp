@@ -19,7 +19,7 @@ namespace magnesia::opcua_qt::abstraction {
         return m_qualified_name.getNamespaceIndex();
     }
 
-    QString QualifiedName::getName() {
+    QString QualifiedName::getName() const {
         return QString::fromStdString(std::string(m_qualified_name.getName()));
     }
 

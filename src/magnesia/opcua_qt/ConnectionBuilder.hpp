@@ -24,7 +24,7 @@ namespace magnesia::opcua_qt {
     class ConnectionBuilder : public QObject {
         Q_OBJECT
       public:
-        ConnectionBuilder() = default;
+        using QObject::QObject;
         /**
          * @brief Sets the url
          *

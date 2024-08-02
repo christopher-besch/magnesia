@@ -15,6 +15,7 @@
 #include <open62541pp/types/Composed.h>
 
 #include <QList>
+#include <QObject>
 #include <QSslCertificate>
 #include <QString>
 #include <QThreadPool>

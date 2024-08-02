@@ -51,7 +51,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @see Variant
          */
-        [[nodiscard]] Variant getValue() noexcept;
+        [[nodiscard]] Variant getValue() const noexcept;
 
         /**
          * Set the value as a variant.
