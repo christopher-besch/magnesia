@@ -1,6 +1,7 @@
 #pragma once
 
 #include "activities/dataviewer/dataviewer_fwd.hpp"
+#include "activities/dataviewer/panels/AttributeViewPanel.hpp"
 #include "activities/dataviewer/panels/LogViewPanel.hpp"
 #include "activities/dataviewer/panels/TreeViewPanel.hpp"
 #include "qt_version_check.hpp"
@@ -36,6 +37,7 @@ namespace magnesia::activities::dataviewer::panels {
     inline constexpr std::array all{
         log_view_panel::metadata,
         treeview_panel::metadata,
+        attribute_view_panel::metadata,
     };
 
     /**
