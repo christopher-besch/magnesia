@@ -13,54 +13,44 @@ build_linux: &build_linux
       - CC: clang
         CXX: clang++
         BUILD_TYPE: [Release, Debug]
-  script:
-    - |
+  before_script: |
       DEBIAN_FRONTEND=noninteractive
-
       sudo --preserve-env=DEBIAN_FRONTEND apt-get update
       sudo --preserve-env=DEBIAN_FRONTEND apt-get install -y git cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen
-
-    - .ci/build.sh
+  script: .ci/build.sh
   when: always
 
 build_linux_nix:
   <<: *build_linux
-  before_script:
-    - .ci/setup_nix.sh
+  before_script: .ci/setup_nix.sh
   script:
     - |
       set -xeuo pipefail
       TMPDIR=$(mktemp -d)
       trap 'rm -rf "'"$TMPDIR"'"' EXIT
-      nix develop -ic env XDG_CACHE_HOME=$TMPDIR CC=$CC CXX=$CXX BUILD_TYPE=$BUILD_TYPE .ci/build.sh
+      nix develop -ic env "XDG_CACHE_HOME=$TMPDIR" "CC=$CC" "CXX=$CXX" "BUILD_TYPE=$BUILD_TYPE" .ci/build.sh
 
 .lint-base: &lint-base
   stage: lint
   tags: [ubuntu]
-  before_script:
-    - .ci/setup_nix.sh
+  before_script: .ci/setup_nix.sh
 
 cmake-format:
   <<: *lint-base
-  script:
-    - nix develop -ic .ci/lint.sh cmake-format
+  script: nix develop -ic .ci/lint.sh cmake-format
 
 clang-format:
   <<: *lint-base
-  script:
-    - nix develop -ic .ci/lint.sh clang-format
+  script: nix develop -ic .ci/lint.sh clang-format
 
 codespell:
   <<: *lint-base
-  script:
-    - nix develop -ic .ci/lint.sh codespell
+  script: nix develop -ic .ci/lint.sh codespell
 
 qt headers:
   <<: *lint-base
-  script:
-    - nix develop -ic .ci/lint.sh qt_headers
+  script: nix develop -ic .ci/lint.sh qt_headers
 
 clang-tidy:
   <<: *lint-base
-  script:
-    - nix develop -ic .ci/lint.sh clang-tidy
+  script: nix develop -ic .ci/lint.sh clang-tidy
