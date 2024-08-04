@@ -13,16 +13,13 @@ build_linux: &build_linux
       - CC: clang
         CXX: clang++
         BUILD_TYPE: [Release, Debug]
-  before_script: |
-      DEBIAN_FRONTEND=noninteractive
-      sudo --preserve-env=DEBIAN_FRONTEND apt-get update
-      sudo --preserve-env=DEBIAN_FRONTEND apt-get install -y git cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen
+  before_script: .ci/setup.sh
   script: .ci/build.sh
   when: always
 
 build_linux_nix:
   <<: *build_linux
-  before_script: .ci/setup_nix.sh
+  before_script: .ci/setup.sh nix
   script:
     - |
       set -xeuo pipefail
@@ -33,7 +30,7 @@ build_linux_nix:
 .lint-base: &lint-base
   stage: lint
   tags: [ubuntu]
-  before_script: .ci/setup_nix.sh
+  before_script: .ci/setup.sh nix
 
 cmake-format:
   <<: *lint-base
