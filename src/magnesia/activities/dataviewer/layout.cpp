@@ -49,7 +49,7 @@ namespace magnesia::activities::dataviewer::layout {
             label->setAlignment(Qt::AlignCenter);
             m_widget = label;
         }
-        m_layout->addWidget(m_widget, 0, Qt::AlignCenter);
+        m_layout->addWidget(m_widget);
 
         setLayout(m_layout);
         setFrameShape(QFrame::Shape::Box);
