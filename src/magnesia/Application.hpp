@@ -101,8 +101,9 @@ namespace magnesia {
          *
          * @param activity the activity to display
          * @param title the title of the new tab
+         * @param closable whether a close button should be shown next to the tab title
          */
-        void openActivity(Activity* activity, const QString& title);
+        void openActivity(Activity* activity, const QString& title, bool closable = true);
 
         /**
          * Closes the tab that contains the activity.

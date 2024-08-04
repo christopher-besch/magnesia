@@ -34,7 +34,7 @@ namespace magnesia::activities::add_activity {
         .name = u"Add Activity",
         .global_init =
             []() {
-                Application::instance().openActivity(new AddActivity, "+");
+                Application::instance().openActivity(new AddActivity, "+", false);
                 qDebug() << "Initialized AddActivity";
             },
     };

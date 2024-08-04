@@ -15,6 +15,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStyle>
 #include <QTabWidget>
 
 #ifdef MAGNESIA_HAS_QT_6_5
@@ -95,7 +96,7 @@ namespace magnesia {
         return *m_router;
     }
 
-    void Application::openActivity(Activity* activity, const QString& title) {
+    void Application::openActivity(Activity* activity, const QString& title, bool closable) {
         Q_ASSERT(activity != nullptr);
         Q_ASSERT(m_tab_widget != nullptr);
 
@@ -107,6 +108,17 @@ namespace magnesia {
         m_tab_widget->setUpdatesEnabled(false);
         auto index = m_tab_widget->addTab(activity, title);
         m_tab_widget->setCurrentIndex(index);
+
+        if (!closable) {
+            auto close_side = static_cast<QTabBar::ButtonPosition>(
+                m_tab_widget->style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, nullptr, m_tab_widget));
+
+            if (auto* close_button = m_tab_widget->tabBar()->tabButton(index, close_side); close_button != nullptr) {
+                close_button->deleteLater();
+                m_tab_widget->tabBar()->setTabButton(index, close_side, nullptr);
+            }
+        }
+
         m_tab_widget->setUpdatesEnabled(true);
     }
 
