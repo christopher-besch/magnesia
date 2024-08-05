@@ -129,16 +129,13 @@ namespace magnesia::opcua_qt {
       signals:
         /**
          * @brief emits a list of endpoints from the url
-         *
-         * The endpoints are valid as long as the ConnectionBuilder lives.
          */
-        void endpointsFound(const QList<Endpoint>& endpoints);
+        void endpointsFound(QList<Endpoint> endpoints);
 
       private:
         void findEndopintsSynchronously();
 
       private:
-        QList<Endpoint>                       m_endpoints;
         std::optional<QUrl>                   m_url;
         std::optional<Endpoint>               m_endpoint;
         Logger*                               m_logger{nullptr};

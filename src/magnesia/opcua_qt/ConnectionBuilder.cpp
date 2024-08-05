@@ -6,14 +6,14 @@
 #include "Logger.hpp"
 #include "abstraction/Endpoint.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <optional>
-#include <vector>
 
 #include <open62541pp/Client.h>
 #include <open62541pp/types/Composed.h>
 
 #include <QList>
-#include <QObject>
 #include <QSslCertificate>
 #include <QString>
 #include <QThreadPool>
@@ -93,13 +93,10 @@ namespace magnesia::opcua_qt {
         // never unlock this as the function may not be called more than once
         m_get_endpoint_mutex.lock();
         Q_ASSERT(m_url.has_value());
-        auto                                          client = opcua::Client();
-        const std::vector<opcua::EndpointDescription> endpoints =
-            client.getEndpoints(m_url.value().toString().toStdString());
-        for (const opcua::EndpointDescription& endpoint : endpoints) {
-            // store these in the builder to not have them be deleted at the end of the scope
-            m_endpoints.append(Endpoint(endpoint));
-        }
-        Q_EMIT endpointsFound(m_endpoints);
+        const auto      endpoint_descriptions = opcua::Client{}.getEndpoints(m_url.value().toString().toStdString());
+        QList<Endpoint> endpoints;
+        std::ranges::transform(endpoint_descriptions, std::back_inserter(endpoints),
+                               [](auto endpoint) { return Endpoint{endpoint}; });
+        Q_EMIT endpointsFound(endpoints);
     }
 } // namespace magnesia::opcua_qt
