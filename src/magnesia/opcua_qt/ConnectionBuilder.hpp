@@ -7,6 +7,8 @@
 
 #include <optional>
 
+#include <open62541pp/Result.h>
+
 #include <QList>
 #include <QMutex>
 #include <QObject>
@@ -130,10 +132,10 @@ namespace magnesia::opcua_qt {
         /**
          * @brief emits a list of endpoints from the url
          */
-        void endpointsFound(QList<Endpoint> endpoints);
+        void endpointsFound(opcua::Result<QList<Endpoint>> result);
 
       private:
-        void findEndopintsSynchronously();
+        opcua::Result<QList<Endpoint>> findEndopintsSynchronously();
 
       private:
         std::optional<QUrl>                   m_url;

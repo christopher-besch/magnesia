@@ -12,7 +12,10 @@
 
 #include <utility>
 
+#include <open62541pp/Result.h>
+
 #include <QAbstractItemView>
+#include <QByteArrayView>
 #include <QComboBox>
 #include <QFormLayout>
 #include <QFrame>
@@ -172,7 +175,7 @@ namespace magnesia::activities::dataviewer {
         // FIXME: the connection builder is never destroyed, as there is a cyclical reference between signal connection
         // and lambda
         connect(builder.get(), &ConnectionBuilder::endpointsFound, this,
-                [this, builder](const QList<Endpoint>& endpoints) {
+                [this, builder](const opcua::Result<QList<Endpoint>>& endpoints) {
                     if (m_current_connection_builder != builder) {
                         // TODO: cleanup?
                         return;
@@ -184,15 +187,21 @@ namespace magnesia::activities::dataviewer {
         m_connect_button->setEnabled(false);
     }
 
-    void ConfigWidget::onEndpointsFound(const QList<Endpoint>& endpoints) {
-        qCDebug(lcDVConfig) << "endpoints:";
-        for (const auto& endpoint : endpoints) {
-            qCDebug(lcDVConfig) << "  endpoint:" << endpoint.getEndpointUrl()
-                                << "security:" << endpoint.getSecurityPolicyUri()
-                                << "mode:" << to_qstring(endpoint.getSecurityMode());
-        }
+    void ConfigWidget::onEndpointsFound(const opcua::Result<QList<Endpoint>>& result) {
+        if (result.hasValue()) {
+            const auto& endpoints = result.value();
+            qCDebug(lcDVConfig) << "endpoints:";
+            for (const auto& endpoint : endpoints) {
+                qCDebug(lcDVConfig) << "  endpoint:" << endpoint.getEndpointUrl()
+                                    << "security:" << endpoint.getSecurityPolicyUri()
+                                    << "mode:" << to_qstring(endpoint.getSecurityMode());
+            }
 
-        m_endpoint_selector_model->setEndpoints(endpoints);
+            m_endpoint_selector_model->setEndpoints(endpoints);
+        } else {
+            qCWarning(lcDVConfig) << "Failed to find endpoints:" << QUtf8StringView{result.code().name()};
+            // TODO: display warning message to the user
+        }
     }
 
     void ConfigWidget::onConnect() {

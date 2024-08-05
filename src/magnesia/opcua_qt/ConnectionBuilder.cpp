@@ -11,6 +11,8 @@
 #include <optional>
 
 #include <open62541pp/Client.h>
+#include <open62541pp/ErrorHandling.h>
+#include <open62541pp/Result.h>
 
 #include <QList>
 #include <QMutexLocker>
@@ -71,7 +73,7 @@ namespace magnesia::opcua_qt {
     }
 
     void ConnectionBuilder::findEndpoints() {
-        QThreadPool::globalInstance()->start([&] { findEndopintsSynchronously(); });
+        QThreadPool::globalInstance()->start([&] { Q_EMIT endpointsFound(findEndopintsSynchronously()); });
     }
 
     Connection* ConnectionBuilder::build() {
@@ -89,14 +91,18 @@ namespace magnesia::opcua_qt {
         return new Connection(m_endpoint.value(), login, m_certificate, m_trust_list, m_revoked_list, m_logger);
     }
 
-    void ConnectionBuilder::findEndopintsSynchronously() {
+    opcua::Result<QList<Endpoint>> ConnectionBuilder::findEndopintsSynchronously() {
         const QMutexLocker locker(&m_get_endpoint_mutex);
 
         Q_ASSERT(m_url.has_value());
-        const auto      endpoint_descriptions = opcua::Client{}.getEndpoints(m_url.value().toString().toStdString());
-        QList<Endpoint> endpoints;
-        std::ranges::transform(endpoint_descriptions, std::back_inserter(endpoints),
-                               [](auto endpoint) { return Endpoint{endpoint}; });
-        Q_EMIT endpointsFound(endpoints);
+        try {
+            const auto endpoint_descriptions = opcua::Client{}.getEndpoints(m_url.value().toString().toStdString());
+            QList<Endpoint> endpoints;
+            std::ranges::transform(endpoint_descriptions, std::back_inserter(endpoints),
+                                   [](auto endpoint) { return Endpoint{endpoint}; });
+            return endpoints;
+        } catch (const opcua::BadStatus& status) {
+            return opcua::BadResult(status.code());
+        }
     }
 } // namespace magnesia::opcua_qt
