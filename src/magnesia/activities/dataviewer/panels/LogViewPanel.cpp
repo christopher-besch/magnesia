@@ -28,6 +28,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
           m_log_level_combo_box(new QComboBox(this)) {
 
         m_table_view->setModel(m_log_view_model);
+        m_table_view->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_table_view->horizontalHeader()->setStretchLastSection(true);
         m_table_view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
