@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../../../opcua_qt/Connection.hpp"
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
-#include "../dataviewer_fwd.hpp"
 
 #include <utility>
 
@@ -18,7 +18,7 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
         Q_OBJECT
 
       public:
-        explicit ReferenceViewModel(DataViewer* data_viewer, QObject* parent = nullptr);
+        explicit ReferenceViewModel(opcua_qt::Connection* connection, QObject* parent = nullptr);
         [[nodiscard]] int      rowCount(const QModelIndex& parent = QModelIndex()) const override;
         [[nodiscard]] int      columnCount(const QModelIndex& parent = QModelIndex()) const override;
         [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
@@ -27,7 +27,7 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
         void                   nodeSelected(opcua_qt::abstraction::Node* node);
 
       private:
-        DataViewer*                        m_data_viewer;
+        opcua_qt::Connection*              m_connection;
         QList<std::pair<QString, QString>> m_references;
     };
 

@@ -28,7 +28,6 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
       private:
         ReferenceViewModel* m_reference_view_model;
         QTableView*         m_table_view;
-        DataViewer*         m_data_viewer;
     };
 
     inline constexpr magnesia::activities::dataviewer::PanelMetadata metadata{

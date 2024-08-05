@@ -1,7 +1,7 @@
 #include "ReferenceViewModel.hpp"
 
+#include "../../../opcua_qt/Connection.hpp"
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
-#include "../DataViewer.hpp"
 
 #include <utility>
 
@@ -12,8 +12,8 @@
 
 namespace magnesia::activities::dataviewer::panels::reference_view_panel {
 
-    ReferenceViewModel::ReferenceViewModel(DataViewer* data_viewer, QObject* parent)
-        : QAbstractTableModel(parent), m_data_viewer(data_viewer) {}
+    ReferenceViewModel::ReferenceViewModel(opcua_qt::Connection* connection, QObject* parent)
+        : QAbstractTableModel(parent), m_connection(connection) {}
 
     int ReferenceViewModel::rowCount(const QModelIndex& /*parent*/) const {
         return static_cast<int>(m_references.size());
@@ -65,7 +65,7 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
         for (const auto& reference : references) {
             auto  node_id        = reference.getReferenceType();
             auto  is_forward     = reference.isForward();
-            auto* reference_type = m_data_viewer->getConnection()->getNode(node_id);
+            auto* reference_type = m_connection->getNode(node_id);
 
             QString reference_name;
 
