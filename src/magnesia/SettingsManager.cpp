@@ -17,7 +17,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QSslCertificate>
-#include <QString>
+#include <QSslKey>
 #include <qtmetamacros.h>
 
 namespace magnesia {
