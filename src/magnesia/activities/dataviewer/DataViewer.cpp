@@ -65,11 +65,10 @@ namespace magnesia::activities::dataviewer {
 
         auto* layout_selector = new QComboBox;
         layout_selector->setPlaceholderText("Select Layout");
-        auto* model = new detail::LayoutSelectorModel(s_storage_domain, s_layout_group);
+        auto* model = new detail::LayoutSelectorModel(s_storage_domain, s_layout_group, layout_selector);
         layout_selector->setModel(model);
-        layout->addWidget(layout_selector);
-
         layout_selector->setCurrentIndex(-1);
+        layout->addWidget(layout_selector);
 
         auto* save_edit = new QLineEdit;
         save_edit->hide();
