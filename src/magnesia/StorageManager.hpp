@@ -75,7 +75,7 @@ namespace magnesia {
          * @param cert_id The id the certificate is stored under.
          * @return the certificate or nullopt when not found.
          */
-        virtual std::optional<QSslCertificate> getCertificate(StorageId cert_id) = 0;
+        [[nodiscard]] virtual std::optional<QSslCertificate> getCertificate(StorageId cert_id) const = 0;
         /**
          * Retrieve an X.509 key from the database.
          *
@@ -84,7 +84,7 @@ namespace magnesia {
          * @param key_id The id the key is stored under.
          * @return the key or nullopt when not found.
          */
-        virtual std::optional<QSslKey> getKey(StorageId key_id) = 0;
+        [[nodiscard]] virtual std::optional<QSslKey> getKey(StorageId key_id) const = 0;
         /**
          * Retrieve a HistoricServerConnection from the database.
          *
@@ -93,8 +93,8 @@ namespace magnesia {
          * @param historic_server_connection_id The id the HistoricServerConnection is stored under.
          * @return the HistoricServerConnection or nullopt when not found.
          */
-        virtual std::optional<HistoricServerConnection>
-        getHistoricServerConnection(StorageId historic_server_connection_id) = 0;
+        [[nodiscard]] virtual std::optional<HistoricServerConnection>
+        getHistoricServerConnection(StorageId historic_server_connection_id) const = 0;
         /**
          * Retrieve a Layout from the database.
          *
@@ -105,8 +105,8 @@ namespace magnesia {
          * @param domain The Domain this layout belongs to.
          * @return the Layout or nullopt when not found.
          */
-        virtual std::optional<Layout> getLayout(StorageId layout_id, const LayoutGroup& group,
-                                                const Domain& domain) = 0;
+        [[nodiscard]] virtual std::optional<Layout> getLayout(StorageId layout_id, const LayoutGroup& group,
+                                                              const Domain& domain) const = 0;
 
         /**
          * Retrieve all X.509 certificates from the database.
@@ -117,7 +117,7 @@ namespace magnesia {
          *
          * @return a list of all certificates.
          */
-        virtual QList<QSslCertificate> getAllCertificates() = 0;
+        [[nodiscard]] virtual QList<QSslCertificate> getAllCertificates() const = 0;
         /**
          * Retrieve all X.509 keys from the database.
          *
@@ -127,7 +127,7 @@ namespace magnesia {
          *
          * @return a list of all keys.
          */
-        virtual QList<QSslKey> getAllKeys() = 0;
+        [[nodiscard]] virtual QList<QSslKey> getAllKeys() const = 0;
         /**
          * Retrieve all HistoricServerConnections from the database.
          *
@@ -137,7 +137,7 @@ namespace magnesia {
          *
          * @return a list of all HistoricServerConnections.
          */
-        virtual QList<HistoricServerConnection> getAllHistoricServerConnections() = 0;
+        [[nodiscard]] virtual QList<HistoricServerConnection> getAllHistoricServerConnections() const = 0;
         /**
          * Retrieve all Layouts from the database for a specified group and domain.
          *
@@ -149,7 +149,7 @@ namespace magnesia {
          * @param domain The Domain the layouts belong to.
          * @return a list of all Layouts with the specified group and domain.
          */
-        virtual QList<Layout> getAllLayouts(const LayoutGroup& group, const Domain& domain) = 0;
+        [[nodiscard]] virtual QList<Layout> getAllLayouts(const LayoutGroup& group, const Domain& domain) const = 0;
 
         /**
          * Retrieve all X.509 certificate IDs from the database.
@@ -160,7 +160,7 @@ namespace magnesia {
          *
          * @return a list of all certificate IDs.
          */
-        virtual QList<StorageId> getAllCertificateIds() = 0;
+        [[nodiscard]] virtual QList<StorageId> getAllCertificateIds() const = 0;
         /**
          * Retrieve all X.509 key IDs from the database.
          *
@@ -170,7 +170,7 @@ namespace magnesia {
          *
          * @return a list of all key IDs.
          */
-        virtual QList<StorageId> getAllKeyIds() = 0;
+        [[nodiscard]] virtual QList<StorageId> getAllKeyIds() const = 0;
         /**
          * Retrieve all HistoricServerConnection IDs from the database.
          *
@@ -180,7 +180,7 @@ namespace magnesia {
          *
          * @return a list of all HistoricServerConnections IDs.
          */
-        virtual QList<StorageId> getAllHistoricServerConnectionIds() = 0;
+        [[nodiscard]] virtual QList<StorageId> getAllHistoricServerConnectionIds() const = 0;
         /**
          * Retrieve all Layout IDs from the database for a specified group and domain.
          *
@@ -192,7 +192,8 @@ namespace magnesia {
          * @param domain The Domain the layouts belong to.
          * @return a list of all Layout IDs with the specified group and domain.
          */
-        virtual QList<StorageId> getAllLayoutIds(const LayoutGroup& group, const Domain& domain) = 0;
+        [[nodiscard]] virtual QList<StorageId> getAllLayoutIds(const LayoutGroup& group,
+                                                               const Domain&      domain) const = 0;
 
         /**
          * Delete the X.509 certificate with the specified id if it exists.
@@ -248,7 +249,7 @@ namespace magnesia {
          * @param domain the key-value pair belongs to.
          * @return the value for the key-value pair or nullopt when the key-value pair is not set.
          */
-        virtual std::optional<QString> getKV(const QString& key, const Domain& domain) = 0;
+        [[nodiscard]] virtual std::optional<QString> getKV(const QString& key, const Domain& domain) const = 0;
         /**
          * Unset a key-value pair if it exists.
          *
@@ -310,24 +311,25 @@ namespace magnesia {
         // Most of these could receive the same name with function overloading.
         // This is not done because doing so causes confusion when types are implicitly cast and the setting is inserted
         // into the wrong relation.
-        virtual void setBooleanSetting(const SettingKey& key, bool value)                                         = 0;
-        virtual void setStringSetting(const SettingKey& key, const QString& value)                                = 0;
-        virtual void setIntSetting(const SettingKey& key, std::int64_t value)                                     = 0;
-        virtual void setDoubleSetting(const SettingKey& key, double value)                                        = 0;
-        virtual void setEnumSetting(const SettingKey& key, const EnumSettingValue& value)                         = 0;
-        virtual void setCertificateSetting(const SettingKey& key, StorageId cert_id)                              = 0;
-        virtual void setKeySetting(const SettingKey& key, StorageId key_id)                                       = 0;
+        virtual void setBooleanSetting(const SettingKey& key, bool value)                                        = 0;
+        virtual void setStringSetting(const SettingKey& key, const QString& value)                               = 0;
+        virtual void setIntSetting(const SettingKey& key, std::int64_t value)                                    = 0;
+        virtual void setDoubleSetting(const SettingKey& key, double value)                                       = 0;
+        virtual void setEnumSetting(const SettingKey& key, const EnumSettingValue& value)                        = 0;
+        virtual void setCertificateSetting(const SettingKey& key, StorageId cert_id)                             = 0;
+        virtual void setKeySetting(const SettingKey& key, StorageId key_id)                                      = 0;
         virtual void setHistoricServerConnectionSetting(const SettingKey& key,
-                                                        StorageId         historic_server_connection_id)                  = 0;
-        virtual void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group)       = 0;
-        virtual std::optional<bool>                     getBoolSetting(const SettingKey& key)                     = 0;
-        virtual std::optional<QString>                  getStringSetting(const SettingKey& key)                   = 0;
-        virtual std::optional<std::int64_t>             getIntSetting(const SettingKey& key)                      = 0;
-        virtual std::optional<double>                   getDoubleSetting(const SettingKey& key)                   = 0;
-        virtual std::optional<EnumSettingValue>         getEnumSetting(const SettingKey& key)                     = 0;
-        virtual std::optional<QSslCertificate>          getCertificateSetting(const SettingKey& key)              = 0;
-        virtual std::optional<QSslKey>                  getKeySetting(const SettingKey& key)                      = 0;
-        virtual std::optional<HistoricServerConnection> getHistoricServerConnectionSetting(const SettingKey& key) = 0;
-        virtual std::optional<Layout>                   getLayoutSetting(const SettingKey& key)                   = 0;
+                                                        StorageId         historic_server_connection_id)                 = 0;
+        virtual void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group)      = 0;
+        [[nodiscard]] virtual std::optional<bool>             getBoolSetting(const SettingKey& key) const        = 0;
+        [[nodiscard]] virtual std::optional<QString>          getStringSetting(const SettingKey& key) const      = 0;
+        [[nodiscard]] virtual std::optional<std::int64_t>     getIntSetting(const SettingKey& key) const         = 0;
+        [[nodiscard]] virtual std::optional<double>           getDoubleSetting(const SettingKey& key) const      = 0;
+        [[nodiscard]] virtual std::optional<EnumSettingValue> getEnumSetting(const SettingKey& key) const        = 0;
+        [[nodiscard]] virtual std::optional<QSslCertificate>  getCertificateSetting(const SettingKey& key) const = 0;
+        [[nodiscard]] virtual std::optional<QSslKey>          getKeySetting(const SettingKey& key) const         = 0;
+        [[nodiscard]] virtual std::optional<HistoricServerConnection>
+                                                    getHistoricServerConnectionSetting(const SettingKey& key) const = 0;
+        [[nodiscard]] virtual std::optional<Layout> getLayoutSetting(const SettingKey& key) const                   = 0;
     };
 } // namespace magnesia
