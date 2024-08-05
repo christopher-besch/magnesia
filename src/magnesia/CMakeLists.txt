@@ -85,6 +85,8 @@ qt_add_resources(
     FILES ${PROJECT_SOURCE_DIR}/LICENSE
 )
 
+target_include_directories(magnesia PRIVATE ${MAGNESIA_CONFIGURED_INCLUDES})
+
 target_link_libraries(
     magnesia
     PRIVATE magnesia::project_options

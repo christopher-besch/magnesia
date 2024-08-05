@@ -4,6 +4,7 @@
 #include "../../Application.hpp"
 #include "../../ConfigWidget.hpp"
 #include "../../qt_version_check.hpp"
+#include "version.hpp"
 
 #include <QFont>
 #include <QLabel>
@@ -35,7 +36,7 @@ namespace magnesia::activities::about {
         auto* license_header = new QLabel("Application license:");
         license_header->setFont(font);
 
-        auto*           version_label = new QLabel("0.0.1-pre-alpha");
+        auto*           version_label = new QLabel{cmake::project_version.data()};
         const QResource license{":/licenses/LICENSE"};
         Q_ASSERT(license.isValid());
         auto* license_text_edit = new QTextEdit();

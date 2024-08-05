@@ -88,4 +88,5 @@ if(MAGNESIA_BUILD_DOCS)
     find_package(Doxygen REQUIRED)
 endif()
 
+add_subdirectory(configured_files)
 add_subdirectory(src/magnesia)
