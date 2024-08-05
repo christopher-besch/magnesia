@@ -78,6 +78,12 @@ set(SOURCES
     terminate.cpp
 )
 qt_add_executable(magnesia main.cpp ${SOURCES})
+qt_add_resources(
+    magnesia licenses
+    PREFIX /licenses
+    BASE ${PROJECT_SOURCE_DIR}
+    FILES ${PROJECT_SOURCE_DIR}/LICENSE
+)
 
 target_link_libraries(
     magnesia
