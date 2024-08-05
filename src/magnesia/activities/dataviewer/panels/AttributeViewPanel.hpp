@@ -1,11 +1,11 @@
 #pragma once
 
-#include "activities/dataviewer/Panel.hpp"
-#include "activities/dataviewer/PanelMetadata.hpp"
-#include "activities/dataviewer/dataviewer_fwd.hpp"
-#include "activities/dataviewer/panels/AttributeViewModel.hpp"
-#include "opcua_qt/abstraction/NodeId.hpp"
-#include "opcua_qt/abstraction/node/Node.hpp"
+#include "../../../opcua_qt/abstraction/NodeId.hpp"
+#include "../../../opcua_qt/abstraction/node/Node.hpp"
+#include "../Panel.hpp"
+#include "../PanelMetadata.hpp"
+#include "../dataviewer_fwd.hpp"
+#include "AttributeViewModel.hpp"
 
 #include <QLabel>
 #include <QList>

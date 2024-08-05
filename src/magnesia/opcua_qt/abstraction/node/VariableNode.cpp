@@ -1,12 +1,12 @@
 #include "VariableNode.hpp"
 
+#include "../../../qt_version_check.hpp"
+#include "../AccessLevelBitmask.hpp"
+#include "../DataValue.hpp"
+#include "../NodeId.hpp"
+#include "../ValueRank.hpp"
+#include "../Variant.hpp"
 #include "Node.hpp"
-#include "opcua_qt/abstraction/AccessLevelBitmask.hpp"
-#include "opcua_qt/abstraction/DataValue.hpp"
-#include "opcua_qt/abstraction/NodeId.hpp"
-#include "opcua_qt/abstraction/ValueRank.hpp"
-#include "opcua_qt/abstraction/Variant.hpp"
-#include "qt_version_check.hpp"
 
 #include <algorithm>
 #include <cstddef>

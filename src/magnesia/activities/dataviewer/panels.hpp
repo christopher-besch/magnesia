@@ -1,11 +1,11 @@
 #pragma once
 
-#include "activities/dataviewer/dataviewer_fwd.hpp"
-#include "activities/dataviewer/panels/AttributeViewPanel.hpp"
-#include "activities/dataviewer/panels/LogViewPanel.hpp"
-#include "activities/dataviewer/panels/ReferenceViewPanel.hpp"
-#include "activities/dataviewer/panels/TreeViewPanel.hpp"
-#include "qt_version_check.hpp"
+#include "../../qt_version_check.hpp"
+#include "dataviewer_fwd.hpp"
+#include "panels/AttributeViewPanel.hpp"
+#include "panels/LogViewPanel.hpp"
+#include "panels/ReferenceViewPanel.hpp"
+#include "panels/TreeViewPanel.hpp"
 
 #include <array>
 

@@ -1,7 +1,7 @@
 #include "DataTypeNode.hpp"
 
+#include "../../../qt_version_check.hpp"
 #include "Node.hpp"
-#include "qt_version_check.hpp"
 
 #include <optional>
 #include <utility>

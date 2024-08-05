@@ -1,11 +1,11 @@
 #include "ConnectionBuilder.hpp"
 
-#include "Application.hpp"
+#include "../Application.hpp"
+#include "../qt_version_check.hpp"
 #include "ApplicationCertificate.hpp"
 #include "Connection.hpp"
 #include "Logger.hpp"
 #include "abstraction/Endpoint.hpp"
-#include "qt_version_check.hpp"
 
 #include <optional>
 #include <utility>

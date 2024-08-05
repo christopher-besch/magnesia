@@ -1,12 +1,12 @@
 #include "DataViewer.hpp"
 
-#include "Activity.hpp"
-#include "Application.hpp"
-#include "database_types.hpp"
+#include "../../Activity.hpp"
+#include "../../Application.hpp"
+#include "../../database_types.hpp"
+#include "../../opcua_qt/Connection.hpp"
+#include "../../opcua_qt/Logger.hpp"
+#include "../../qt_version_check.hpp"
 #include "layout.hpp"
-#include "opcua_qt/Connection.hpp"
-#include "opcua_qt/Logger.hpp"
-#include "qt_version_check.hpp"
 
 #include <utility>
 

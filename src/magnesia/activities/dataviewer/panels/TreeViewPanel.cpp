@@ -1,12 +1,12 @@
 
-#include "activities/dataviewer/panels/TreeViewPanel.hpp"
+#include "TreeViewPanel.hpp"
 
-#include "activities/dataviewer/DataViewer.hpp"
-#include "activities/dataviewer/Panel.hpp"
-#include "activities/dataviewer/PanelMetadata.hpp"
-#include "activities/dataviewer/panels.hpp"
-#include "activities/dataviewer/panels/TreeViewModel.hpp"
-#include "opcua_qt/abstraction/node/Node.hpp"
+#include "../../../opcua_qt/abstraction/node/Node.hpp"
+#include "../DataViewer.hpp"
+#include "../Panel.hpp"
+#include "../PanelMetadata.hpp"
+#include "../panels.hpp"
+#include "TreeViewModel.hpp"
 
 #include <QDebug>
 #include <QHBoxLayout>

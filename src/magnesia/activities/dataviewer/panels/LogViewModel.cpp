@@ -1,8 +1,8 @@
-#include "activities/dataviewer/panels/LogViewModel.hpp"
+#include "LogViewModel.hpp"
 
-#include "opcua_qt/LogEntry.hpp"
-#include "opcua_qt/abstraction/LogCategory.hpp"
-#include "opcua_qt/abstraction/LogLevel.hpp"
+#include "../../../opcua_qt/LogEntry.hpp"
+#include "../../../opcua_qt/abstraction/LogCategory.hpp"
+#include "../../../opcua_qt/abstraction/LogLevel.hpp"
 
 #include <QAbstractTableModel>
 #include <QFile>

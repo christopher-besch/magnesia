@@ -1,10 +1,10 @@
 #include "ConnectionManager.hpp"
 
+#include "../qt_version_check.hpp"
 #include "Connection.hpp"
 #include "ConnectionBuilder.hpp"
 #include "Logger.hpp"
 #include "abstraction/Endpoint.hpp"
-#include "qt_version_check.hpp"
 
 #include <optional>
 

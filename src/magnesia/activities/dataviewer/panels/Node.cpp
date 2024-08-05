@@ -1,4 +1,4 @@
-#include "activities/dataviewer/panels/Node.hpp"
+#include "Node.hpp"
 
 #include <utility>
 

@@ -1,9 +1,9 @@
 #pragma once
 
+#include "../../ActivityMetadata.hpp"
 #include "../../ConfigWidget.hpp"
-#include "ActivityMetadata.hpp"
+#include "../../qt_version_check.hpp"
 #include "ConfigWidget.hpp"
-#include "qt_version_check.hpp"
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtLogging>

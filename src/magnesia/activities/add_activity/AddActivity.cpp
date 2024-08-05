@@ -1,7 +1,7 @@
 #include "AddActivity.hpp"
 
-#include "Activity.hpp"
-#include "Application.hpp"
+#include "../../Activity.hpp"
+#include "../../Application.hpp"
 
 #include <functional>
 

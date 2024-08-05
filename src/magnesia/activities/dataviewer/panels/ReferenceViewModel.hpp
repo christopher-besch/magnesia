@@ -1,7 +1,7 @@
 #pragma once
 
-#include "activities/dataviewer/dataviewer_fwd.hpp"
-#include "opcua_qt/abstraction/node/Node.hpp"
+#include "../../../opcua_qt/abstraction/node/Node.hpp"
+#include "../dataviewer_fwd.hpp"
 
 #include <utility>
 

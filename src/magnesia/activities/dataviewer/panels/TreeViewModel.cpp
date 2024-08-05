@@ -1,6 +1,6 @@
-#include "activities/dataviewer/panels/TreeViewModel.hpp"
+#include "TreeViewModel.hpp"
 
-#include "opcua_qt/abstraction/node/Node.hpp"
+#include "../../../opcua_qt/abstraction/node/Node.hpp"
 
 #include <QAbstractItemModel>
 #include <QModelIndex>

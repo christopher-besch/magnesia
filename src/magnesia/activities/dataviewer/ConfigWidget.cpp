@@ -1,14 +1,14 @@
 #include "ConfigWidget.hpp"
 
+#include "../../Application.hpp"
 #include "../../ConfigWidget.hpp"
-#include "Application.hpp"
+#include "../../opcua_qt/Connection.hpp"
+#include "../../opcua_qt/ConnectionBuilder.hpp"
+#include "../../opcua_qt/Logger.hpp"
+#include "../../opcua_qt/abstraction/Endpoint.hpp"
+#include "../../opcua_qt/abstraction/MessageSecurityMode.hpp"
+#include "../../qt_version_check.hpp"
 #include "DataViewer.hpp"
-#include "opcua_qt/Connection.hpp"
-#include "opcua_qt/ConnectionBuilder.hpp"
-#include "opcua_qt/Logger.hpp"
-#include "opcua_qt/abstraction/Endpoint.hpp"
-#include "opcua_qt/abstraction/MessageSecurityMode.hpp"
-#include "qt_version_check.hpp"
 
 #include <utility>
 

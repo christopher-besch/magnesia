@@ -1,7 +1,7 @@
-#include "activities/dataviewer/panels/ReferenceViewModel.hpp"
+#include "ReferenceViewModel.hpp"
 
-#include "activities/dataviewer/DataViewer.hpp"
-#include "opcua_qt/abstraction/node/Node.hpp"
+#include "../../../opcua_qt/abstraction/node/Node.hpp"
+#include "../DataViewer.hpp"
 
 #include <utility>
 

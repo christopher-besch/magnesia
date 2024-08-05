@@ -1,5 +1,6 @@
 #include "Connection.hpp"
 
+#include "../qt_version_check.hpp"
 #include "ApplicationCertificate.hpp"
 #include "Logger.hpp"
 #include "abstraction/AttributeId.hpp"
@@ -7,7 +8,6 @@
 #include "abstraction/NodeId.hpp"
 #include "abstraction/Subscription.hpp"
 #include "abstraction/node/Node.hpp"
-#include "qt_version_check.hpp"
 
 #include <optional>
 #include <utility>

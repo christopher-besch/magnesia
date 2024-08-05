@@ -1,14 +1,13 @@
 #include "LogViewPanel.hpp"
 
+#include "../../../opcua_qt/LogEntry.hpp"
+#include "../../../opcua_qt/Logger.hpp"
+#include "../../../opcua_qt/abstraction/LogLevel.hpp"
+#include "../DataViewer.hpp"
+#include "../Panel.hpp"
+#include "../PanelMetadata.hpp"
+#include "../panels.hpp"
 #include "LogViewModel.hpp"
-#include "activities/dataviewer/DataViewer.hpp"
-#include "activities/dataviewer/Panel.hpp"
-#include "activities/dataviewer/PanelMetadata.hpp"
-#include "activities/dataviewer/panels.hpp"
-#include "activities/dataviewer/panels/LogViewModel.hpp"
-#include "opcua_qt/LogEntry.hpp"
-#include "opcua_qt/Logger.hpp"
-#include "opcua_qt/abstraction/LogLevel.hpp"
 
 #include <QBoxLayout>
 #include <QComboBox>

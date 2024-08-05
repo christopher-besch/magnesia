@@ -1,17 +1,17 @@
 #pragma once
 
-#include "opcua_qt/abstraction/AccessLevelBitmask.hpp"
-#include "opcua_qt/abstraction/DataValue.hpp"
-#include "opcua_qt/abstraction/EventNotifierBitmask.hpp"
-#include "opcua_qt/abstraction/LocalizedText.hpp"
-#include "opcua_qt/abstraction/NodeClass.hpp"
-#include "opcua_qt/abstraction/NodeId.hpp"
-#include "opcua_qt/abstraction/QualifiedName.hpp"
-#include "opcua_qt/abstraction/ReferenceDescription.hpp"
-#include "opcua_qt/abstraction/ValueRank.hpp"
-#include "opcua_qt/abstraction/Variant.hpp"
-#include "opcua_qt/abstraction/WriteMaskBitmask.hpp"
-#include "qt_version_check.hpp"
+#include "../../../qt_version_check.hpp"
+#include "../AccessLevelBitmask.hpp"
+#include "../DataValue.hpp"
+#include "../EventNotifierBitmask.hpp"
+#include "../LocalizedText.hpp"
+#include "../NodeClass.hpp"
+#include "../NodeId.hpp"
+#include "../QualifiedName.hpp"
+#include "../ReferenceDescription.hpp"
+#include "../ValueRank.hpp"
+#include "../Variant.hpp"
+#include "../WriteMaskBitmask.hpp"
 
 #include <optional>
 
