@@ -126,7 +126,7 @@ namespace magnesia::activities::dataviewer {
             m_endpoint_selector->setSelectionBehavior(QAbstractItemView::SelectRows);
             m_endpoint_selector->setSelectionMode(QAbstractItemView::SingleSelection);
             m_endpoint_selector->verticalHeader()->setHidden(true);
-            m_endpoint_selector_model = new detail::EndpointTableModel;
+            m_endpoint_selector_model = new detail::EndpointTableModel(this);
             m_endpoint_selector->setModel(m_endpoint_selector_model);
             m_endpoint_selector->horizontalHeader()->setStretchLastSection(true);
             m_endpoint_selector->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
