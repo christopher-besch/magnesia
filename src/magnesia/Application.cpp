@@ -13,6 +13,7 @@
 #include <functional>
 #include <span>
 
+#include <QLoggingCategory>
 #include <QObject>
 #include <QString>
 #include <QStyle>
@@ -23,6 +24,8 @@
 #else
 #include <QtGlobal>
 #endif
+
+Q_LOGGING_CATEGORY(lcApplication, "magnesia")
 
 namespace magnesia {
     Application* Application::s_instance{nullptr};
@@ -67,6 +70,7 @@ namespace magnesia {
     void Application::initializeActivities() {
         for (const auto& activity : getActivityMetadata()) {
             if (activity.global_init != nullptr) {
+                qCInfo(lcApplication) << "initializing activity" << activity.name;
                 std::invoke(activity.global_init);
             }
         }

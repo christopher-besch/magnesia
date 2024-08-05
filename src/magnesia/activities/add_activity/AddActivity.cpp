@@ -8,9 +8,12 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidget>
+#include <QLoggingCategory>
 #include <QStackedLayout>
 #include <QWidget>
 #include <Qt>
+
+Q_LOGGING_CATEGORY(lcAddActivity, "magnesia.addactivity")
 
 namespace magnesia::activities::add_activity {
     AddActivity::AddActivity(QWidget* parent) : Activity{parent} {
@@ -21,6 +24,7 @@ namespace magnesia::activities::add_activity {
 
         for (const auto& activity : Application::getActivityMetadata()) {
             if (activity.create_config_widget != nullptr) {
+                qCInfo(lcAddActivity) << "adding activity" << activity.name;
                 activity_list->addItem(activity.name.toString());
                 config_widget_stack->addWidget(std::invoke(activity.create_config_widget));
             }

@@ -3,15 +3,8 @@
 #include "../../Activity.hpp"
 #include "../../ActivityMetadata.hpp"
 #include "../../Application.hpp"
-#include "../../qt_version_check.hpp"
 
 #include <QWidget>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtLogging>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::activities::add_activity {
     /**
@@ -28,11 +21,7 @@ namespace magnesia::activities::add_activity {
     };
 
     inline constexpr ActivityMetadata metadata{
-        .name = u"Add Activity",
-        .global_init =
-            []() {
-                Application::instance().openActivity(new AddActivity, "+", false);
-                qDebug() << "Initialized AddActivity";
-            },
+        .name        = u"Add Activity",
+        .global_init = [] { Application::instance().openActivity(new AddActivity, "+", false); },
     };
 } // namespace magnesia::activities::add_activity
