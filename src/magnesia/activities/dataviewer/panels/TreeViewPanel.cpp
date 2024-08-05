@@ -19,8 +19,6 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::dataviewer::panels::treeview_panel {
-    using opcua_qt::abstraction::Node;
-
     TreeViewPanel::TreeViewPanel(DataViewer* dataviewer, QWidget* parent)
         : Panel(dataviewer, Panels::treeview, parent), m_tree_view(new QTreeView(this)),
           m_model(new TreeViewModel(this)) {
@@ -42,7 +40,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     }
 
     void TreeViewPanel::onCurrentNodeChanged(const QModelIndex& current, const QModelIndex& /*previous*/) {
-        auto* node = static_cast<Node*>(current.internalPointer());
+        auto* node = static_cast<opcua_qt::abstraction::Node*>(current.internalPointer());
 
         if (node == nullptr) {
             return;
