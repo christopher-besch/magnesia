@@ -44,7 +44,13 @@ message(STATUS "Fetching dependencies. This may take a while...")
 FetchContent_MakeAvailable(open62541pp)
 
 # qt6-base-dev in current debian stable (bookworm) is at least 6.4.2
-find_package(Qt6 6.4 REQUIRED COMPONENTS Widgets Sql Network)
+find_package(
+    Qt6 6.4 REQUIRED
+    COMPONENTS Core
+               Widgets
+               Sql
+               Network
+)
 qt_standard_project_setup()
 
 message(STATUS "Using cmake ${CMAKE_VERSION}")
