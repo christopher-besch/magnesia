@@ -66,7 +66,6 @@ set(SOURCES
     opcua_qt/ApplicationCertificate.cpp
     opcua_qt/Connection.cpp
     opcua_qt/ConnectionBuilder.cpp
-    opcua_qt/ConnectionManager.cpp
     opcua_qt/LogEntry.cpp
     opcua_qt/Logger.cpp
     Router.cpp

@@ -16,8 +16,6 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::opcua_qt {
-    class ConnectionManager;
-
     /**
      * @brief Class that is used to create a connection.
      */
@@ -137,16 +135,6 @@ namespace magnesia::opcua_qt {
         void endpointsFound(const QList<Endpoint>& endpoints);
 
       private:
-        friend ConnectionManager;
-        // these functions gut the connection manager so they shall not be called twice
-        [[nodiscard]] std::optional<QString>&&                getUsername() noexcept;
-        [[nodiscard]] std::optional<QString>&&                getPassword() noexcept;
-        [[nodiscard]] std::optional<ApplicationCertificate>&& getCertificate() noexcept;
-        [[nodiscard]] QList<QSslCertificate>&&                getTrustList() noexcept;
-        [[nodiscard]] QList<QSslCertificate>&&                getRevokedList() noexcept;
-        [[nodiscard]] std::optional<Endpoint>&&               getEndpoint() noexcept;
-        [[nodiscard]] Logger*                                 getLogger() noexcept;
-
         void findEndopintsSynchronously();
 
       private:

@@ -210,7 +210,6 @@ namespace magnesia::activities::dataviewer {
         m_current_connection_builder->endpoint(endpoint);
         auto* logger = new opcua_qt::Logger;
         m_current_connection_builder->logger(logger);
-        // TODO: where and when should the connection be closed
         auto* connection = m_current_connection_builder->build();
         Q_ASSERT(connection != nullptr);
         connect(connection, &Connection::connected, this, [this, connection, logger]() {

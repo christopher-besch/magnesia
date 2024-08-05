@@ -7,7 +7,6 @@
 #include "SettingsManager.hpp"
 #include "StorageManager.hpp"
 #include "activities/activities.hpp"
-#include "opcua_qt/ConnectionManager.hpp"
 #include "qt_version_check.hpp"
 #include "settings.hpp"
 #include "terminate.hpp"
@@ -81,8 +80,7 @@ namespace magnesia {
         : QObject(parent), m_data_dir(ensure_data_dir(use_debug())),
           m_storage_manager(new SQLStorageManager{db_path(m_data_dir), this}),
           // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete): https://github.com/llvm/llvm-project/issues/62985
-          m_settings_manager(new SettingsManager{m_storage_manager, this}),
-          m_connection_manager{new opcua_qt::ConnectionManager{this}}, m_router(new Router{this}),
+          m_settings_manager(new SettingsManager{m_storage_manager, this}), m_router(new Router{this}),
           m_tab_widget(new QTabWidget{&m_main_window}) {
         Q_ASSERT(s_instance == nullptr && "You can only have one mangesia::Application at a time");
         s_instance = this;
@@ -140,11 +138,6 @@ namespace magnesia {
     SettingsManager& Application::getSettingsManager() {
         Q_ASSERT(m_settings_manager != nullptr);
         return *m_settings_manager;
-    }
-
-    opcua_qt::ConnectionManager& Application::getConnectionManager() {
-        Q_ASSERT(m_connection_manager != nullptr);
-        return *m_connection_manager;
     }
 
     Router& Application::getRouter() {

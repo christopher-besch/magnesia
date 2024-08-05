@@ -1,6 +1,5 @@
 #include "ConnectionBuilder.hpp"
 
-#include "../Application.hpp"
 #include "../qt_version_check.hpp"
 #include "ApplicationCertificate.hpp"
 #include "Connection.hpp"
@@ -8,7 +7,6 @@
 #include "abstraction/Endpoint.hpp"
 
 #include <optional>
-#include <utility>
 #include <vector>
 
 #include <open62541pp/Client.h>
@@ -76,39 +74,19 @@ namespace magnesia::opcua_qt {
         QThreadPool::globalInstance()->start([&] { findEndopintsSynchronously(); });
     }
 
-    std::optional<QString>&& ConnectionBuilder::getUsername() noexcept {
-        return std::move(m_username);
-    }
-
-    std::optional<QString>&& ConnectionBuilder::getPassword() noexcept {
-        return std::move(m_password);
-    }
-
-    std::optional<ApplicationCertificate>&& ConnectionBuilder::getCertificate() noexcept {
-        return std::move(m_certificate);
-    }
-
-    QList<QSslCertificate>&& ConnectionBuilder::getTrustList() noexcept {
-        return std::move(m_trust_list);
-    }
-
-    QList<QSslCertificate>&& ConnectionBuilder::getRevokedList() noexcept {
-        return std::move(m_revoked_list);
-    }
-
-    std::optional<Endpoint>&& ConnectionBuilder::getEndpoint() noexcept {
-        return std::move(m_endpoint);
-    }
-
-    Logger* ConnectionBuilder::getLogger() noexcept {
-        return std::exchange(m_logger, nullptr);
-    }
-
     Connection* ConnectionBuilder::build() {
         if (!m_endpoint.has_value() || m_logger == nullptr) {
             return nullptr;
         }
-        return Application::instance().getConnectionManager().createConnection(*this);
+
+        std::optional<opcua::Login> login;
+        if (m_username.has_value() && m_password.has_value()) {
+            login           = opcua::Login();
+            login->username = m_username.value().toStdString();
+            login->password = m_password.value().toStdString();
+        }
+
+        return new Connection(m_endpoint.value(), login, m_certificate, m_trust_list, m_revoked_list, m_logger);
     }
 
     void ConnectionBuilder::findEndopintsSynchronously() {

@@ -55,8 +55,8 @@ namespace magnesia::opcua_qt {
     Connection::Connection(Endpoint endpoint, const std::optional<opcua::Login>& login,
                            const std::optional<ApplicationCertificate>& certificate,
                            const QList<QSslCertificate>& trust_list, const QList<QSslCertificate>& revocation_list,
-                           Logger* logger, int connection_id, QObject* parent)
-        : QObject(parent), m_client(constructClient(certificate, trust_list, revocation_list)), m_id(connection_id),
+                           Logger* logger, QObject* parent)
+        : QObject(parent), m_client(constructClient(certificate, trust_list, revocation_list)),
           m_server_endpoint(std::move(endpoint)), m_login(login) {
         Q_ASSERT(logger != nullptr);
         m_client.setLogger(logger->getOPCUALogger());
@@ -95,10 +95,6 @@ namespace magnesia::opcua_qt {
 
         Q_EMIT connected();
         m_connect_mutex.unlock();
-    }
-
-    int Connection::getId() const noexcept {
-        return m_id;
     }
 
     QUrl Connection::getEndpointUrl() const noexcept {
