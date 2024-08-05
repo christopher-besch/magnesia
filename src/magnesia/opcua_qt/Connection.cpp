@@ -19,6 +19,7 @@
 #include <open62541pp/types/Builtin.h>
 
 #include <QList>
+#include <QMutexLocker>
 #include <QObject>
 #include <QSslCertificate>
 #include <QThreadPool>
@@ -74,7 +75,8 @@ namespace magnesia::opcua_qt {
     }
 
     void Connection::connectSynchronouslyAndRun() {
-        m_connect_mutex.lock();
+        const QMutexLocker locker(&m_connect_mutex);
+
         Q_ASSERT(!m_client.isConnected());
         Q_ASSERT(!m_client.isRunning());
         m_client.setSecurityMode(static_cast<opcua::MessageSecurityMode>(m_server_endpoint.getSecurityMode()));
@@ -94,7 +96,6 @@ namespace magnesia::opcua_qt {
         });
 
         Q_EMIT connected();
-        m_connect_mutex.unlock();
     }
 
     QUrl Connection::getEndpointUrl() const noexcept {

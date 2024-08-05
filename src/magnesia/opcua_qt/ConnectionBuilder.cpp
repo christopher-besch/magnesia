@@ -11,9 +11,9 @@
 #include <optional>
 
 #include <open62541pp/Client.h>
-#include <open62541pp/types/Composed.h>
 
 #include <QList>
+#include <QMutexLocker>
 #include <QSslCertificate>
 #include <QString>
 #include <QThreadPool>
@@ -28,9 +28,9 @@
 
 namespace magnesia::opcua_qt {
     ConnectionBuilder& ConnectionBuilder::url(const QUrl& url) noexcept {
-        m_get_endpoint_mutex.lock();
+        const QMutexLocker locker(&m_get_endpoint_mutex);
+
         m_url = url;
-        m_get_endpoint_mutex.unlock();
         return *this;
     }
 
@@ -90,8 +90,8 @@ namespace magnesia::opcua_qt {
     }
 
     void ConnectionBuilder::findEndopintsSynchronously() {
-        // never unlock this as the function may not be called more than once
-        m_get_endpoint_mutex.lock();
+        const QMutexLocker locker(&m_get_endpoint_mutex);
+
         Q_ASSERT(m_url.has_value());
         const auto      endpoint_descriptions = opcua::Client{}.getEndpoints(m_url.value().toString().toStdString());
         QList<Endpoint> endpoints;
