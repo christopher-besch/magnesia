@@ -22,6 +22,7 @@
 #include <QObject>
 #include <QSplitter>
 #include <QString>
+#include <QStringView>
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QVariant>
@@ -68,11 +69,21 @@ namespace magnesia::activities::dataviewer::layout {
 
     QComboBox* PanelWrapper::buildPanelSelector() {
         auto* panel_selector = new QComboBox;
-        for (const auto& panel : panels::all) {
-            panel_selector->addItem(panel.name.toString(), QVariant::fromValue(panel));
-        }
         panel_selector->setPlaceholderText("<Select Panel>");
         panel_selector->setCurrentIndex(-1);
+
+        QStringView target_id;
+        if (auto* panel = get(); panel != nullptr) {
+            const auto& metadata = panel->metadata();
+            target_id            = metadata.id;
+        }
+
+        for (const auto& panel : panels::all) {
+            panel_selector->addItem(panel.name.toString(), QVariant::fromValue(panel));
+            if (panel.id == target_id) {
+                panel_selector->setCurrentIndex(panel_selector->count() - 1);
+            }
+        }
 
         // TODO: move this to member function?
         connect(panel_selector, &QComboBox::currentIndexChanged, this, [this, panel_selector](int index) {
