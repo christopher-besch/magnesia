@@ -2,6 +2,7 @@
 
 #include "about/About.hpp"
 #include "add_activity/AddActivity.hpp"
+#include "certificate/Certificate.hpp"
 #include "dataviewer/metadata.hpp"
 #include "settings/Settings.hpp"
 
@@ -17,6 +18,7 @@ namespace magnesia::activities {
         dataviewer::metadata,
         about::metadata,
         settings::metadata,
+        certificate::metadata,
 
         // NOTE: Keep add_activity last. It calls metadata.create_config_widget which may depend on other activities
         // already being initialized

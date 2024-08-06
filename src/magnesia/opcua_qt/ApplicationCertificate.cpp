@@ -8,7 +8,6 @@
 #include <vector>
 
 #include <open62541pp/Crypto.h>
-#include <open62541pp/Span.h>
 #include <open62541pp/types/Builtin.h>
 
 #include <QByteArray>
@@ -25,11 +24,9 @@
 #endif
 
 namespace {
-    opcua::Span<opcua::String> to_span(const QList<QString>& list) {
-        auto view =
-            list | std::views::transform([](const QString& input) { return opcua::String(input.toStdString()); });
-        auto vector = std::vector<opcua::String>{view.begin(), view.end()};
-        return opcua::Span<opcua::String>{vector};
+    std::vector<opcua::String> to_vector(const QList<QString>& list) {
+        auto view = list | std::views::transform(&QString::toStdString);
+        return std::vector<opcua::String>{view.begin(), view.end()};
     }
 } // namespace
 
@@ -37,7 +34,7 @@ namespace magnesia::opcua_qt {
 
     ApplicationCertificate::ApplicationCertificate(const QList<QString>& subject,
                                                    const QList<QString>& subject_alt_name, std::size_t key_size_bits) {
-        const auto result_pair = opcua::crypto::createCertificate(to_span(subject), to_span(subject_alt_name),
+        const auto result_pair = opcua::crypto::createCertificate(to_vector(subject), to_vector(subject_alt_name),
                                                                   key_size_bits, opcua::crypto::CertificateFormat::DER);
 
         auto certificate = result_pair.certificate.get();
