@@ -27,27 +27,16 @@ build_linux_nix:
       trap 'rm -rf "'"$TMPDIR"'"' EXIT
       nix develop -ic env "XDG_CACHE_HOME=$TMPDIR" "CC=$CC" "CXX=$CXX" "BUILD_TYPE=$BUILD_TYPE" .ci/build.sh
 
-.lint-base: &lint-base
+lint:
   stage: lint
   tags: [ubuntu]
+  parallel:
+    matrix:
+      - job:
+        - cmake-format
+        - clang-format
+        - codespell
+        - qt_headers
+        - clang-tidy
   before_script: .ci/setup.sh nix
-
-cmake-format:
-  <<: *lint-base
-  script: nix develop -ic .ci/lint.sh cmake-format
-
-clang-format:
-  <<: *lint-base
-  script: nix develop -ic .ci/lint.sh clang-format
-
-codespell:
-  <<: *lint-base
-  script: nix develop -ic .ci/lint.sh codespell
-
-qt headers:
-  <<: *lint-base
-  script: nix develop -ic .ci/lint.sh qt_headers
-
-clang-tidy:
-  <<: *lint-base
-  script: nix develop -ic .ci/lint.sh clang-tidy
+  script: nix develop -ic .ci/lint.sh "$job"
