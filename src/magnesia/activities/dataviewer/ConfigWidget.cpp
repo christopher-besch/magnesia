@@ -82,17 +82,13 @@ namespace magnesia::activities::dataviewer {
     ConfigWidget::ConfigWidget(QWidget* parent) : magnesia::ConfigWidget(parent) {
         auto* layout = new QHBoxLayout;
 
-        auto* v_layout = new QVBoxLayout;
-
-        v_layout->addWidget(buildQuickConnect());
-
-        layout->addWidget(wrap_in_frame(v_layout), Qt::AlignCenter);
+        layout->addWidget(wrap_in_frame(buildQuickConnect()), Qt::AlignCenter);
         layout->addWidget(wrap_in_frame(buildRecentConnections()), Qt::AlignCenter);
 
         setLayout(layout);
     }
 
-    QWidget* ConfigWidget::buildQuickConnect() {
+    QLayout* ConfigWidget::buildQuickConnect() {
         auto* layout = new QFormLayout;
         {
             auto* label = new QLabel("<h2>Quick Connect</h2>");
@@ -142,9 +138,7 @@ namespace magnesia::activities::dataviewer {
             layout->addRow(m_connect_button);
         }
 
-        auto* widget = new QWidget;
-        widget->setLayout(layout);
-        return widget;
+        return layout;
     }
 
     QWidget* ConfigWidget::buildRecentConnections() {
