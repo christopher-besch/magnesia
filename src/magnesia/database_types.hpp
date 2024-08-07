@@ -37,4 +37,11 @@ namespace magnesia {
         SettingName name;
         Domain      domain;
     };
+
+    inline bool operator<(const SettingKey& key1, const SettingKey& key2) {
+        if (key1.domain != key2.domain) {
+            return key1.domain < key2.domain;
+        }
+        return key1.name < key2.name;
+    }
 } // namespace magnesia
