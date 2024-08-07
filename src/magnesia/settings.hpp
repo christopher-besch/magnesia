@@ -3,11 +3,18 @@
 #include "database_types.hpp"
 
 #include <cstdint>
+#include <functional>
 
+#include <QLayout>
 #include <QSet>
 #include <QString>
+#include <QWidget>
 
 namespace magnesia {
+    namespace activities::settings_activity {
+        class SettingsActivity;
+    } // namespace activities::settings_activity
+
     /**
      * Base class for all Settings definitions.
      *
@@ -21,11 +28,19 @@ namespace magnesia {
       public:
         virtual ~Setting() = default;
 
-        QString getName();
-        QString getHumanReadableName();
-        QString getDescription();
+        [[nodiscard]] QString getName() const;
+        [[nodiscard]] QString getHumanReadableName() const;
+        [[nodiscard]] QString getDescription() const;
+
+      private:
+        friend activities::settings_activity::SettingsActivity;
+        [[nodiscard]] virtual QWidget* constructWidget(const Domain& domain) const = 0;
 
       protected:
+        [[nodiscard]] QWidget* wrapInSettingsWidget(QLayout* right_layout, const std::function<void()>& on_reset,
+                                                    const SettingKey& reset_key) const;
+        [[nodiscard]] QWidget* wrapInSettingsWidget(QLayout* right_layout) const;
+
         /**
          * @param name The key to identify this setting inside its domain.
          * @param human_readable_name The name displayed to the user.
@@ -61,6 +76,9 @@ namespace magnesia {
         BooleanSetting(QString name, QString human_readable_name, QString description, bool default_value);
 
       private:
+        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
+
+      private:
         bool m_default_value;
     };
 
@@ -80,6 +98,9 @@ namespace magnesia {
         [[nodiscard]] static bool isValid(const QString& value);
 
         StringSetting(QString name, QString human_readable_name, QString description, QString default_value);
+
+      private:
+        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
 
       private:
         QString m_default_value;
@@ -104,6 +125,9 @@ namespace magnesia {
                    std::int64_t min, std::int64_t max);
 
       private:
+        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
+
+      private:
         std::int64_t m_default_value;
         std::int64_t m_min;
         std::int64_t m_max;
@@ -126,6 +150,9 @@ namespace magnesia {
 
         DoubleSetting(QString name, QString human_readable_name, QString description, double default_value, double min,
                       double max);
+
+      private:
+        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
 
       private:
         double m_default_value;
@@ -153,6 +180,9 @@ namespace magnesia {
                     QSet<EnumSettingValue> possible_values);
 
       private:
+        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
+
+      private:
         EnumSettingValue       m_default_value;
         QSet<EnumSettingValue> m_possible_values;
     };
@@ -175,6 +205,9 @@ namespace magnesia {
         [[nodiscard]] static bool isValid(StorageId value);
 
         HistoricServerConnectionSetting(QString name, QString human_readable_name, QString description);
+
+      private:
+        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
     };
 
     /*
@@ -195,6 +228,9 @@ namespace magnesia {
         [[nodiscard]] static bool isValid(StorageId value);
 
         CertificateSetting(QString name, QString human_readable_name, QString description);
+
+      private:
+        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
     };
 
     /*
@@ -215,6 +251,9 @@ namespace magnesia {
         [[nodiscard]] static bool isValid(StorageId value);
 
         KeySetting(QString name, QString human_readable_name, QString description);
+
+      private:
+        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
     };
 
     /*
@@ -240,6 +279,9 @@ namespace magnesia {
         [[nodiscard]] static bool isValid(StorageId value);
 
         LayoutSetting(QString name, QString human_readable_name, QString description, LayoutGroup layout_group);
+
+      private:
+        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
 
       private:
         LayoutGroup m_layout_group;

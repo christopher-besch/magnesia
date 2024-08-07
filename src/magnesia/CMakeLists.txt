@@ -21,6 +21,7 @@ set(SOURCES
     activities/dataviewer/panels/ReferenceViewPanel.cpp
     activities/dataviewer/panels/TreeViewModel.cpp
     activities/dataviewer/panels/TreeViewPanel.cpp
+    activities/settings_activity/SettingsActivity.cpp
     Activity.cpp
     ActivityMetadata.cpp
     Application.cpp
@@ -74,6 +75,7 @@ set(SOURCES
     SQLStorageManager.cpp
     StorageManager.cpp
     terminate.cpp
+    url_handlers/SettingsUrlHandler.cpp
 )
 qt_add_executable(magnesia main.cpp ${SOURCES})
 

@@ -3,6 +3,7 @@
 #include "about/About.hpp"
 #include "add_activity/AddActivity.hpp"
 #include "dataviewer/metadata.hpp"
+#include "settings_activity/SettingsActivity.hpp"
 
 #include <array>
 
@@ -15,6 +16,7 @@ namespace magnesia::activities {
     inline constexpr std::array all{
         dataviewer::metadata,
         about::metadata,
+        settings_activity::metadata,
 
         // NOTE: Keep add_activity last. It calls metadata.create_config_widget which may depend on other activities
         // already being initialized
