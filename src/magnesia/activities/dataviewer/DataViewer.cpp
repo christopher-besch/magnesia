@@ -108,6 +108,7 @@ namespace magnesia::activities::dataviewer {
                 },
                 s_layout_group, s_storage_domain);
 
+            save_edit->clear();
             layout_selector->show();
             save_edit->hide();
             save_button->hide();
