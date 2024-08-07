@@ -12,7 +12,6 @@
 
 #include <utility>
 
-#include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QComboBox>
 #include <QFormLayout>
@@ -21,13 +20,14 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QLabel>
+#include <QLayout>
 #include <QLineEdit>
 #include <QList>
 #include <QLoggingCategory>
 #include <QMetaType>
+#include <QModelIndex>
 #include <QPushButton>
 #include <QSharedPointer>
-#include <QSizePolicy>
 #include <QString>
 #include <QTableView>
 #include <QVBoxLayout>
@@ -38,7 +38,6 @@
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
 #include <QtPreprocessorSupport>
-#include <QtTypeTraits>
 #else
 #include <QtGlobal>
 #endif
