@@ -2,6 +2,7 @@
 
 #include "../../Activity.hpp"
 #include "../../Application.hpp"
+#include "../../StorageManager.hpp"
 #include "../../database_types.hpp"
 #include "../../opcua_qt/Connection.hpp"
 #include "../../opcua_qt/Logger.hpp"
@@ -94,7 +95,7 @@ namespace magnesia::activities::dataviewer {
                     m_root_layout->restoreState(state.toJsonDocument());
                 });
 
-        connect(save_button, &QPushButton::clicked, this, [this, model, layout_selector, save_edit, save_button] {
+        connect(save_button, &QPushButton::clicked, this, [this, layout_selector, save_edit, save_button] {
             auto state = m_root_layout->saveState();
             auto name  = save_edit->text();
 
@@ -106,7 +107,6 @@ namespace magnesia::activities::dataviewer {
                     .json_data = state,
                 },
                 s_layout_group, s_storage_domain);
-            model->reload();
 
             layout_selector->show();
             save_edit->hide();
@@ -120,6 +120,9 @@ namespace magnesia::activities::dataviewer {
     namespace detail {
         LayoutSelectorModel::LayoutSelectorModel(Domain domain, LayoutGroup group, QObject* parent)
             : QAbstractListModel(parent), m_domain(std::move(domain)), m_group(std::move(group)) {
+            auto* storage_manager = &Application::instance().getStorageManager();
+            connect(storage_manager, &StorageManager::layoutChanged, this, &LayoutSelectorModel::reload);
+
             reload();
         }
 
@@ -149,6 +152,7 @@ namespace magnesia::activities::dataviewer {
         }
 
         void LayoutSelectorModel::reload() {
+            // TODO: make sure the currently selected layout stays the same
             const auto& storage_manager = Application::instance().getStorageManager();
             auto        layouts         = storage_manager.getAllLayouts(m_group, m_domain);
 
