@@ -918,11 +918,14 @@ CREATE TABLE HistoricServerConnection (
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     --
     CONSTRAINT HistoricServerConnection_TO_Certificate_FK FOREIGN KEY (certificate_id)
-        REFERENCES Certificate (id),
+        REFERENCES Certificate (id)
+        ON DELETE CASCADE,
     CONSTRAINT HistoricServerConnection_TO_Key_FK FOREIGN KEY (private_key_id)
-        REFERENCES Key (id),
+        REFERENCES Key (id)
+        ON DELETE CASCADE,
     CONSTRAINT HistoricServerConnection_TO_Layout_FK FOREIGN KEY (layout_id, layout_group, layout_domain)
         REFERENCES Layout (id, layout_group, domain)
+        ON DELETE CASCADE
 ) STRICT;
 )sql",
             R"sql(
@@ -936,6 +939,7 @@ CREATE TABLE HistoricServerConnectionTrustList (
         ON DELETE CASCADE,
     CONSTRAINT HistoricServerConnectionTrustList_TO_Certificate_FK FOREIGN KEY (certificate_id)
         REFERENCES Certificate (id)
+        ON DELETE CASCADE
 ) STRICT;
 )sql",
             R"sql(
@@ -949,6 +953,7 @@ CREATE TABLE HistoricServerConnectionRevokedList (
         ON DELETE CASCADE,
     CONSTRAINT HistoricServerConnectionRevokedList_TO_Certificate_FK FOREIGN KEY (certificate_id)
         REFERENCES Certificate (id)
+        ON DELETE CASCADE
 ) STRICT;
 )sql",
             R"sql(
