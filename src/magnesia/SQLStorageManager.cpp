@@ -771,6 +771,28 @@ WHERE CertificateSetting.name = :name
         return certs.front();
     }
 
+    std::optional<StorageId> SQLStorageManager::getCertificateSettingId(const SettingKey& key) const {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(
+SELECT cert_id
+FROM CertificateSetting
+WHERE CertificateSetting.name = :name
+    AND CertificateSetting.domain = :domain;
+                      )sql");
+        query.bindValue(":name", key.name);
+        query.bindValue(":domain", key.domain);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database CertificateSetting id retrieval failed.", query);
+            terminate();
+        }
+
+        if (!query.next()) {
+            return {};
+        }
+        return query.value("cert_id").toULongLong();
+    }
+
     std::optional<QSslKey> SQLStorageManager::getKeySetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
@@ -792,10 +814,32 @@ WHERE KeySetting.name = :name
         if (!query.next()) {
             return {};
         }
-        // TODO: use actual key type
+        // TODO: use actual key algorithm type
         QSslKey qkey{query.value("pem").toByteArray(), QSsl::Rsa, QSsl::Pem};
         Q_ASSERT(!qkey.isNull());
         return qkey;
+    }
+
+    std::optional<StorageId> SQLStorageManager::getKeySettingId(const SettingKey& key) const {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(
+SELECT key_id
+FROM KeySetting
+WHERE KeySetting.name = :name
+    AND KeySetting.domain = :domain;
+                      )sql");
+        query.bindValue(":name", key.name);
+        query.bindValue(":domain", key.domain);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database KeySetting id retrieval failed.", query);
+            terminate();
+        }
+
+        if (!query.next()) {
+            return {};
+        }
+        return query.value("key_id").toULongLong();
     }
 
     std::optional<HistoricServerConnection>
@@ -848,6 +892,28 @@ WHERE HistoricServerConnectionSetting.name = :name
         return queryToHistoricServerConnection(query);
     }
 
+    std::optional<StorageId> SQLStorageManager::getHistoricServerConnectionSettingId(const SettingKey& key) const {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(
+SELECT historic_server_connection_id
+FROM HistoricServerConnectionSetting
+WHERE HistoricServerConnectionSetting.name = :name
+    AND HistoricServerConnectionSetting.domain = :domain;
+                      )sql");
+        query.bindValue(":name", key.name);
+        query.bindValue(":domain", key.domain);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database HistoricServerConnection id retrieval failed.", query);
+            terminate();
+        }
+
+        if (!query.next()) {
+            return {};
+        }
+        return query.value("historic_server_connection_id").toULongLong();
+    }
+
     std::optional<Layout> SQLStorageManager::getLayoutSetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
@@ -873,6 +939,28 @@ WHERE LayoutSetting.name = :name
             .name      = query.value("Layout.name").toString(),
             .json_data = QJsonDocument::fromJson(query.value("Layout.json_data").toString().toUtf8()),
         };
+    }
+
+    std::optional<StorageId> SQLStorageManager::getLayoutSettingId(const SettingKey& key) const {
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(
+SELECT layout_id
+FROM LayoutSetting
+WHERE LayoutSetting.name = :name
+    AND LayoutSetting.domain = :domain;
+                      )sql");
+        query.bindValue(":name", key.name);
+        query.bindValue(":domain", key.domain);
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database LayoutSetting id retrieval failed.", query);
+            terminate();
+        }
+
+        if (!query.next()) {
+            return {};
+        }
+        return query.value("layout_id").toULongLong();
     }
 
     void SQLStorageManager::migrate() {

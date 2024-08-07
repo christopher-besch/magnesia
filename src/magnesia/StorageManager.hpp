@@ -311,25 +311,30 @@ namespace magnesia {
         // Most of these could receive the same name with function overloading.
         // This is not done because doing so causes confusion when types are implicitly cast and the setting is inserted
         // into the wrong relation.
-        virtual void setBooleanSetting(const SettingKey& key, bool value)                                        = 0;
-        virtual void setStringSetting(const SettingKey& key, const QString& value)                               = 0;
-        virtual void setIntSetting(const SettingKey& key, std::int64_t value)                                    = 0;
-        virtual void setDoubleSetting(const SettingKey& key, double value)                                       = 0;
-        virtual void setEnumSetting(const SettingKey& key, const EnumSettingValue& value)                        = 0;
-        virtual void setCertificateSetting(const SettingKey& key, StorageId cert_id)                             = 0;
-        virtual void setKeySetting(const SettingKey& key, StorageId key_id)                                      = 0;
+        virtual void setBooleanSetting(const SettingKey& key, bool value)                                          = 0;
+        virtual void setStringSetting(const SettingKey& key, const QString& value)                                 = 0;
+        virtual void setIntSetting(const SettingKey& key, std::int64_t value)                                      = 0;
+        virtual void setDoubleSetting(const SettingKey& key, double value)                                         = 0;
+        virtual void setEnumSetting(const SettingKey& key, const EnumSettingValue& value)                          = 0;
+        virtual void setCertificateSetting(const SettingKey& key, StorageId cert_id)                               = 0;
+        virtual void setKeySetting(const SettingKey& key, StorageId key_id)                                        = 0;
         virtual void setHistoricServerConnectionSetting(const SettingKey& key,
-                                                        StorageId         historic_server_connection_id)                 = 0;
-        virtual void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group)      = 0;
-        [[nodiscard]] virtual std::optional<bool>             getBoolSetting(const SettingKey& key) const        = 0;
-        [[nodiscard]] virtual std::optional<QString>          getStringSetting(const SettingKey& key) const      = 0;
-        [[nodiscard]] virtual std::optional<std::int64_t>     getIntSetting(const SettingKey& key) const         = 0;
-        [[nodiscard]] virtual std::optional<double>           getDoubleSetting(const SettingKey& key) const      = 0;
-        [[nodiscard]] virtual std::optional<EnumSettingValue> getEnumSetting(const SettingKey& key) const        = 0;
-        [[nodiscard]] virtual std::optional<QSslCertificate>  getCertificateSetting(const SettingKey& key) const = 0;
-        [[nodiscard]] virtual std::optional<QSslKey>          getKeySetting(const SettingKey& key) const         = 0;
+                                                        StorageId         historic_server_connection_id)                   = 0;
+        virtual void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group)        = 0;
+        [[nodiscard]] virtual std::optional<bool>             getBoolSetting(const SettingKey& key) const          = 0;
+        [[nodiscard]] virtual std::optional<QString>          getStringSetting(const SettingKey& key) const        = 0;
+        [[nodiscard]] virtual std::optional<std::int64_t>     getIntSetting(const SettingKey& key) const           = 0;
+        [[nodiscard]] virtual std::optional<double>           getDoubleSetting(const SettingKey& key) const        = 0;
+        [[nodiscard]] virtual std::optional<EnumSettingValue> getEnumSetting(const SettingKey& key) const          = 0;
+        [[nodiscard]] virtual std::optional<QSslCertificate>  getCertificateSetting(const SettingKey& key) const   = 0;
+        [[nodiscard]] virtual std::optional<StorageId>        getCertificateSettingId(const SettingKey& key) const = 0;
+        [[nodiscard]] virtual std::optional<QSslKey>          getKeySetting(const SettingKey& key) const           = 0;
+        [[nodiscard]] virtual std::optional<StorageId>        getKeySettingId(const SettingKey& key) const         = 0;
         [[nodiscard]] virtual std::optional<HistoricServerConnection>
-                                                    getHistoricServerConnectionSetting(const SettingKey& key) const = 0;
-        [[nodiscard]] virtual std::optional<Layout> getLayoutSetting(const SettingKey& key) const                   = 0;
+        getHistoricServerConnectionSetting(const SettingKey& key) const = 0;
+        [[nodiscard]] virtual std::optional<StorageId>
+        getHistoricServerConnectionSettingId(const SettingKey& key) const                              = 0;
+        [[nodiscard]] virtual std::optional<Layout>    getLayoutSetting(const SettingKey& key) const   = 0;
+        [[nodiscard]] virtual std::optional<StorageId> getLayoutSettingId(const SettingKey& key) const = 0;
     };
 } // namespace magnesia

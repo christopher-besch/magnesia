@@ -207,6 +207,15 @@ namespace magnesia {
          */
         [[nodiscard]] std::optional<QSslCertificate> getCertificateSetting(const SettingKey& key) const;
         /*
+         * Get the id of an X.509 CertificateSetting.
+         *
+         * @param key The SettingKey of the setting to get.
+         *
+         * @return the Setting's value as an id or its default value when not set or nullopt when the setting is not
+         * defined.
+         */
+        [[nodiscard]] std::optional<StorageId> getCertificateSettingId(const SettingKey& key) const;
+        /*
          * Get an X.509 KeySetting.
          *
          * @param key The SettingKey of the setting to get.
@@ -214,6 +223,15 @@ namespace magnesia {
          * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
         [[nodiscard]] std::optional<QSslKey> getKeySetting(const SettingKey& key) const;
+        /*
+         * Get the id of an X.509 KeySetting.
+         *
+         * @param key The SettingKey of the setting to get.
+         *
+         * @return the Setting's value as an id or its default value when not set or nullopt when the setting is not
+         * defined.
+         */
+        [[nodiscard]] std::optional<StorageId> getKeySettingId(const SettingKey& key) const;
         /*
          * Get a HistoricServerConnectionSetting.
          *
@@ -224,6 +242,15 @@ namespace magnesia {
         [[nodiscard]] std::optional<HistoricServerConnection>
         getHistoricServerConnectionSetting(const SettingKey& key) const;
         /*
+         * Get the id of a HistoricServerConnectionSetting.
+         *
+         * @param key The SettingKey of the setting to get.
+         *
+         * @return the Setting's value as an id or its default value when not set or nullopt when the setting is not
+         * defined.
+         */
+        [[nodiscard]] std::optional<StorageId> getHistoricServerConnectionSettingId(const SettingKey& key) const;
+        /*
          * Get a LayoutSetting.
          *
          * @param key The SettingKey of the setting to get.
@@ -231,6 +258,15 @@ namespace magnesia {
          * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
          */
         [[nodiscard]] std::optional<Layout> getLayoutSetting(const SettingKey& key) const;
+        /*
+         * Get the id group of a LayoutSetting.
+         *
+         * @param key The SettingKey of the setting to get.
+         *
+         * @return the Setting's value as id or its default value when not set or nullopt when the
+         * setting is not defined.
+         */
+        [[nodiscard]] std::optional<StorageId> getLayoutSettingId(const SettingKey& key) const;
 
         /**
          * Get all Domains in the order they're defined in.
@@ -300,6 +336,7 @@ namespace magnesia {
         [[nodiscard]] std::optional<T> getSetting(const SettingKey& key, auto&& getter) const;
 
       private:
+        // TODO: maybe use a QList for the Domain too, that would make the order defined
         QMap<Domain, QList<QSharedPointer<Setting>>> m_settings;
         QPointer<StorageManager>                     m_storage_manager;
     };

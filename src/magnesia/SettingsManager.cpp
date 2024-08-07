@@ -158,8 +158,16 @@ namespace magnesia {
         return getSetting<CertificateSetting, QSslCertificate>(key, &StorageManager::getCertificateSetting);
     }
 
+    std::optional<StorageId> SettingsManager::getCertificateSettingId(const SettingKey& key) const {
+        return getSetting<CertificateSetting, StorageId>(key, &StorageManager::getCertificateSettingId);
+    }
+
     std::optional<QSslKey> SettingsManager::getKeySetting(const SettingKey& key) const {
         return getSetting<KeySetting, QSslKey>(key, &StorageManager::getKeySetting);
+    }
+
+    std::optional<StorageId> SettingsManager::getKeySettingId(const SettingKey& key) const {
+        return getSetting<KeySetting, StorageId>(key, &StorageManager::getKeySettingId);
     }
 
     std::optional<HistoricServerConnection>
@@ -168,8 +176,17 @@ namespace magnesia {
             key, &StorageManager::getHistoricServerConnectionSetting);
     }
 
+    std::optional<StorageId> SettingsManager::getHistoricServerConnectionSettingId(const SettingKey& key) const {
+        return getSetting<HistoricServerConnectionSetting, StorageId>(
+            key, &StorageManager::getHistoricServerConnectionSettingId);
+    }
+
     std::optional<Layout> SettingsManager::getLayoutSetting(const SettingKey& key) const {
         return getSetting<LayoutSetting, Layout>(key, &StorageManager::getLayoutSetting);
+    }
+
+    std::optional<StorageId> SettingsManager::getLayoutSettingId(const SettingKey& key) const {
+        return getSetting<LayoutSetting, StorageId>(key, &StorageManager::getLayoutSettingId);
     }
 
     QList<Domain> SettingsManager::getAllDomains() const {

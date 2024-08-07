@@ -72,10 +72,15 @@ namespace magnesia {
         [[nodiscard]] std::optional<double>           getDoubleSetting(const SettingKey& key) const override;
         [[nodiscard]] std::optional<EnumSettingValue> getEnumSetting(const SettingKey& key) const override;
         [[nodiscard]] std::optional<QSslCertificate>  getCertificateSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<StorageId>        getCertificateSettingId(const SettingKey& key) const override;
         [[nodiscard]] std::optional<QSslKey>          getKeySetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<StorageId>        getKeySettingId(const SettingKey& key) const override;
         [[nodiscard]] std::optional<HistoricServerConnection>
-                                            getHistoricServerConnectionSetting(const SettingKey& key) const override;
+        getHistoricServerConnectionSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<StorageId>
+                                            getHistoricServerConnectionSettingId(const SettingKey& key) const override;
         [[nodiscard]] std::optional<Layout> getLayoutSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<StorageId> getLayoutSettingId(const SettingKey& key) const override;
 
       private:
         void migrate();
