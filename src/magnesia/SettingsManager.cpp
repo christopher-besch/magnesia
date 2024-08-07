@@ -147,7 +147,7 @@ namespace magnesia {
     }
 
     std::optional<double> SettingsManager::getDoubleSetting(const SettingKey& key) const {
-        return getSetting<DoubleSetting, std::int64_t>(key, &StorageManager::getDoubleSetting);
+        return getSetting<DoubleSetting, double>(key, &StorageManager::getDoubleSetting);
     }
 
     std::optional<EnumSettingValue> SettingsManager::getEnumSetting(const SettingKey& key) const {
