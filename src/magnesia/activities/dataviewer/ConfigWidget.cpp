@@ -185,6 +185,7 @@ namespace magnesia::activities::dataviewer {
                             << "\n  password:" << m_password->text();
 
         auto builder = m_current_connection_builder = QSharedPointer<ConnectionBuilder>{new ConnectionBuilder};
+        m_current_connection_builder->logger(new opcua_qt::Logger);
 
         // TODO: certificate
         builder->url(m_address->text());
@@ -237,14 +238,14 @@ namespace magnesia::activities::dataviewer {
                             << "\n  endpoint:" << index.row();
 
         m_current_connection_builder->endpoint(endpoint);
-        auto* logger = new opcua_qt::Logger;
-        m_current_connection_builder->logger(logger);
+
         auto* connection = m_current_connection_builder->build();
         Q_ASSERT(connection != nullptr);
-        connect(connection, &Connection::connected, this, [this, connection, logger]() {
-            reset();
-            Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer");
-        });
+        connect(connection, &Connection::connected, this,
+                [this, connection, logger = m_current_connection_builder->getLogger()] {
+                    reset();
+                    Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer");
+                });
         m_connect_button->setEnabled(false);
         connection->connectAndRun();
     }
