@@ -242,19 +242,18 @@ namespace magnesia::activities::dataviewer {
             const auto  column   = index.column();
 
             if (role == Qt::DisplayRole) {
-                if (column == 0) {
-                    return endpoint.getEndpointUrl();
+                switch (index.column()) {
+                    case 0:
+                        return endpoint.getEndpointUrl();
+                    case 1:
+                        return endpoint.getSecurityPolicyUri().remove("http://opcfoundation.org/UA/SecurityPolicy#");
+                    case 2:
+                        return to_qstring(endpoint.getSecurityMode());
+                    default:
+                        Q_ASSERT(false);
                 }
-                if (column == 1) {
-                    return endpoint.getSecurityPolicyUri().remove("http://opcfoundation.org/UA/SecurityPolicy#");
-                }
-                if (column == 2) {
-                    return to_qstring(endpoint.getSecurityMode());
-                }
-            } else if (role == Qt::ToolTipRole) {
-                if (column == 1) {
-                    return endpoint.getSecurityPolicyUri();
-                }
+            } else if (role == Qt::ToolTipRole && column == 1) {
+                return endpoint.getSecurityPolicyUri();
             } else if (role == Qt::UserRole) {
                 return QVariant::fromValue(endpoint);
             }
@@ -263,14 +262,15 @@ namespace magnesia::activities::dataviewer {
 
         QVariant EndpointTableModel::headerData(int section, Qt::Orientation orientation, int role) const {
             if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-                if (section == 0) {
-                    return "Endpoint URL";
-                }
-                if (section == 1) {
-                    return "Security Policy URI";
-                }
-                if (section == 2) {
-                    return "Security Mode";
+                switch (section) {
+                    case 0:
+                        return "Endpoint URL";
+                    case 1:
+                        return "Security Policy URI";
+                    case 2:
+                        return "Security Mode";
+                    default:
+                        Q_ASSERT(false);
                 }
             }
             return {};
