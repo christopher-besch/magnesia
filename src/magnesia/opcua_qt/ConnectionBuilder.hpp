@@ -128,6 +128,15 @@ namespace magnesia::opcua_qt {
          */
         void findEndpoints();
 
+        [[nodiscard]] const std::optional<QUrl>&                   getUrl() const;
+        [[nodiscard]] const std::optional<Endpoint>&               getEndpoint() const;
+        [[nodiscard]] Logger*                                      getLogger() const;
+        [[nodiscard]] const std::optional<QString>&                getUsername() const;
+        [[nodiscard]] const std::optional<QString>&                getPassword() const;
+        [[nodiscard]] const std::optional<ApplicationCertificate>& getCertificate() const;
+        [[nodiscard]] const QList<QSslCertificate>&                getTrustList() const;
+        [[nodiscard]] const QList<QSslCertificate>&                getRevokedList() const;
+
       signals:
         /**
          * @brief emits a list of endpoints from the url

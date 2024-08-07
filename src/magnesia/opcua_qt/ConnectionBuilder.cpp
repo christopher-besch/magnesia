@@ -105,4 +105,36 @@ namespace magnesia::opcua_qt {
             return opcua::BadResult(status.code());
         }
     }
+
+    const std::optional<QUrl>& ConnectionBuilder::getUrl() const {
+        return m_url;
+    }
+
+    const std::optional<Endpoint>& ConnectionBuilder::getEndpoint() const {
+        return m_endpoint;
+    }
+
+    Logger* ConnectionBuilder::getLogger() const {
+        return m_logger;
+    }
+
+    const std::optional<QString>& ConnectionBuilder::getUsername() const {
+        return m_username;
+    }
+
+    const std::optional<QString>& ConnectionBuilder::getPassword() const {
+        return m_password;
+    }
+
+    const std::optional<ApplicationCertificate>& ConnectionBuilder::getCertificate() const {
+        return m_certificate;
+    }
+
+    const QList<QSslCertificate>& ConnectionBuilder::getTrustList() const {
+        return m_trust_list;
+    }
+
+    const QList<QSslCertificate>& ConnectionBuilder::getRevokedList() const {
+        return m_revoked_list;
+    }
 } // namespace magnesia::opcua_qt
