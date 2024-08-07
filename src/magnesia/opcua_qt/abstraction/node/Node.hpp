@@ -71,7 +71,7 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the description of this node. This is for a user to see.
          */
-        [[nodiscard]] LocalizedText getDescription();
+        [[nodiscard]] std::optional<LocalizedText> getDescription();
 
         /**
          * Get the write mask of this node. It tells, what attributes can be written to.

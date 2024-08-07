@@ -26,6 +26,7 @@
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Common.h>
+#include <open62541pp/ErrorHandling.h>
 #include <open62541pp/Node.h>
 
 #include <QList>
@@ -61,16 +62,28 @@ namespace magnesia::opcua_qt::abstraction {
         return m_cache_display_name.value();
     }
 
-    LocalizedText Node::getDescription() {
-        return LocalizedText(m_node.readDescription());
+    std::optional<LocalizedText> Node::getDescription() {
+        try {
+            return LocalizedText(m_node.readDescription());
+        } catch (opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     std::optional<WriteMaskBitmask> Node::getWriteMask() {
-        return WriteMaskBitmask(m_node.readWriteMask());
+        try {
+            return WriteMaskBitmask(m_node.readWriteMask());
+        } catch (opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     std::optional<WriteMaskBitmask> Node::getUserWriteMask() {
-        return WriteMaskBitmask(m_node.readUserWriteMask());
+        try {
+            return WriteMaskBitmask(m_node.readUserWriteMask());
+        } catch (opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     Node* Node::getParent() {
