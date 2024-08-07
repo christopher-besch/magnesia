@@ -21,6 +21,7 @@
 #include <QAbstractTableModel>
 #include <QByteArrayView>
 #include <QComboBox>
+#include <QDateTime>
 #include <QFormLayout>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -177,6 +178,36 @@ namespace magnesia::activities::dataviewer {
         m_connect_button->setEnabled(false);
     }
 
+    bool ConfigWidget::recordRecentConnection() {
+        const auto& server_url = m_current_connection_builder->getUrl();
+        if (!server_url.has_value()) {
+            return false;
+        }
+
+        const auto& endpoint = m_current_connection_builder->getEndpoint();
+        if (!endpoint.has_value()) {
+            return false;
+        }
+
+        Application::instance().getStorageManager().storeHistoricServerConnection({
+            .server_url                     = *server_url,
+            .endpoint_url                   = endpoint->getEndpointUrl(),
+            .endpoint_security_policy_uri   = endpoint->getSecurityPolicyUri(),
+            .endpoint_message_security_mode = endpoint->getSecurityMode(),
+            .username                       = m_current_connection_builder->getUsername(),
+            .password                       = m_current_connection_builder->getPassword(),
+            .application_certificate_id = {}, // TODO: m_current_connection_builder->getCertificate()->getCertificate()
+            .trust_list_certificate_ids = {}, // TODO: m_current_connection_builder->getTrustList()
+            .revoked_list_certificate_ids = {}, // TODO: m_current_connection_builder->getRevokedList()
+            .last_layout_id               = {}, // TODO
+            .last_layout_group            = {}, // TODO
+            .last_layout_domain           = {}, // TODO
+            .last_used                    = QDateTime::currentDateTimeUtc(),
+        });
+
+        return true;
+    }
+
     void ConfigWidget::onFindEndpoints() {
         qCDebug(lcDVConfig) << "finding endpoints for:"                           //
                             << "\n  address:" << m_address->text()                //
@@ -243,6 +274,7 @@ namespace magnesia::activities::dataviewer {
         Q_ASSERT(connection != nullptr);
         connect(connection, &Connection::connected, this,
                 [this, connection, logger = m_current_connection_builder->getLogger()] {
+                    recordRecentConnection();
                     reset();
                     Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer");
                 });

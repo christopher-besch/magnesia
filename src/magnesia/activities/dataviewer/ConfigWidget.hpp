@@ -41,6 +41,7 @@ namespace magnesia::activities::dataviewer {
         QLayout* buildQuickConnect();
         QLayout* buildRecentConnections();
         void     reset();
+        bool     recordRecentConnection();
 
       private slots:
         void onFindEndpoints();
