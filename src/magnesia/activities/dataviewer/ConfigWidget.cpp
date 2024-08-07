@@ -2,6 +2,7 @@
 
 #include "../../Application.hpp"
 #include "../../ConfigWidget.hpp"
+#include "../../StorageManager.hpp"
 #include "../../opcua_qt/Connection.hpp"
 #include "../../opcua_qt/ConnectionBuilder.hpp"
 #include "../../opcua_qt/Logger.hpp"
@@ -10,11 +11,14 @@
 #include "../../qt_version_check.hpp"
 #include "DataViewer.hpp"
 
+#include <algorithm>
+#include <functional>
 #include <utility>
 
 #include <open62541pp/Result.h>
 
 #include <QAbstractItemView>
+#include <QAbstractTableModel>
 #include <QByteArrayView>
 #include <QComboBox>
 #include <QFormLayout>
@@ -29,6 +33,7 @@
 #include <QLoggingCategory>
 #include <QMetaType>
 #include <QModelIndex>
+#include <QObject>
 #include <QPushButton>
 #include <QSharedPointer>
 #include <QString>
@@ -40,7 +45,6 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
-#include <QtPreprocessorSupport>
 #else
 #include <QtGlobal>
 #endif
@@ -60,12 +64,6 @@ namespace magnesia::activities::dataviewer {
             return frame;
         }
 
-        QWidget* wrap_in_frame(QWidget* widget) {
-            auto* layout = new QVBoxLayout;
-            layout->addWidget(widget);
-            return wrap_in_frame(layout);
-        }
-
         QString to_qstring(opcua_qt::MessageSecurityMode mode) {
             switch (mode) {
                 case opcua_qt::MessageSecurityMode::INVALID:
@@ -79,6 +77,10 @@ namespace magnesia::activities::dataviewer {
             }
             Q_ASSERT(false);
             return {};
+        }
+
+        QString format_security_policy(QString uri) {
+            return uri.remove("http://opcfoundation.org/UA/SecurityPolicy#");
         }
     } // namespace
 
@@ -146,9 +148,27 @@ namespace magnesia::activities::dataviewer {
         return layout;
     }
 
-    QWidget* ConfigWidget::buildRecentConnections() {
-        Q_UNUSED(this);
-        return new QLabel("Recent Connections");
+    QLayout* ConfigWidget::buildRecentConnections() {
+        auto* layout = new QVBoxLayout;
+
+        layout->addWidget(new QLabel("<h2>Recent Connections</h2>"));
+
+        auto* table = new QTableView;
+
+        table->horizontalHeader()->setStretchLastSection(true);
+        table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+        table->setSelectionBehavior(QAbstractItemView::SelectRows);
+        table->setSelectionMode(QAbstractItemView::SingleSelection);
+        table->verticalHeader()->setHidden(true);
+
+        auto* model = new detail::HistoricServerConnectionModel(this);
+        table->setModel(model);
+
+        layout->addWidget(table);
+
+        return layout;
     }
 
     void ConfigWidget::reset() {
@@ -249,7 +269,7 @@ namespace magnesia::activities::dataviewer {
                     case 0:
                         return endpoint.getEndpointUrl();
                     case 1:
-                        return endpoint.getSecurityPolicyUri().remove("http://opcfoundation.org/UA/SecurityPolicy#");
+                        return format_security_policy(endpoint.getSecurityPolicyUri());
                     case 2:
                         return to_qstring(endpoint.getSecurityMode());
                     default:
@@ -287,6 +307,86 @@ namespace magnesia::activities::dataviewer {
 
         void EndpointTableModel::clear() {
             setEndpoints({});
+        }
+
+        HistoricServerConnectionModel::HistoricServerConnectionModel(QObject* parent) : QAbstractTableModel(parent) {
+            auto* storage_manager = &Application::instance().getStorageManager();
+            connect(storage_manager, &StorageManager::historicServerConnectionChanged, this,
+                    &HistoricServerConnectionModel::reload);
+
+            reload();
+        }
+
+        int HistoricServerConnectionModel::rowCount(const QModelIndex& /*parent*/) const {
+            return static_cast<int>(m_connections.count());
+        }
+
+        int HistoricServerConnectionModel::columnCount(const QModelIndex& /*parent*/) const {
+            return COLUMN_COUNT;
+        }
+
+        QVariant HistoricServerConnectionModel::data(const QModelIndex& index, int role) const {
+            if (!checkIndex(index)) {
+                return {};
+            }
+
+            const auto& connection = m_connections[index.row()];
+
+            if (role == Qt::DisplayRole) {
+                switch (index.column()) {
+                    case EndpointUrlColumn:
+                        return connection.second.endpoint_url;
+                    case EndpointSecurityPolicyColumn:
+                        return format_security_policy(connection.second.endpoint_security_policy_uri);
+                    case EndpointSecurityModeColumn:
+                        return to_qstring(connection.second.endpoint_message_security_mode);
+                    case UsernameColumn:
+                        return connection.second.username.value_or("");
+                    case LastUsedColumn:
+                        return connection.second.last_used.toLocalTime();
+                    default:
+                        Q_ASSERT(false);
+                }
+            }
+
+            if (role == Qt::UserRole) {
+                return QVariant::fromValue(connection.second);
+            }
+
+            return {};
+        }
+
+        QVariant HistoricServerConnectionModel::headerData(int section, Qt::Orientation orientation, int role) const {
+            if (orientation != Qt::Horizontal || role != Qt::DisplayRole) {
+                return {};
+            }
+
+            switch (section) {
+                case EndpointUrlColumn:
+                    return "Endpoint URL";
+                case EndpointSecurityPolicyColumn:
+                    return "Security Policy URI";
+                case EndpointSecurityModeColumn:
+                    return "Security Mode";
+                case UsernameColumn:
+                    return "Username";
+                case LastUsedColumn:
+                    return "Last Used";
+                default:
+                    Q_ASSERT(false);
+            }
+
+            return {};
+        }
+
+        void HistoricServerConnectionModel::reload() {
+            auto connections = Application::instance().getStorageManager().getAllHistoricServerConnections();
+            std::ranges::sort(connections, std::ranges::greater{},
+                              [](const auto& con) { return con.second.last_used; });
+
+            beginResetModel();
+            m_connections = std::move(connections);
+            endResetModel();
         }
     } // namespace detail
 } // namespace magnesia::activities::dataviewer
