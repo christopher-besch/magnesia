@@ -80,6 +80,7 @@ qt_add_executable(magnesia main.cpp ${SOURCES})
 target_link_libraries(
     magnesia
     PRIVATE magnesia::project_options
+            Qt::Core
             Qt::Widgets
             Qt::Sql
             Qt::Network
