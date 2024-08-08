@@ -29,29 +29,30 @@ namespace magnesia {
         StorageId storeHistoricServerConnection(const HistoricServerConnection& historic_server_connection) override;
         StorageId storeLayout(const Layout& layout, const LayoutGroup& group, const Domain& domain) override;
 
-        std::optional<QSslCertificate> getCertificate(StorageId cert_id) override;
-        std::optional<QSslKey>         getKey(StorageId key_id) override;
-        std::optional<HistoricServerConnection>
-                              getHistoricServerConnection(StorageId historic_server_connection_id) override;
-        std::optional<Layout> getLayout(StorageId layout_id, const LayoutGroup& group, const Domain& domain) override;
+        [[nodiscard]] std::optional<QSslCertificate> getCertificate(StorageId cert_id) const override;
+        [[nodiscard]] std::optional<QSslKey>         getKey(StorageId key_id) const override;
+        [[nodiscard]] std::optional<HistoricServerConnection>
+        getHistoricServerConnection(StorageId historic_server_connection_id) const override;
+        [[nodiscard]] std::optional<Layout> getLayout(StorageId layout_id, const LayoutGroup& group,
+                                                      const Domain& domain) const override;
 
-        QList<QSslCertificate>          getAllCertificates() override;
-        QList<QSslKey>                  getAllKeys() override;
-        QList<HistoricServerConnection> getAllHistoricServerConnections() override;
-        QList<Layout>                   getAllLayouts(const LayoutGroup& group, const Domain& domain) override;
-        QList<StorageId>                getAllCertificateIds() override;
-        QList<StorageId>                getAllKeyIds() override;
-        QList<StorageId>                getAllHistoricServerConnectionIds() override;
-        QList<StorageId>                getAllLayoutIds(const LayoutGroup& group, const Domain& domain) override;
+        [[nodiscard]] QList<QSslCertificate>          getAllCertificates() const override;
+        [[nodiscard]] QList<QSslKey>                  getAllKeys() const override;
+        [[nodiscard]] QList<HistoricServerConnection> getAllHistoricServerConnections() const override;
+        [[nodiscard]] QList<Layout>    getAllLayouts(const LayoutGroup& group, const Domain& domain) const override;
+        [[nodiscard]] QList<StorageId> getAllCertificateIds() const override;
+        [[nodiscard]] QList<StorageId> getAllKeyIds() const override;
+        [[nodiscard]] QList<StorageId> getAllHistoricServerConnectionIds() const override;
+        [[nodiscard]] QList<StorageId> getAllLayoutIds(const LayoutGroup& group, const Domain& domain) const override;
 
         void deleteCertificate(StorageId cert_id) override;
         void deleteKey(StorageId key_id) override;
         void deleteHistoricServerConnection(StorageId historic_server_connection_id) override;
         void deleteLayout(StorageId layout_id, const LayoutGroup& group, const Domain& domain) override;
 
-        void                   setKV(const QString& key, const Domain& domain, const QString& value) override;
-        std::optional<QString> getKV(const QString& key, const Domain& domain) override;
-        void                   deleteKV(const QString& key, const Domain& domain) override;
+        void setKV(const QString& key, const Domain& domain, const QString& value) override;
+        [[nodiscard]] std::optional<QString> getKV(const QString& key, const Domain& domain) const override;
+        void                                 deleteKV(const QString& key, const Domain& domain) override;
 
       private:
         void resetSetting(const SettingKey& key) override;
@@ -65,15 +66,16 @@ namespace magnesia {
         void setHistoricServerConnectionSetting(const SettingKey& key,
                                                 StorageId         historic_server_connection_id) override;
         void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group) override;
-        std::optional<bool>                     getBoolSetting(const SettingKey& key) override;
-        std::optional<QString>                  getStringSetting(const SettingKey& key) override;
-        std::optional<std::int64_t>             getIntSetting(const SettingKey& key) override;
-        std::optional<double>                   getDoubleSetting(const SettingKey& key) override;
-        std::optional<EnumSettingValue>         getEnumSetting(const SettingKey& key) override;
-        std::optional<QSslCertificate>          getCertificateSetting(const SettingKey& key) override;
-        std::optional<QSslKey>                  getKeySetting(const SettingKey& key) override;
-        std::optional<HistoricServerConnection> getHistoricServerConnectionSetting(const SettingKey& key) override;
-        std::optional<Layout>                   getLayoutSetting(const SettingKey& key) override;
+        [[nodiscard]] std::optional<bool>             getBoolSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<QString>          getStringSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<std::int64_t>     getIntSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<double>           getDoubleSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<EnumSettingValue> getEnumSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<QSslCertificate>  getCertificateSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<QSslKey>          getKeySetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<HistoricServerConnection>
+                                            getHistoricServerConnectionSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<Layout> getLayoutSetting(const SettingKey& key) const override;
 
       private:
         void migrate();
@@ -91,18 +93,20 @@ namespace magnesia {
 
         static void warnQuery(const QString& message, const QSqlQuery& query);
 
-        QList<StorageId> getHistoricServerConnectionTrustList(StorageId historic_server_connection_id);
-        QList<StorageId> getHistoricServerConnectionRevokedList(StorageId historic_server_connection_id);
-        void             deleteHistoricServerConnectionTrustList(StorageId historic_server_connection_id);
-        void             deleteHistoricServerConnectionRevokedList(StorageId historic_server_connection_id);
-        void             setHistoricServerConnectionTrustList(StorageId               historic_server_connection_id,
-                                                              const QList<StorageId>& certificates);
-        void             setHistoricServerConnectionRevokedList(StorageId               historic_server_connection_id,
-                                                                const QList<StorageId>& certificates);
+        [[nodiscard]] QList<StorageId>
+        getHistoricServerConnectionTrustList(StorageId historic_server_connection_id) const;
+        [[nodiscard]] QList<StorageId>
+             getHistoricServerConnectionRevokedList(StorageId historic_server_connection_id) const;
+        void deleteHistoricServerConnectionTrustList(StorageId historic_server_connection_id);
+        void deleteHistoricServerConnectionRevokedList(StorageId historic_server_connection_id);
+        void setHistoricServerConnectionTrustList(StorageId               historic_server_connection_id,
+                                                  const QList<StorageId>& certificates);
+        void setHistoricServerConnectionRevokedList(StorageId               historic_server_connection_id,
+                                                    const QList<StorageId>& certificates);
 
-        HistoricServerConnection queryToHistoricServerConnection(const QSqlQuery& query,
-                                                                 StorageId        historic_server_connection_id);
-        HistoricServerConnection queryToHistoricServerConnection(const QSqlQuery& query);
+        [[nodiscard]] HistoricServerConnection
+        queryToHistoricServerConnection(const QSqlQuery& query, StorageId historic_server_connection_id) const;
+        [[nodiscard]] HistoricServerConnection queryToHistoricServerConnection(const QSqlQuery& query) const;
 
       private:
         QSqlDatabase m_database;

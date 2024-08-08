@@ -155,8 +155,8 @@ namespace magnesia::activities::dataviewer {
         }
 
         void LayoutSelectorModel::reload() {
-            auto& storage_manager = Application::instance().getStorageManager();
-            auto  layouts         = storage_manager.getAllLayouts(m_group, m_domain);
+            const auto& storage_manager = Application::instance().getStorageManager();
+            auto        layouts         = storage_manager.getAllLayouts(m_group, m_domain);
 
             beginResetModel();
             m_layouts = std::move(layouts);

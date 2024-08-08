@@ -145,7 +145,7 @@ INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURR
         return layout_id;
     }
 
-    std::optional<QSslCertificate> SQLStorageManager::getCertificate(StorageId cert_id) {
+    std::optional<QSslCertificate> SQLStorageManager::getCertificate(StorageId cert_id) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT pem FROM Certificate WHERE id = :id;)sql");
         query.bindValue(":id", cert_id);
@@ -167,7 +167,7 @@ INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURR
         return certs.front();
     }
 
-    std::optional<QSslKey> SQLStorageManager::getKey(StorageId key_id) {
+    std::optional<QSslKey> SQLStorageManager::getKey(StorageId key_id) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT pem FROM Key WHERE id = :id;)sql");
         query.bindValue(":id", key_id);
@@ -187,7 +187,7 @@ INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURR
     }
 
     std::optional<HistoricServerConnection>
-    SQLStorageManager::getHistoricServerConnection(StorageId historic_server_connection_id) {
+    SQLStorageManager::getHistoricServerConnection(StorageId historic_server_connection_id) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT
@@ -218,7 +218,7 @@ FROM HistoricServerConnection WHERE id = :id;
     }
 
     std::optional<Layout> SQLStorageManager::getLayout(StorageId layout_id, const LayoutGroup& group,
-                                                       const Domain& domain) {
+                                                       const Domain& domain) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = :domain;
@@ -241,7 +241,7 @@ SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_gro
         };
     }
 
-    QList<QSslCertificate> SQLStorageManager::getAllCertificates() {
+    QList<QSslCertificate> SQLStorageManager::getAllCertificates() const {
         QSqlQuery query{R"sql(SELECT pem FROM Certificate;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database all Certificate retrieval failed.", query);
@@ -255,7 +255,7 @@ SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_gro
         return certificates;
     }
 
-    QList<QSslKey> SQLStorageManager::getAllKeys() {
+    QList<QSslKey> SQLStorageManager::getAllKeys() const {
         QSqlQuery query{R"sql(SELECT pem FROM Key;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database all Key retrieval failed.", query);
@@ -272,7 +272,7 @@ SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_gro
         return keys;
     }
 
-    QList<HistoricServerConnection> SQLStorageManager::getAllHistoricServerConnections() {
+    QList<HistoricServerConnection> SQLStorageManager::getAllHistoricServerConnections() const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 
@@ -318,7 +318,7 @@ FROM HistoricServerConnection;
         return historic_connections;
     }
 
-    QList<Layout> SQLStorageManager::getAllLayouts(const LayoutGroup& group, const Domain& domain) {
+    QList<Layout> SQLStorageManager::getAllLayouts(const LayoutGroup& group, const Domain& domain) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain = :domain;
@@ -341,7 +341,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
         return layouts;
     }
 
-    QList<StorageId> SQLStorageManager::getAllCertificateIds() {
+    QList<StorageId> SQLStorageManager::getAllCertificateIds() const {
         QSqlQuery query{R"sql(SELECT id FROM Certificate;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database all Certificate IDs retrieval failed.", query);
@@ -355,7 +355,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
         return certificate_ids;
     }
 
-    QList<StorageId> SQLStorageManager::getAllKeyIds() {
+    QList<StorageId> SQLStorageManager::getAllKeyIds() const {
         QSqlQuery query{R"sql(SELECT id FROM Key;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database all Key IDs retrieval failed.", query);
@@ -369,7 +369,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
         return key_ids;
     }
 
-    QList<StorageId> SQLStorageManager::getAllHistoricServerConnectionIds() {
+    QList<StorageId> SQLStorageManager::getAllHistoricServerConnectionIds() const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT id FROM HistoricServerConnection;)sql");
         query.exec();
@@ -385,7 +385,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
         return historic_server_connection_ids;
     }
 
-    QList<StorageId> SQLStorageManager::getAllLayoutIds(const LayoutGroup& group, const Domain& domain) {
+    QList<StorageId> SQLStorageManager::getAllLayoutIds(const LayoutGroup& group, const Domain& domain) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT id FROM Layout WHERE layout_group = :layout_group AND domain = :domain;)sql");
         query.bindValue(":layout_group", group);
@@ -469,7 +469,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         Q_EMIT kvChanged(key, domain);
     }
 
-    std::optional<QString> SQLStorageManager::getKV(const QString& key, const Domain& domain) {
+    std::optional<QString> SQLStorageManager::getKV(const QString& key, const Domain& domain) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM KeyValue WHERE key = :key AND domain = :domain;)sql");
         query.bindValue(":key", key);
@@ -654,7 +654,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         }
     }
 
-    std::optional<bool> SQLStorageManager::getBoolSetting(const SettingKey& key) {
+    std::optional<bool> SQLStorageManager::getBoolSetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM BooleanSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -670,7 +670,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toBool();
     }
 
-    std::optional<QString> SQLStorageManager::getStringSetting(const SettingKey& key) {
+    std::optional<QString> SQLStorageManager::getStringSetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM StringSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -687,7 +687,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toString();
     }
 
-    std::optional<std::int64_t> SQLStorageManager::getIntSetting(const SettingKey& key) {
+    std::optional<std::int64_t> SQLStorageManager::getIntSetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM IntSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -705,7 +705,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toLongLong();
     }
 
-    std::optional<double> SQLStorageManager::getDoubleSetting(const SettingKey& key) {
+    std::optional<double> SQLStorageManager::getDoubleSetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM DoubleSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -722,7 +722,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return query.value("value").toDouble();
     }
 
-    std::optional<EnumSettingValue> SQLStorageManager::getEnumSetting(const SettingKey& key) {
+    std::optional<EnumSettingValue> SQLStorageManager::getEnumSetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(SELECT value FROM EnumSetting WHERE name = :name AND domain = :domain;)sql");
         query.bindValue(":name", key.name);
@@ -739,7 +739,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
         return EnumSettingValue{query.value("value").toString()};
     }
 
-    std::optional<QSslCertificate> SQLStorageManager::getCertificateSetting(const SettingKey& key) {
+    std::optional<QSslCertificate> SQLStorageManager::getCertificateSetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT CertificateSetting.name,
@@ -769,7 +769,7 @@ WHERE CertificateSetting.name = :name
         return certs.front();
     }
 
-    std::optional<QSslKey> SQLStorageManager::getKeySetting(const SettingKey& key) {
+    std::optional<QSslKey> SQLStorageManager::getKeySetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT KeySetting.name,
@@ -797,7 +797,7 @@ WHERE KeySetting.name = :name
     }
 
     std::optional<HistoricServerConnection>
-    SQLStorageManager::getHistoricServerConnectionSetting(const SettingKey& key) {
+    SQLStorageManager::getHistoricServerConnectionSetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT
@@ -846,7 +846,7 @@ WHERE HistoricServerConnectionSetting.name = :name
         return queryToHistoricServerConnection(query);
     }
 
-    std::optional<Layout> SQLStorageManager::getLayoutSetting(const SettingKey& key) {
+    std::optional<Layout> SQLStorageManager::getLayoutSetting(const SettingKey& key) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT Layout.name, Layout.json_data FROM LayoutSetting, Layout
@@ -1166,7 +1166,8 @@ CREATE TABLE LayoutSetting (
                    << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
     }
 
-    QList<StorageId> SQLStorageManager::getHistoricServerConnectionTrustList(StorageId historic_server_connection_id) {
+    QList<StorageId>
+    SQLStorageManager::getHistoricServerConnectionTrustList(StorageId historic_server_connection_id) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT certificate_id FROM HistoricServerConnectionTrustList WHERE historic_server_connection_id = :historic_server_connection_id;
@@ -1186,7 +1187,7 @@ SELECT certificate_id FROM HistoricServerConnectionTrustList WHERE historic_serv
     }
 
     QList<StorageId>
-    SQLStorageManager::getHistoricServerConnectionRevokedList(StorageId historic_server_connection_id) {
+    SQLStorageManager::getHistoricServerConnectionRevokedList(StorageId historic_server_connection_id) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_server_connection_id = :historic_server_connection_id;
@@ -1267,7 +1268,7 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
 
     HistoricServerConnection
     SQLStorageManager::queryToHistoricServerConnection(const QSqlQuery& query,
-                                                       StorageId        historic_server_connection_id) {
+                                                       StorageId        historic_server_connection_id) const {
         return {
             .server_url                   = query.value("server_url").toString(),
             .endpoint_url                 = query.value("endpoint_url").toString(),
@@ -1293,7 +1294,7 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
         };
     }
 
-    HistoricServerConnection SQLStorageManager::queryToHistoricServerConnection(const QSqlQuery& query) {
+    HistoricServerConnection SQLStorageManager::queryToHistoricServerConnection(const QSqlQuery& query) const {
         return queryToHistoricServerConnection(query, query.value("historic_server_connection_id").toULongLong());
     }
 } // namespace magnesia
