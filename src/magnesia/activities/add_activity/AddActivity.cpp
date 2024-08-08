@@ -5,20 +5,12 @@
 
 #include <functional>
 
-#include <QCloseEvent>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidget>
 #include <QStackedLayout>
 #include <QWidget>
 #include <Qt>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtAssert>
-#include <QtLogging>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::activities::add_activity {
     AddActivity::AddActivity(QWidget* parent) : Activity{parent} {
@@ -49,12 +41,5 @@ namespace magnesia::activities::add_activity {
         h_layout->addLayout(config_widget_stack, 5); // NOLINT: cppcoreguidelines-avoid-magic-numbers
 
         setLayout(h_layout);
-    }
-
-    void AddActivity::closeEvent(QCloseEvent* event) {
-        Q_ASSERT(event != nullptr);
-        // This Activity cannot be closed, it is the main entry point for the user.
-        qDebug() << "AddActivity: ignoring CloseEvent";
-        event->ignore();
     }
 } // namespace magnesia::activities::add_activity

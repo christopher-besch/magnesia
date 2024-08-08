@@ -5,7 +5,6 @@
 #include "../../Application.hpp"
 #include "../../qt_version_check.hpp"
 
-#include <QCloseEvent>
 #include <QWidget>
 
 #ifdef MAGNESIA_HAS_QT_6_5
@@ -26,15 +25,13 @@ namespace magnesia::activities::add_activity {
     class AddActivity : public Activity {
       public:
         explicit AddActivity(QWidget* parent = nullptr);
-
-        void closeEvent(QCloseEvent* event) override;
     };
 
     inline constexpr ActivityMetadata metadata{
         .name = u"Add Activity",
         .global_init =
             []() {
-                Application::instance().openActivity(new AddActivity, "+");
+                Application::instance().openActivity(new AddActivity, "+", false);
                 qDebug() << "Initialized AddActivity";
             },
     };
