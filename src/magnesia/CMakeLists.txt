@@ -77,8 +77,6 @@ set(SOURCES
 )
 qt_add_executable(magnesia main.cpp ${SOURCES})
 
-target_include_directories(magnesia PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
 target_link_libraries(
     magnesia
     PRIVATE magnesia::project_options
