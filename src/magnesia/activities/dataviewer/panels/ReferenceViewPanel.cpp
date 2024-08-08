@@ -1,11 +1,11 @@
-#include "activities/dataviewer/panels/ReferenceViewPanel.hpp"
+#include "ReferenceViewPanel.hpp"
 
-#include "activities/dataviewer/DataViewer.hpp"
-#include "activities/dataviewer/Panel.hpp"
-#include "activities/dataviewer/PanelMetadata.hpp"
-#include "activities/dataviewer/panels.hpp"
-#include "activities/dataviewer/panels/ReferenceViewModel.hpp"
-#include "opcua_qt/abstraction/NodeId.hpp"
+#include "../../../opcua_qt/abstraction/NodeId.hpp"
+#include "../DataViewer.hpp"
+#include "../Panel.hpp"
+#include "../PanelMetadata.hpp"
+#include "../panels.hpp"
+#include "ReferenceViewModel.hpp"
 
 #include <QComboBox>
 #include <QHBoxLayout>

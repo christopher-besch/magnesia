@@ -1,7 +1,7 @@
 #include "Variant.hpp"
 
+#include "../../qt_version_check.hpp"
 #include "NodeId.hpp"
-#include "qt_version_check.hpp"
 
 #include <cstdint>
 #include <optional>

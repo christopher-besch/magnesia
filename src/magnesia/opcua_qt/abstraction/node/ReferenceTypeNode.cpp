@@ -1,8 +1,8 @@
 #include "ReferenceTypeNode.hpp"
 
+#include "../../../qt_version_check.hpp"
+#include "../LocalizedText.hpp"
 #include "Node.hpp"
-#include "opcua_qt/abstraction/LocalizedText.hpp"
-#include "qt_version_check.hpp"
 
 #include <optional>
 #include <utility>

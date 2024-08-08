@@ -1,13 +1,13 @@
-#include "activities/dataviewer/panels/AttributeViewModel.hpp"
+#include "AttributeViewModel.hpp"
 
-#include "opcua_qt/Connection.hpp"
-#include "opcua_qt/abstraction/AccessLevel.hpp"
-#include "opcua_qt/abstraction/AttributeId.hpp"
-#include "opcua_qt/abstraction/EventNotifier.hpp"
-#include "opcua_qt/abstraction/NodeClass.hpp"
-#include "opcua_qt/abstraction/ValueRank.hpp"
-#include "opcua_qt/abstraction/WriteMask.hpp"
-#include "opcua_qt/abstraction/node/Node.hpp"
+#include "../../../opcua_qt/Connection.hpp"
+#include "../../../opcua_qt/abstraction/AccessLevel.hpp"
+#include "../../../opcua_qt/abstraction/AttributeId.hpp"
+#include "../../../opcua_qt/abstraction/EventNotifier.hpp"
+#include "../../../opcua_qt/abstraction/NodeClass.hpp"
+#include "../../../opcua_qt/abstraction/ValueRank.hpp"
+#include "../../../opcua_qt/abstraction/WriteMask.hpp"
+#include "../../../opcua_qt/abstraction/node/Node.hpp"
 
 #include <cstdint>
 #include <optional>

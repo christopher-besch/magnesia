@@ -1,11 +1,11 @@
 #pragma once
 
-#include "activities/dataviewer/Panel.hpp"
-#include "activities/dataviewer/PanelMetadata.hpp"
-#include "activities/dataviewer/dataviewer_fwd.hpp"
-#include "activities/dataviewer/panels/LogViewModel.hpp"
-#include "opcua_qt/LogEntry.hpp"
-#include "opcua_qt/abstraction/LogLevel.hpp"
+#include "../../../opcua_qt/LogEntry.hpp"
+#include "../../../opcua_qt/abstraction/LogLevel.hpp"
+#include "../Panel.hpp"
+#include "../PanelMetadata.hpp"
+#include "../dataviewer_fwd.hpp"
+#include "../panels/LogViewModel.hpp"
 
 #include <QComboBox>
 #include <QDebug>

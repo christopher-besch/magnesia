@@ -1,10 +1,10 @@
 #pragma once
 
-#include "activities/dataviewer/Panel.hpp"
-#include "activities/dataviewer/PanelMetadata.hpp"
-#include "activities/dataviewer/dataviewer_fwd.hpp"
-#include "activities/dataviewer/panels/ReferenceViewModel.hpp"
-#include "opcua_qt/abstraction/NodeId.hpp"
+#include "../../../opcua_qt/abstraction/NodeId.hpp"
+#include "../Panel.hpp"
+#include "../PanelMetadata.hpp"
+#include "../dataviewer_fwd.hpp"
+#include "ReferenceViewModel.hpp"
 
 #include <QComboBox>
 #include <QPushButton>

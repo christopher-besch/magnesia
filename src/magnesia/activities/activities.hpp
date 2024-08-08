@@ -1,6 +1,6 @@
 #pragma once
 
-#include "activities/about/About.hpp"
+#include "about/About.hpp"
 #include "add_activity/AddActivity.hpp"
 #include "dataviewer/metadata.hpp"
 

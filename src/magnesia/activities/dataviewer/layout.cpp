@@ -1,10 +1,10 @@
 #include "layout.hpp"
 
-#include "activities/dataviewer/DataViewer.hpp"
-#include "activities/dataviewer/Panel.hpp"
-#include "activities/dataviewer/PanelMetadata.hpp"
-#include "activities/dataviewer/panels.hpp"
-#include "qt_version_check.hpp"
+#include "../../qt_version_check.hpp"
+#include "DataViewer.hpp"
+#include "Panel.hpp"
+#include "PanelMetadata.hpp"
+#include "panels.hpp"
 
 #include <functional>
 #include <utility>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "opcua_qt/abstraction/node/Node.hpp"
+#include "../../../opcua_qt/abstraction/node/Node.hpp"
 
 #include <QAbstractItemModel>
 #include <QModelIndex>

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Activity.hpp"
-#include "ActivityMetadata.hpp"
-#include "ConfigWidget.hpp"
+#include "../../Activity.hpp"
+#include "../../ActivityMetadata.hpp"
+#include "../../ConfigWidget.hpp"
 
 #include <QWidget>
 #include <qtmetamacros.h>

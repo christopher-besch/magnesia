@@ -1,8 +1,8 @@
 #pragma once
 
-#include "activities/dataviewer/PanelMetadata.hpp"
-#include "activities/dataviewer/dataviewer_fwd.hpp"
-#include "opcua_qt/abstraction/NodeId.hpp"
+#include "../../opcua_qt/abstraction/NodeId.hpp"
+#include "PanelMetadata.hpp"
+#include "dataviewer_fwd.hpp"
 
 #include <QJsonObject>
 #include <QWidget>

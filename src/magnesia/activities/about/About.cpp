@@ -1,8 +1,8 @@
 #include "About.hpp"
 
-#include "Activity.hpp"
-#include "Application.hpp"
-#include "ConfigWidget.hpp"
+#include "../../Activity.hpp"
+#include "../../Application.hpp"
+#include "../../ConfigWidget.hpp"
 
 #include <QDir>
 #include <QHBoxLayout>

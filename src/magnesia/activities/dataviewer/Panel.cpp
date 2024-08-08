@@ -1,8 +1,8 @@
 #include "Panel.hpp"
 
-#include "activities/dataviewer/DataViewer.hpp"
-#include "activities/dataviewer/panels.hpp"
-#include "opcua_qt/abstraction/NodeId.hpp"
+#include "../../opcua_qt/abstraction/NodeId.hpp"
+#include "DataViewer.hpp"
+#include "panels.hpp"
 
 #include <QJsonObject>
 #include <QWidget>

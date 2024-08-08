@@ -1,18 +1,18 @@
 #pragma once
 
-#include "opcua_qt/Connection.hpp"
-#include "opcua_qt/abstraction/AccessLevelBitmask.hpp"
-#include "opcua_qt/abstraction/AttributeId.hpp"
-#include "opcua_qt/abstraction/DataValue.hpp"
-#include "opcua_qt/abstraction/EventNotifierBitmask.hpp"
-#include "opcua_qt/abstraction/LocalizedText.hpp"
-#include "opcua_qt/abstraction/NodeClass.hpp"
-#include "opcua_qt/abstraction/NodeId.hpp"
-#include "opcua_qt/abstraction/QualifiedName.hpp"
-#include "opcua_qt/abstraction/ValueRank.hpp"
-#include "opcua_qt/abstraction/WriteMaskBitmask.hpp"
-#include "opcua_qt/abstraction/node/Node.hpp"
-#include "qt_version_check.hpp"
+#include "../../../opcua_qt/Connection.hpp"
+#include "../../../opcua_qt/abstraction/AccessLevelBitmask.hpp"
+#include "../../../opcua_qt/abstraction/AttributeId.hpp"
+#include "../../../opcua_qt/abstraction/DataValue.hpp"
+#include "../../../opcua_qt/abstraction/EventNotifierBitmask.hpp"
+#include "../../../opcua_qt/abstraction/LocalizedText.hpp"
+#include "../../../opcua_qt/abstraction/NodeClass.hpp"
+#include "../../../opcua_qt/abstraction/NodeId.hpp"
+#include "../../../opcua_qt/abstraction/QualifiedName.hpp"
+#include "../../../opcua_qt/abstraction/ValueRank.hpp"
+#include "../../../opcua_qt/abstraction/WriteMaskBitmask.hpp"
+#include "../../../opcua_qt/abstraction/node/Node.hpp"
+#include "../../../qt_version_check.hpp"
 
 #include <cstdint>
 #include <optional>

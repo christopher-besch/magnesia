@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../../ConfigWidget.hpp"
-#include "opcua_qt/ConnectionBuilder.hpp"
-#include "opcua_qt/abstraction/Endpoint.hpp"
+#include "../../opcua_qt/ConnectionBuilder.hpp"
+#include "../../opcua_qt/abstraction/Endpoint.hpp"
 
 #include <cstddef>
 

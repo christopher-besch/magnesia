@@ -1,12 +1,12 @@
 #include "Subscription.hpp"
 
+#include "../../qt_version_check.hpp"
 #include "AttributeId.hpp"
 #include "DataValue.hpp"
 #include "MonitoredItem.hpp"
 #include "NodeId.hpp"
 #include "SubscriptionParameters.hpp"
 #include "Variant.hpp"
-#include "qt_version_check.hpp"
 
 #include <cstdint>
 

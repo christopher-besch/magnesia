@@ -1,7 +1,7 @@
 #pragma once
 
-#include "opcua_qt/LogEntry.hpp"
-#include "opcua_qt/abstraction/LogCategory.hpp"
+#include "../../../opcua_qt/LogEntry.hpp"
+#include "../../../opcua_qt/abstraction/LogCategory.hpp"
 
 #include <QAbstractTableModel>
 #include <QList>

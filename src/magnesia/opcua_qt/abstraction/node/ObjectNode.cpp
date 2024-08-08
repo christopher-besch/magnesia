@@ -1,8 +1,8 @@
 #include "ObjectNode.hpp"
 
+#include "../../../qt_version_check.hpp"
+#include "../EventNotifierBitmask.hpp"
 #include "Node.hpp"
-#include "opcua_qt/abstraction/EventNotifierBitmask.hpp"
-#include "qt_version_check.hpp"
 
 #include <optional>
 #include <utility>

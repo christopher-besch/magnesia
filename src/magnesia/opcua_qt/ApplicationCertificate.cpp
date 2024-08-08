@@ -1,6 +1,6 @@
 #include "ApplicationCertificate.hpp"
 
-#include "qt_version_check.hpp"
+#include "../qt_version_check.hpp"
 
 #include <cstddef>
 #include <ranges>

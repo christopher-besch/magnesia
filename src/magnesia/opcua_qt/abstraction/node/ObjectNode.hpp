@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../EventNotifierBitmask.hpp"
 #include "Node.hpp"
-#include "opcua_qt/abstraction/EventNotifierBitmask.hpp"
 
 #include <optional>
 

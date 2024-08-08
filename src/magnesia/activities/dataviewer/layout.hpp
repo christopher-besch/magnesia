@@ -1,7 +1,7 @@
 #pragma once
 
-#include "activities/dataviewer/dataviewer_fwd.hpp"
-#include "qt_version_check.hpp"
+#include "../../qt_version_check.hpp"
+#include "dataviewer_fwd.hpp"
 
 #include <QChildEvent>
 #include <QComboBox>

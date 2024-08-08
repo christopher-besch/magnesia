@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Activity.hpp"
-#include "ActivityMetadata.hpp"
-#include "Application.hpp"
-#include "qt_version_check.hpp"
+#include "../../Activity.hpp"
+#include "../../ActivityMetadata.hpp"
+#include "../../Application.hpp"
+#include "../../qt_version_check.hpp"
 
 #include <QCloseEvent>
 #include <QWidget>

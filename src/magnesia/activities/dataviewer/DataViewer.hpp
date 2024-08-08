@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Activity.hpp"
-#include "Layout.hpp"
-#include "database_types.hpp"
+#include "../../Activity.hpp"
+#include "../../Layout.hpp"
+#include "../../database_types.hpp"
+#include "../../opcua_qt/Connection.hpp"
+#include "../../opcua_qt/Logger.hpp"
+#include "../../opcua_qt/abstraction/NodeId.hpp"
 #include "dataviewer_fwd.hpp"
-#include "opcua_qt/Connection.hpp"
-#include "opcua_qt/Logger.hpp"
-#include "opcua_qt/abstraction/NodeId.hpp"
 
 #include <QAbstractListModel>
 #include <QLayout>

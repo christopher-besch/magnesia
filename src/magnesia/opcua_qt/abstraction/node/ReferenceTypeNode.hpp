@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../LocalizedText.hpp"
 #include "Node.hpp"
-#include "opcua_qt/abstraction/LocalizedText.hpp"
 
 #include <optional>
 
