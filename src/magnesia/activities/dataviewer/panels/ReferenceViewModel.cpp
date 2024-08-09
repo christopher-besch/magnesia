@@ -60,9 +60,26 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
     void ReferenceViewModel::nodeSelected(opcua_qt::abstraction::Node* node) {
         beginResetModel();
         auto references = node->getReferences();
+        m_references.clear();
+
         for (const auto& reference : references) {
-            auto node_id        = reference.getReferenceType();
-            auto reference_name = m_data_viewer->getConnection()->getNode(node_id)->getBrowseName().getName();
+            auto  node_id        = reference.getReferenceType();
+            auto  is_forward     = reference.isForward();
+            auto* reference_type = m_data_viewer->getConnection()->getNode(node_id);
+
+            QString reference_name;
+
+            if (!is_forward) {
+                auto inverse_name = reference_type->getInverseName();
+                if (inverse_name.has_value()) {
+                    reference_name = inverse_name->getText();
+                }
+            }
+
+            if (reference_name.isNull()) {
+                reference_name = reference_type->getDisplayName().getText();
+            }
+
             m_references.append(std::pair<QString, QString>(reference_name, reference.getDisplayName().getText()));
         }
         endResetModel();
