@@ -81,6 +81,7 @@ namespace magnesia::activities::dataviewer {
 
     ConfigWidget::ConfigWidget(QWidget* parent) : magnesia::ConfigWidget(parent) {
         auto* layout = new QHBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
 
         layout->addWidget(wrap_in_frame(buildQuickConnect()), Qt::AlignCenter);
         layout->addWidget(wrap_in_frame(buildRecentConnections()), Qt::AlignCenter);
