@@ -5,7 +5,6 @@
 #include "../../database_types.hpp"
 #include "../../opcua_qt/Connection.hpp"
 #include "../../opcua_qt/Logger.hpp"
-#include "../../qt_version_check.hpp"
 #include "layout.hpp"
 
 #include <utility>
@@ -15,6 +14,7 @@
 #include <QHBoxLayout>
 #include <QLayout>
 #include <QLineEdit>
+#include <QLoggingCategory>
 #include <QModelIndex>
 #include <QObject>
 #include <QPushButton>
@@ -23,11 +23,7 @@
 #include <QWidget>
 #include <Qt>
 
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtLogging>
-#else
-#include <QtGlobal>
-#endif
+Q_LOGGING_CATEGORY(lcDataViewer, "magnesia.dataviewer.configwidget")
 
 namespace magnesia::activities::dataviewer {
     namespace detail {
@@ -93,7 +89,7 @@ namespace magnesia::activities::dataviewer {
                         return;
                     }
 
-                    qDebug() << "selected layout" << index;
+                    qCDebug(lcDataViewer) << "selected layout" << index;
                     auto model_index = layout_selector->model()->index(index, 0);
                     auto state       = layout_selector->model()->data(model_index, Qt::UserRole);
                     m_root_layout->restoreState(state.toJsonDocument());
@@ -103,7 +99,7 @@ namespace magnesia::activities::dataviewer {
             auto state = m_root_layout->saveState();
             auto name  = save_edit->text();
 
-            qDebug() << "Saving Layout" << name << "with json_data" << state;
+            qCDebug(lcDataViewer) << "saving layout" << name << "with json_data" << state;
 
             Application::instance().getStorageManager().storeLayout(
                 {
@@ -146,7 +142,6 @@ namespace magnesia::activities::dataviewer {
             }
             if (role == Qt::UserRole) {
                 if (index.row() < m_layouts.count()) {
-                    qDebug() << "sending layout json data" << m_layouts[index.row()].json_data;
                     return m_layouts[index.row()].json_data;
                 }
             }

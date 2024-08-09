@@ -27,9 +27,7 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
-#include <QtLogging>
 #else
-#include <QtDebug>
 #include <QtGlobal>
 #endif
 
@@ -69,7 +67,6 @@ namespace magnesia::opcua_qt {
 
     void Connection::connectAndRun() {
         if (m_client.isConnected()) {
-            qDebug() << "already connected";
             return;
         }
         QThreadPool::globalInstance()->start([&] { connectSynchronouslyAndRun(); });

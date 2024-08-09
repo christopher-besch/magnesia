@@ -23,6 +23,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QList>
+#include <QLoggingCategory>
 #include <QMetaType>
 #include <QPushButton>
 #include <QSharedPointer>
@@ -36,13 +37,13 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
-#include <QtLogging>
 #include <QtPreprocessorSupport>
 #include <QtTypeTraits>
 #else
-#include <QtDebug>
 #include <QtGlobal>
 #endif
+
+Q_LOGGING_CATEGORY(lcDVConfig, "magnesia.dataviewer.configwidget")
 
 using magnesia::opcua_qt::Connection;
 using magnesia::opcua_qt::ConnectionBuilder;
@@ -159,11 +160,11 @@ namespace magnesia::activities::dataviewer {
     }
 
     void ConfigWidget::onFindEndpoints() {
-        qDebug() << "Finding endpoints for:"                           //
-                 << "\n  Address:" << m_address->text()                //
-                 << "\n  Certificate:" << m_certificate->currentData() //
-                 << "\n  Username:" << m_username->text()              //
-                 << "\n  Password:" << m_password->text();
+        qCDebug(lcDVConfig) << "finding endpoints for:"                           //
+                            << "\n  address:" << m_address->text()                //
+                            << "\n  certificate:" << m_certificate->currentData() //
+                            << "\n  username:" << m_username->text()              //
+                            << "\n  password:" << m_password->text();
 
         auto builder = m_current_connection_builder = QSharedPointer<ConnectionBuilder>{new ConnectionBuilder};
 
@@ -189,10 +190,11 @@ namespace magnesia::activities::dataviewer {
     }
 
     void ConfigWidget::onEndpointsFound(const QList<Endpoint>& endpoints) {
-        qDebug() << "endpoints:";
+        qCDebug(lcDVConfig) << "endpoints:";
         for (const auto& endpoint : endpoints) {
-            qDebug() << "  endpoint:" << endpoint.getEndpointUrl() << "security:" << endpoint.getSecurityPolicyUri()
-                     << "mode:" << to_qstring(endpoint.getSecurityMode());
+            qCDebug(lcDVConfig) << "  endpoint:" << endpoint.getEndpointUrl()
+                                << "security:" << endpoint.getSecurityPolicyUri()
+                                << "mode:" << to_qstring(endpoint.getSecurityMode());
         }
 
         m_endpoint_selector_model->setEndpoints(endpoints);
@@ -203,13 +205,12 @@ namespace magnesia::activities::dataviewer {
         auto endpoint_selection = m_endpoint_selector->model()->data(index, Qt::UserRole);
         Q_ASSERT(endpoint_selection.userType() == QMetaType::fromType<Endpoint>().id());
         auto endpoint = *static_cast<Endpoint*>(endpoint_selection.data());
-        qDebug() << "Connecting to:"                                   //
-                 << "\n  Address:" << m_address->text()                //
-                 << "\n  Certificate:" << m_certificate->currentData() //
-                 << "\n  Username:" << m_username->text()              //
-                 << "\n  Password:" << m_password->text()              //
-                 << "\n  Endpoint:" << index.row()                     //
-            ;
+        qCDebug(lcDVConfig) << "connecting to:"                                   //
+                            << "\n  address:" << m_address->text()                //
+                            << "\n  certificate:" << m_certificate->currentData() //
+                            << "\n  username:" << m_username->text()              //
+                            << "\n  password:" << m_password->text()              //
+                            << "\n  endpoint:" << index.row();
 
         m_current_connection_builder->endpoint(endpoint);
         auto* logger = new opcua_qt::Logger;

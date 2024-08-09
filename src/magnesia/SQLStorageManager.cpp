@@ -13,6 +13,7 @@
 
 #include <QJsonDocument>
 #include <QList>
+#include <QLoggingCategory>
 #include <QObject>
 #include <QSqlDriver>
 #include <QSqlError>
@@ -24,12 +25,12 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
-#include <QtLogging>
 #include <QtTypes>
 #else
-#include <QtDebug>
 #include <QtGlobal>
 #endif
+
+Q_LOGGING_CATEGORY(lcSqlStorage, "magnesia.storage.sql")
 
 namespace magnesia {
     SQLStorageManager::SQLStorageManager(const QString& db_location, QObject* parent)
@@ -38,10 +39,10 @@ namespace magnesia {
         m_database.setDatabaseName(db_location);
 
         if (!m_database.open()) {
-            qDebug() << "Error: connection with database failed";
+            qCCritical(lcSqlStorage) << "Error: connection with database failed";
             terminate();
         }
-        qDebug() << "Database: connection ok";
+        qCInfo(lcSqlStorage) << "Database: connection ok";
 
         // SQLite currently has foreign key support disabled by default. It has to be enabled per database connection:
         // https://www.sqlite.org/foreignkeys.html#fk_enable
@@ -1123,7 +1124,7 @@ CREATE TABLE LayoutSetting (
         while (migration_version < migrations.size()) {
             const QSqlQuery query{migrations[migration_version], m_database};
             if (query.lastError().isValid()) {
-                qWarning() << migration_version << "failed";
+                qCCritical(lcSqlStorage) << migration_version << "failed";
                 warnQuery("database migration failed", query);
                 terminate();
             }
@@ -1137,10 +1138,10 @@ CREATE TABLE LayoutSetting (
                 terminate();
             }
 
-            qDebug() << "Database: migration" << migration_version << "ok";
+            qCInfo(lcSqlStorage) << "Database: migration" << migration_version << "ok";
             migration_version = next_migration_version;
         }
-        qDebug() << "Database: migration complete";
+        qCInfo(lcSqlStorage) << "Database: migration complete";
 
         // See: https://www.sqlite.org/pragma.html#pragma_integrity_check
         QSqlQuery integrity_check_query{R"sql(PRAGMA integrity_check;)sql", m_database};
@@ -1149,7 +1150,7 @@ CREATE TABLE LayoutSetting (
             warnQuery("database integrity check failed.", integrity_check_query);
             terminate();
         }
-        qDebug() << "Database: integrity check successful";
+        qCInfo(lcSqlStorage) << "Database: integrity check successful";
     }
 
     StorageId SQLStorageManager::getLastRowId() {
@@ -1162,8 +1163,8 @@ CREATE TABLE LayoutSetting (
     }
 
     void SQLStorageManager::warnQuery(const QString& message, const QSqlQuery& query) {
-        qWarning() << "Error:" << message << "\nQuery:" << query.executedQuery()
-                   << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+        qCWarning(lcSqlStorage) << "Error:" << message << "\nQuery:" << query.executedQuery()
+                                << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
     }
 
     QList<StorageId>
