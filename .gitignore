@@ -10,6 +10,9 @@ build/
 # nix build output
 result
 
+# debug data directory
+magnesia_data/
+
 # Created by https://www.toptal.com/developers/gitignore/api/c++,cmake,vim,visualstudiocode,clion
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake,vim,visualstudiocode,clion
 

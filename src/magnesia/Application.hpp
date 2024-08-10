@@ -10,6 +10,7 @@
 
 #include <span>
 
+#include <QDir>
 #include <QMainWindow>
 #include <QObject>
 #include <QString>
@@ -125,6 +126,8 @@ namespace magnesia {
         void focusActivity(Activity* activity);
 
       private:
+        QDir m_data_dir;
+
         StorageManager*              m_storage_manager{nullptr};
         SettingsManager*             m_settings_manager{nullptr};
         opcua_qt::ConnectionManager* m_connection_manager{nullptr};
