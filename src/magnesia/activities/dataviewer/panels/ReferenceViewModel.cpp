@@ -6,12 +6,12 @@
 #include <utility>
 
 #include <QAbstractTableModel>
+#include <QModelIndex>
 #include <QObject>
 #include <QVariant>
 #include <Qt>
 
 namespace magnesia::activities::dataviewer::panels::reference_view_panel {
-
     ReferenceViewModel::ReferenceViewModel(opcua_qt::Connection* connection, QObject* parent)
         : QAbstractTableModel(parent), m_connection(connection) {}
 
@@ -24,25 +24,22 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
     }
 
     QVariant ReferenceViewModel::headerData(int section, Qt::Orientation orientation, int role) const {
-        if (role != Qt::DisplayRole) {
+        if (role != Qt::DisplayRole || orientation != Qt::Horizontal) {
             return {};
         }
 
-        if (orientation == Qt::Horizontal) {
-            switch (section) {
-                case 0:
-                    return QString("Reference");
-                case 1:
-                    return QString("Target Displayname");
-                default:
-                    return {};
-            }
+        switch (section) {
+            case 0:
+                return "Reference";
+            case 1:
+                return "Target Displayname";
+            default:
+                return {};
         }
-        return {};
     }
 
     QVariant ReferenceViewModel::data(const QModelIndex& index, int role) const {
-        if (!index.isValid() || role != Qt::DisplayRole) {
+        if (!checkIndex(index) || role != Qt::DisplayRole) {
             return {};
         }
 
@@ -81,9 +78,8 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
                 reference_name = reference_type->getDisplayName().getText();
             }
 
-            m_references.append(std::pair<QString, QString>(reference_name, reference.getDisplayName().getText()));
+            m_references.emplaceBack(reference_name, reference.getDisplayName().getText());
         }
         endResetModel();
     }
-
 } // namespace magnesia::activities::dataviewer::panels::reference_view_panel

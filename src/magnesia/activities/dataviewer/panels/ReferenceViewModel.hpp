@@ -7,13 +7,14 @@
 
 #include <QAbstractTableModel>
 #include <QList>
+#include <QModelIndex>
 #include <QObject>
+#include <QString>
 #include <QVariant>
 #include <Qt>
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::dataviewer::panels::reference_view_panel {
-
     class ReferenceViewModel : public QAbstractTableModel {
         Q_OBJECT
 
@@ -30,5 +31,4 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
         opcua_qt::Connection*              m_connection;
         QList<std::pair<QString, QString>> m_references;
     };
-
 } // namespace magnesia::activities::dataviewer::panels::reference_view_panel
