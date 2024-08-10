@@ -43,6 +43,8 @@ namespace magnesia::activities::dataviewer::layout {
         : QFrame(parent), m_layout(new QVBoxLayout), m_widget(panel), m_dataviewer(dataviewer) {
         Q_ASSERT(dataviewer != nullptr);
 
+        m_layout->setContentsMargins(0, 0, 0, 0);
+
         buildToolbar();
 
         if (m_widget == nullptr) {
@@ -117,11 +119,7 @@ namespace magnesia::activities::dataviewer::layout {
             Q_EMIT requestedSplit(this, Qt::Vertical);
         });
 
-        auto* separator = new QFrame;
-        separator->setFrameShape(QFrame::HLine);
-
-        m_layout->addWidget(toolbar);
-        m_layout->addWidget(separator);
+        m_layout->setMenuBar(toolbar);
     }
 
     PanelLayout::PanelLayout(DataViewer* dataviewer, Qt::Orientation orientation, PanelLayout* parent_layout,
