@@ -84,15 +84,10 @@ namespace magnesia::activities::about {
         auto* layout = new QVBoxLayout;
 
         auto* create_button = new QPushButton("Open About");
-        connect(create_button, &QPushButton::clicked, this, &ConfigWidget::create);
+        connect(create_button, &QPushButton::clicked, this,
+                [] { Application::instance().openActivity(new About, "About"); });
         layout->addWidget(create_button);
 
         setLayout(layout);
-    }
-
-    // slots apparently can't be static in Qt 6.4
-    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-    void ConfigWidget::create() {
-        Application::instance().openActivity(new About, "About");
     }
 } // namespace magnesia::activities::about

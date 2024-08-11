@@ -27,9 +27,6 @@ namespace magnesia::activities::about {
 
       public:
         explicit ConfigWidget(QWidget* parent = nullptr);
-
-      private slots:
-        void create();
     };
 
     inline constexpr ActivityMetadata metadata{
