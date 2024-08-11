@@ -1,3 +1,6 @@
+# user doc build directory
+docs/_build/
+
 # clangd cache
 .cache/
 
