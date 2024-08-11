@@ -8,6 +8,7 @@
 #include "AttributeViewModel.hpp"
 
 #include <QDebug>
+#include <QFrame>
 #include <QHeaderView>
 #include <QLabel>
 #include <QTreeView>
@@ -24,10 +25,13 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
 
         m_tree_view->setModel(m_model);
         m_tree_view->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        m_tree_view->setFrameShape(QFrame::Shape::NoFrame);
 
         auto* layout = new QHBoxLayout;
         layout->addWidget(m_tree_view);
         layout->setAlignment(Qt::AlignCenter);
+        layout->setContentsMargins(0, 0, 0, 0);
+
         setLayout(layout);
     }
 
