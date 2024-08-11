@@ -8,9 +8,9 @@
 
 #include <QFont>
 #include <QLabel>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QResource>
-#include <QTextEdit>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <Qt>
@@ -39,9 +39,14 @@ namespace magnesia::activities::about {
         auto*           version_label = new QLabel{cmake::project_version.data()};
         const QResource license{":/licenses/LICENSE"};
         Q_ASSERT(license.isValid());
-        auto* license_text_edit = new QTextEdit();
-        license_text_edit->setText(license.uncompressedData());
+        auto* license_text_edit = new QPlainTextEdit();
+        license_text_edit->setPlainText(license.uncompressedData());
         license_text_edit->setReadOnly(true);
+        license_text_edit->setLineWrapMode(QPlainTextEdit::NoWrap);
+        font = license_text_edit->document()->defaultFont();
+        font.setFamily("monospace");
+        font.setStyleHint(QFont::Monospace);
+        license_text_edit->document()->setDefaultFont(font);
 
         layout->addWidget(title);
         layout->addWidget(version_header);
