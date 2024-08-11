@@ -6,6 +6,7 @@
 #include "../dataviewer_fwd.hpp"
 #include "NodeViewModel.hpp"
 
+#include <QModelIndex>
 #include <QTableView>
 #include <QWidget>
 #include <qtmetamacros.h>
@@ -19,18 +20,23 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
 
         [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
 
+      signals:
+        void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients);
+
       public slots:
         void selectNode(const opcua_qt::abstraction::NodeId& node) override;
 
+      private slots:
+        void onCurrentNodeChanged(const QModelIndex& current, const QModelIndex& previous);
+
       private:
-        NodeViewModel* m_node_view_model;
+        NodeViewModel* m_model;
         QTableView*    m_table_view;
-        DataViewer*    m_data_viewer;
     };
 
     inline constexpr PanelMetadata metadata{
         .id     = u"nodeview",
         .name   = u"NodeView",
-        .create = [](DataViewer* dataviewer) -> Panel* { return new NodeViewPanel(dataviewer); },
+        .create = create_helper<NodeViewPanel>,
     };
 } // namespace magnesia::activities::dataviewer::panels::node_view_panel

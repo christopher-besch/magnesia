@@ -1,11 +1,12 @@
 #pragma once
 
+#include "../../qt_version_check.hpp"
 #include "AttributeId.hpp"
 #include "DataValue.hpp"
 #include "MonitoredItem.hpp"
-#include "NodeId.hpp"
 #include "SubscriptionParameters.hpp"
 #include "Variant.hpp"
+#include "node/Node.hpp"
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Subscription.h>
@@ -14,6 +15,12 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <qtmetamacros.h>
+
+#ifdef MAGNESIA_HAS_QT_6_5
+#include <QtClassHelperMacros>
+#else
+#include <QtGlobal>
+#endif
 
 namespace magnesia::opcua_qt::abstraction {
     /**
@@ -25,9 +32,11 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class Subscription : public QObject {
         Q_OBJECT
+        Q_DISABLE_COPY_MOVE(Subscription)
 
       public:
         explicit Subscription(opcua::Subscription<opcua::Client> subscription);
+        ~Subscription() override;
 
         /**
          * Enable or disable publishing of events and data changes.
@@ -55,12 +64,12 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Subscribe to an attribute. When it changes value, the valueChanged signal will be emitted.
          */
-        MonitoredItem subscribeDataChanged(NodeId node_id, AttributeId attribute_id);
+        MonitoredItem subscribeDataChanged(Node* node_id, AttributeId attribute_id);
 
         /**
          * Subscribe to an event. When it changes value, the eventTriggered signal will be emitted.
          */
-        MonitoredItem subscribeEvent(NodeId node_id);
+        MonitoredItem subscribeEvent(Node* node_id);
 
         /**
          * Get the underlying subscription
@@ -73,8 +82,8 @@ namespace magnesia::opcua_qt::abstraction {
         [[nodiscard]] opcua::Subscription<opcua::Client>& handle() noexcept;
 
       signals:
-        void valueChanged(NodeId node_id, AttributeId attribute_id, QSharedPointer<DataValue> value);
-        void eventTriggered(NodeId node_id, QSharedPointer<QList<Variant>>);
+        void valueChanged(Node* node, AttributeId attribute_id, QSharedPointer<DataValue> value);
+        void eventTriggered(Node* node, QSharedPointer<QList<Variant>>);
 
       private:
         opcua::Subscription<opcua::Client> m_subscription;

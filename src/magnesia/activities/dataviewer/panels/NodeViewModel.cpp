@@ -1,16 +1,46 @@
 #include "NodeViewModel.hpp"
 
+#include "../../../opcua_qt/Connection.hpp"
+#include "../../../opcua_qt/abstraction/AttributeId.hpp"
+#include "../../../opcua_qt/abstraction/DataValue.hpp"
+#include "../../../opcua_qt/abstraction/LocalizedText.hpp"
+#include "../../../opcua_qt/abstraction/NodeClass.hpp"
+#include "../../../opcua_qt/abstraction/NodeId.hpp"
+#include "../../../opcua_qt/abstraction/Subscription.hpp"
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
+#include "../../../qt_version_check.hpp"
 #include "../DataViewer.hpp"
+
+#include <algorithm>
+#include <iterator>
+#include <optional>
+#include <utility>
 
 #include <QAbstractTableModel>
 #include <QList>
+#include <QModelIndex>
 #include <QObject>
 #include <QStack>
+#include <QString>
 #include <QVariant>
 #include <Qt>
+#include <QtAlgorithms>
+#include <qtmetamacros.h>
+
+#ifdef MAGNESIA_HAS_QT_6_5
+#include <QtAssert>
+#include <QtTypes>
+#else
+#include <QtGlobal>
+#endif
 
 namespace magnesia::activities::dataviewer::panels::node_view_panel {
+    using opcua_qt::Connection;
+    using opcua_qt::abstraction::AttributeId;
+    using opcua_qt::abstraction::DataValue;
+    using opcua_qt::abstraction::Node;
+    using opcua_qt::abstraction::NodeClass;
+    using opcua_qt::abstraction::Subscription;
 
     NodeViewModel::NodeViewModel(DataViewer* data_viewer, QObject* parent)
         : QAbstractTableModel(parent), m_data_viewer(data_viewer) {}
@@ -20,31 +50,23 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
     }
 
     int NodeViewModel::columnCount(const QModelIndex& /*parent*/) const {
-        constexpr int eight = 8;
-        return eight;
+        return COLUMN_COUNT;
     }
 
     QVariant NodeViewModel::data(const QModelIndex& index, int role) const {
-        if (!index.isValid() || role != Qt::DisplayRole) {
+        if (!checkIndex(index, CheckIndexOption::IndexIsValid) || role != Qt::DisplayRole) {
             return {};
         }
 
-        auto* node = m_nodes.at(index.row());
-        if (node == nullptr) {
-            return {};
-        }
+        auto* node = getNode(index);
 
-        constexpr int case_5 = 5;
-        constexpr int case_6 = 6;
-        constexpr int case_7 = 7;
         switch (index.column()) {
-            case 0:
-                return index.row();
-            case 1:
+            case NodeIdColumn:
                 return node->getNodeId().toString();
-            case 2:
+            case DisplayNameColumn:
                 return node->getDisplayName().getText();
             default:
+                // Other case checked below
                 break;
         }
 
@@ -54,16 +76,16 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         }
 
         switch (index.column()) {
-            case 3:
+            case ValueColumn:
                 return data_value->getValue().toString();
-            case 4:
+            case DataTypeColumn:
                 return data_value->getDataTypeName();
-            case case_5:
+            case SourceTimestampColumn:
                 return data_value->getSourceTimestamp();
-            case case_6:
+            case ServerTimestampColumn:
                 return data_value->getServerTimestamp();
-            case case_7:
-                return data_value->getStatusCode().get();
+            case StatusCodeColumn:
+                return data_value->getStatusCode().toString();
             default:
                 return {};
         }
@@ -73,68 +95,114 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         if (role != Qt::DisplayRole) {
             return {};
         }
-        constexpr int case_5 = 5;
-        constexpr int case_6 = 6;
-        constexpr int case_7 = 7;
 
-        if (orientation == Qt::Horizontal) {
-            switch (section) {
-                case 0:
-                    return QString("#");
-                case 1:
-                    return QString("Node Id");
-                case 2:
-                    return QString("Display Name");
-                case 3:
-                    return QString("Value");
-                case 4:
-                    return QString("Datatype");
-                case case_5:
-                    return QString("Source Timestamp");
-                case case_6:
-                    return QString("Server Timestamp");
-                case case_7:
-                    return QString("Statuscode");
-                default:
-                    return {};
-            }
+        if (orientation != Qt::Horizontal) {
+            return QAbstractTableModel::headerData(section, orientation, role);
         }
+
+        switch (section) {
+            case NodeIdColumn:
+                return "Node Id";
+            case DisplayNameColumn:
+                return "Display Name";
+            case ValueColumn:
+                return "Value";
+            case DataTypeColumn:
+                return "Datatype";
+            case SourceTimestampColumn:
+                return "Source Timestamp";
+            case ServerTimestampColumn:
+                return "Server Timestamp";
+            case StatusCodeColumn:
+                return "Statuscode";
+            default:
+                return {};
+        }
+
         return {};
     }
 
-    void NodeViewModel::nodeSelected(opcua_qt::abstraction::Node* node) {
+    void NodeViewModel::appendNode(Node* node, Connection* connection) {
         beginResetModel();
 
-        m_nodes.clear();
         if (node != nullptr) {
-            QList<opcua_qt::abstraction::Node*> leaf_nodes;
-            findLeafNodes(node, leaf_nodes);
+            auto leaf_nodes = findLeafNodes(node);
+            subscribeNodes(leaf_nodes, connection);
             m_nodes.append(leaf_nodes);
         }
+
         endResetModel();
     }
 
-    void NodeViewModel::findLeafNodes(opcua_qt::abstraction::Node*         node,
-                                      QList<opcua_qt::abstraction::Node*>& leaf_nodes) {
+    bool NodeViewModel::removeRows(int row, int count, const QModelIndex& parent) {
+        beginRemoveRows(parent, row, row + count - 1);
+
+        qDeleteAll(m_subscriptions.sliced(row, count));
+        m_nodes.remove(row, count);
+        m_subscriptions.remove(row, count);
+
+        endRemoveRows();
+
+        return true;
+    }
+
+    QList<Node*> NodeViewModel::findLeafNodes(Node* node) {
         if (node == nullptr) {
-            return;
+            return {};
         }
 
-        QStack<opcua_qt::abstraction::Node*> stack;
+        QList<Node*>  leaf_nodes;
+        QStack<Node*> stack;
         stack.push(node);
 
         while (!stack.isEmpty()) {
-            auto* current  = stack.pop();
-            auto  children = current->getChildren();
+            auto*      current  = stack.pop();
+            const auto children = current->getChildren();
 
-            if (children.isEmpty()) {
+            for (const auto& child : children) {
+                stack.push(child);
+            }
+
+            if (current->getNodeClass() == NodeClass::VARIABLE
+                || (current->getNodeClass() == NodeClass::VARIABLE_TYPE && current->getDataValue().has_value())) {
                 leaf_nodes.append(current);
-            } else {
-                for (const auto& child : children) {
-                    stack.push(child);
-                }
             }
         }
+
+        return leaf_nodes;
+    }
+
+    void NodeViewModel::subscribeNodes(const QList<Node*>& nodes, Connection* connection) {
+        const QList attribute_ids{
+            AttributeId::DISPLAY_NAME,
+            AttributeId::VALUE,
+        };
+
+        for (auto* node : nodes) {
+            auto* subscription = connection->createSubscription(node, attribute_ids);
+            connect(
+                subscription, &Subscription::valueChanged, this,
+                [&](Node* subscribed_node, AttributeId /*attribute_id*/, const QSharedPointer<DataValue>& /*value*/) {
+                    auto node_it = std::ranges::find(std::as_const(m_nodes), subscribed_node);
+                    Q_ASSERT(node_it != m_nodes.cend());
+                    auto row = static_cast<int>(std::distance(m_nodes.cbegin(), node_it));
+
+                    auto left_index  = createIndex(row, 0);
+                    auto right_index = createIndex(row, COLUMN_COUNT - 1); // -1 because both indices are inclusive
+                    Q_EMIT dataChanged(left_index, right_index, {Qt::DisplayRole});
+                });
+            subscription->setPublishingMode(true);
+
+            m_subscriptions.append(subscription);
+        }
+    }
+
+    opcua_qt::abstraction::Node* NodeViewModel::getNode(QModelIndex index) const {
+        if (!checkIndex(index, CheckIndexOption::IndexIsValid)) {
+            return nullptr;
+        }
+
+        return m_nodes.value(index.row());
     }
 
 } // namespace magnesia::activities::dataviewer::panels::node_view_panel

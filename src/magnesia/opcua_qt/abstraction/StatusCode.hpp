@@ -4,6 +4,8 @@
 
 #include <open62541pp/types/Builtin.h>
 
+#include <QString>
+
 namespace magnesia::opcua_qt::abstraction {
     /**
      * A numerical value that is used to report the outcome of an operation performed by an OPC UA Server.
@@ -18,6 +20,11 @@ namespace magnesia::opcua_qt::abstraction {
          * Get the numeric value of the status.
          */
         [[nodiscard]] uint32_t get() const;
+
+        /**
+         * Get the name of the status code.
+         */
+        [[nodiscard]] QString toString() const;
 
         /**
          * Get the underlying status code.

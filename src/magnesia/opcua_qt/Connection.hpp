@@ -81,13 +81,13 @@ namespace magnesia::opcua_qt {
         /**
          * @brief Creates a Subscription Object
          *
-         * @param node_id NodeId of the Node that is to subscribe
+         * @param node The Node that is to subscribe
          * @param attribute_ids Attributes that should be subscribed
          *
          * @return Returns a Subscription pointer
          */
         [[nodiscard]] abstraction::Subscription*
-        createSubscription(abstraction::NodeId& node_id, const QList<abstraction::AttributeId>& attribute_ids);
+        createSubscription(abstraction::Node* node, const QList<abstraction::AttributeId>& attribute_ids);
         /**
          * @brief Stops polling for updates and disconnects the client
          */
