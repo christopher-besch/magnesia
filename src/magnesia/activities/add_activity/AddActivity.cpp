@@ -40,9 +40,11 @@ namespace magnesia::activities::add_activity {
 
         auto index = config_widget_stack->addWidget(fallback_widget);
         config_widget_stack->setCurrentIndex(index);
+        config_widget_stack->setContentsMargins(0, 0, 0, 0);
 
         h_layout->addWidget(activity_list, 1);
         h_layout->addLayout(config_widget_stack, 5); // NOLINT: cppcoreguidelines-avoid-magic-numbers
+        h_layout->setContentsMargins(0, 2, 0, 0);
 
         setLayout(h_layout);
     }

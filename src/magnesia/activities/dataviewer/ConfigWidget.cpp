@@ -53,7 +53,7 @@ namespace magnesia::activities::dataviewer {
         QWidget* wrap_in_frame(QLayout* layout) {
             auto* frame = new QFrame;
             frame->setLayout(layout);
-            frame->setFrameShape(QFrame::Shape::Box);
+            frame->setFrameShape(QFrame::Shape::StyledPanel);
             return frame;
         }
 
@@ -91,6 +91,7 @@ namespace magnesia::activities::dataviewer {
 
     QLayout* ConfigWidget::buildQuickConnect() {
         auto* layout = new QFormLayout;
+
         {
             auto* label = new QLabel("<h2>Quick Connect</h2>");
             layout->addRow(label);
