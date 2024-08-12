@@ -208,7 +208,7 @@ namespace magnesia {
          */
         [[nodiscard]] std::optional<QSslCertificate> getCertificateSetting(const SettingKey& key) const;
         /**
-         * Get the id of an CertificateSetting.
+         * Get the id of an X.509 CertificateSetting.
          *
          * @param key The SettingKey of the setting to get.
          *
@@ -224,7 +224,7 @@ namespace magnesia {
          */
         [[nodiscard]] std::optional<QSslKey> getKeySetting(const SettingKey& key) const;
         /**
-         * Get the id of an KeySetting.
+         * Get the id of an X.509 KeySetting.
          *
          * @param key The SettingKey of the setting to get.
          *
@@ -296,17 +296,6 @@ namespace magnesia {
          * @param domain The Domain that was (re)defined.
          */
         void settingDomainDefined(Domain domain);
-
-      public slots:
-        /**
-         * Called when the StorageManager notices a setting deletion.
-         * This is important for cascading deletions.
-         *
-         * @see StorageManager::settingDeleted
-         *
-         * @param key The changed setting's key.
-         */
-        void onSettingDeleted(const SettingKey& key);
 
       private:
         [[nodiscard]] std::optional<QSharedPointer<Setting>> findSettingDefinition(const SettingKey& key) const;

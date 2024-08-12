@@ -31,6 +31,7 @@ namespace magnesia {
 
       private:
         // These are used to identify in what relation a tuple has been deleted using TRIGGER ON DELETE.
+        // NOTE: Don't change the values of the variants, they are independently persisted to the database.
         enum class DBRelation : uint8_t {
             Certificate                         = 0,
             Key                                 = 1,

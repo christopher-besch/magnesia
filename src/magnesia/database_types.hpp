@@ -38,10 +38,10 @@ namespace magnesia {
         Domain      domain;
     };
 
-    inline bool operator<(const SettingKey& key1, const SettingKey& key2) {
-        if (key1.domain != key2.domain) {
-            return key1.domain < key2.domain;
+    inline bool operator<(const SettingKey& lhs, const SettingKey& rhs) {
+        if (lhs.domain != rhs.domain) {
+            return lhs.domain < rhs.domain;
         }
-        return key1.name < key2.name;
+        return lhs.name < rhs.name;
     }
 } // namespace magnesia

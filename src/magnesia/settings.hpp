@@ -3,7 +3,6 @@
 #include "database_types.hpp"
 
 #include <cstdint>
-#include <functional>
 
 #include <QLayout>
 #include <QSet>
@@ -32,15 +31,7 @@ namespace magnesia {
         [[nodiscard]] QString getHumanReadableName() const;
         [[nodiscard]] QString getDescription() const;
 
-      private:
-        friend activities::settings_activity::SettingsActivity;
-        [[nodiscard]] virtual QWidget* constructWidget(const Domain& domain) const = 0;
-
       protected:
-        [[nodiscard]] QWidget* wrapInSettingsWidget(QLayout* right_layout, const std::function<void()>& on_reset,
-                                                    const SettingKey& reset_key) const;
-        [[nodiscard]] QWidget* wrapInSettingsWidget(QLayout* right_layout) const;
-
         /**
          * @param name The key to identify this setting inside its domain.
          * @param human_readable_name The name displayed to the user.
@@ -76,9 +67,6 @@ namespace magnesia {
         BooleanSetting(QString name, QString human_readable_name, QString description, bool default_value);
 
       private:
-        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
-
-      private:
         bool m_default_value;
     };
 
@@ -100,9 +88,6 @@ namespace magnesia {
         StringSetting(QString name, QString human_readable_name, QString description, QString default_value);
 
       private:
-        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
-
-      private:
         QString m_default_value;
     };
 
@@ -117,15 +102,22 @@ namespace magnesia {
         [[nodiscard]] std::int64_t getDefault() const;
 
         /**
+         *  @return the min value.
+         */
+        [[nodiscard]] std::int64_t getMin() const;
+
+        /**
+         *  @return the max value.
+         */
+        [[nodiscard]] std::int64_t getMax() const;
+
+        /**
          *  @return true iff value the requirements for int settings.
          */
         [[nodiscard]] bool isValid(std::int64_t value) const;
 
         IntSetting(QString name, QString human_readable_name, QString description, std::int64_t default_value,
                    std::int64_t min, std::int64_t max);
-
-      private:
-        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
 
       private:
         std::int64_t m_default_value;
@@ -142,6 +134,15 @@ namespace magnesia {
          *  @return the value.
          */
         [[nodiscard]] double getDefault() const;
+        /**
+         *  @return the min value.
+         */
+        [[nodiscard]] double getMin() const;
+
+        /**
+         *  @return the max value.
+         */
+        [[nodiscard]] double getMax() const;
 
         /**
          *  @return true iff value the requirements for double settings.
@@ -150,9 +151,6 @@ namespace magnesia {
 
         DoubleSetting(QString name, QString human_readable_name, QString description, double default_value, double min,
                       double max);
-
-      private:
-        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
 
       private:
         double m_default_value;
@@ -172,6 +170,11 @@ namespace magnesia {
         [[nodiscard]] EnumSettingValue getDefault() const;
 
         /**
+         *  @return the possible value.
+         */
+        [[nodiscard]] const QSet<EnumSettingValue>& getPossibleValues() const;
+
+        /**
          *  @return true iff value the requirements for enum settings.
          */
         [[nodiscard]] bool isValid(const EnumSettingValue& value) const;
@@ -180,14 +183,11 @@ namespace magnesia {
                     QSet<EnumSettingValue> possible_values);
 
       private:
-        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
-
-      private:
         EnumSettingValue       m_default_value;
         QSet<EnumSettingValue> m_possible_values;
     };
 
-    /*
+    /**
      * A setting of type HistoricServerConnection.
      *
      * @see HistoricServerConnection
@@ -205,12 +205,9 @@ namespace magnesia {
         [[nodiscard]] static bool isValid(StorageId value);
 
         HistoricServerConnectionSetting(QString name, QString human_readable_name, QString description);
-
-      private:
-        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
     };
 
-    /*
+    /**
      * A setting of type Certificate.
      *
      * @see Certificate
@@ -228,12 +225,9 @@ namespace magnesia {
         [[nodiscard]] static bool isValid(StorageId value);
 
         CertificateSetting(QString name, QString human_readable_name, QString description);
-
-      private:
-        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
     };
 
-    /*
+    /**
      * A setting of type Key.
      *
      * @see Certificate
@@ -251,12 +245,9 @@ namespace magnesia {
         [[nodiscard]] static bool isValid(StorageId value);
 
         KeySetting(QString name, QString human_readable_name, QString description);
-
-      private:
-        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
     };
 
-    /*
+    /**
      * A setting of type Layout.
      *
      * @see Layout
@@ -279,9 +270,6 @@ namespace magnesia {
         [[nodiscard]] static bool isValid(StorageId value);
 
         LayoutSetting(QString name, QString human_readable_name, QString description, LayoutGroup layout_group);
-
-      private:
-        [[nodiscard]] QWidget* constructWidget(const Domain& domain) const override;
 
       private:
         LayoutGroup m_layout_group;

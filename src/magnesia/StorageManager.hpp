@@ -339,7 +339,7 @@ namespace magnesia {
 
       signals:
         /**
-         * Emitted when a setting was set or deleted (i.e., reset).
+         * Emitted when a setting was deleted (i.e., reset).
          *
          * @param key the key of the setting that was deleted.
          */

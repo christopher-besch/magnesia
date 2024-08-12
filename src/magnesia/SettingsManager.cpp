@@ -27,7 +27,7 @@ namespace magnesia {
             terminate();
         }
 
-        connect(m_storage_manager, &StorageManager::settingDeleted, this, &SettingsManager::onSettingDeleted);
+        connect(m_storage_manager, &StorageManager::settingDeleted, this, &SettingsManager::settingChanged);
     }
 
     void SettingsManager::defineSettingDomain(const Domain& domain, const QList<QSharedPointer<Setting>>& settings) {
@@ -224,9 +224,5 @@ namespace magnesia {
             return nullptr;
         }
         return specific_setting;
-    }
-
-    void SettingsManager::onSettingDeleted(const SettingKey& key) {
-        Q_EMIT settingChanged(key);
     }
 } // namespace magnesia

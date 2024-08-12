@@ -1,11 +1,12 @@
 #pragma once
+
 #include "../../Activity.hpp"
 #include "../../ActivityMetadata.hpp"
 #include "../../Application.hpp"
 #include "../../database_types.hpp"
 #include "../../qt_version_check.hpp"
+#include "../../settings.hpp"
 
-#include <QCloseEvent>
 #include <QList>
 #include <QListWidget>
 #include <QMap>
@@ -13,46 +14,45 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <qtmetamacros.h>
+
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtLogging>
 #else
 #include <QtGlobal>
 #endif
 
-namespace magnesia::activities::settings_activity {
-    /*
-     * The SettingsActivity is the only location settings ought to be changed.
-     *
-     * It is unclosable, launched at application initialization and uncreatable by the user.
+namespace magnesia::activities::settings {
+    /**
+     * The Settings activity allows the user to view and alter settings, certificates and keys.
+     * It is unclosable, launched at application initialization and not manually creatable by the user.
      */
-    class SettingsActivity : public Activity {
+    class Settings : public Activity {
       public:
-        explicit SettingsActivity(QWidget* parent = nullptr);
+        explicit Settings(QWidget* parent = nullptr);
 
-        void closeEvent(QCloseEvent* event) override;
-
-        /*
+        /**
          * Focus a specific setting domain.
          *
          * This only works when the SettingsActivity tab is open.
          *
-         * @domain the domain to focus
+         * @param domain the domain to focus
          * @return true iff the domain was found and focused.
          */
         bool focusDomain(const Domain& domain);
-        /*
+        /**
          * Focus a specific setting.
          *
          * This only works when the SettingsActivity tab is open.
          *
-         * @key the key of the setting to focus
+         * @param key the key of the setting to focus
          * @return true iff the setting was found and focused.
          */
         bool focusSetting(const SettingKey& key);
+
         // TODO: maybe focus specific certificate and keys too
 
       public slots:
-        /*
+        /**
          * To be called when a Certificate was changed
          *
          * @param cert_id the changed Certificate's Id
@@ -60,7 +60,7 @@ namespace magnesia::activities::settings_activity {
          * @see StorageManager::certificateChanged
          */
         void onCertificateChange(StorageId cert_id);
-        /*
+        /**
          * To be called when a Key was changed
          *
          * @param key_id the changed Key's Id
@@ -68,7 +68,7 @@ namespace magnesia::activities::settings_activity {
          * @see StorageManager::keyChanged
          */
         void onKeyChange(StorageId key_id);
-        /*
+        /**
          * To be called when a Layout was changed
          *
          * @param layout_id the changed Layout's Id
@@ -76,17 +76,15 @@ namespace magnesia::activities::settings_activity {
          * @see StorageManager::layoutChanged
          */
         void onLayoutChange(StorageId layout_id);
-        /*
-         * To be called when a HistoricConnection was changed
+        /**
+         * To be called when a HistoricServerConnection was changed
          *
-         * @param server_con_id the changed HistoricConnection's Id
+         * @param server_con_id the changed HistoricServerConnection's Id
          *
-         * @see StorageManager::historicConnectionChanged
+         * @see StorageManager::historicServerConnectionChanged
          */
-        void onHistoricConnectionChange(StorageId server_con_id);
-        // onKVChanged is not needed because there is no KVSetting and Key-Value pairs are not displayed in the Activity
-        // onSettingChanged is not needed as this is the only location settings ought to be changed
-        /*
+        void onHistoricServerConnectionChange(StorageId server_con_id);
+        /**
          * To be called when a setting domain was defined.
          *
          * @param domain the domain that was defined.
@@ -94,20 +92,39 @@ namespace magnesia::activities::settings_activity {
          * @see SettingsManager::settingDomainDefined
          */
         void onSettingDomainDefined(const Domain& domain);
+        /**
+         * To be called when a Setting was changed
+         *
+         * @param key the key of the Setting that changed
+         *
+         * @see StorageManager::settingChanged
+         */
+        void onSettingChanged(const SettingKey& key);
 
       private:
-        void reRenderSettings();
-        void reRenderCertificates();
-        void reRenderKeys();
+        void reCreateSettings();
+        void reCreateCertificates();
+        void reCreateKeys();
 
         void focusDomain(int index);
         void focusCertificates();
         void focusKeys();
 
+        static QWidget* createSettingWidget(const Setting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const BooleanSetting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const StringSetting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const IntSetting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const DoubleSetting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const EnumSetting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const HistoricServerConnectionSetting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const CertificateSetting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const KeySetting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const LayoutSetting* setting, const Domain& domain);
+
       private:
         // list of all links in sidebar
         QListWidget* m_sidebar_domain_list{nullptr};
-        // scroll area on the right, used to jump to specific widgets
+        // scroll area containing the settings widgets
         QScrollArea* m_scroll_area{nullptr};
         // layout where the settings for each domain are
         QVBoxLayout* m_domain_list{nullptr};
@@ -126,12 +143,7 @@ namespace magnesia::activities::settings_activity {
     };
 
     inline constexpr ActivityMetadata metadata{
-        .name = u"Settings Activity",
-        .global_init =
-            []() {
-                // TODO: uncomment false
-                Application::instance().openActivity(new SettingsActivity, "Settings" /*, false*/);
-                qDebug() << "Initialized SettingsActivity";
-            },
+        .name        = u"Settings Activity",
+        .global_init = [] { Application::instance().openActivity(new Settings, "Settings", false); },
     };
-} // namespace magnesia::activities::settings_activity
+} // namespace magnesia::activities::settings
