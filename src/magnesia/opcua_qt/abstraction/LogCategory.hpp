@@ -3,7 +3,7 @@
 #include <QString>
 
 namespace magnesia::opcua_qt {
-    /*
+    /**
      * The category of a log entry.
      *
      * @see LogEntry
