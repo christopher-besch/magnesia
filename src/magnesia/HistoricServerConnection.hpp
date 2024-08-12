@@ -24,7 +24,6 @@ namespace magnesia {
         std::optional<QString>   username;
         std::optional<QString>   password;
         std::optional<StorageId> certificate_id;
-        std::optional<StorageId> private_key_certificate_id;
         QList<StorageId>         trust_list_certificate_ids;
         QList<StorageId>         revoked_list_certificate_ids;
 

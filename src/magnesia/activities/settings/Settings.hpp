@@ -119,6 +119,7 @@ namespace magnesia::activities::settings {
         static QWidget* createSettingWidget(const HistoricServerConnectionSetting* setting, const Domain& domain);
         static QWidget* createSettingWidget(const CertificateSetting* setting, const Domain& domain);
         static QWidget* createSettingWidget(const KeySetting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const ApplicationCertificateSetting* setting, const Domain& domain);
         static QWidget* createSettingWidget(const LayoutSetting* setting, const Domain& domain);
 
       private:

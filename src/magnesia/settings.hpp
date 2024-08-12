@@ -60,7 +60,7 @@ namespace magnesia {
         [[nodiscard]] bool getDefault() const;
 
         /**
-         *  @return true iff value the requirements for boolean settings.
+         *  @return true iff value fulfills the requirements for boolean settings.
          */
         [[nodiscard]] static bool isValid(bool value);
 
@@ -81,7 +81,7 @@ namespace magnesia {
         [[nodiscard]] QString getDefault() const;
 
         /**
-         *  @return true iff value the requirements for string settings.
+         *  @return true iff value fulfills the requirements for string settings.
          */
         [[nodiscard]] static bool isValid(const QString& value);
 
@@ -112,7 +112,7 @@ namespace magnesia {
         [[nodiscard]] std::int64_t getMax() const;
 
         /**
-         *  @return true iff value the requirements for int settings.
+         *  @return true iff value fulfills the requirements for int settings.
          */
         [[nodiscard]] bool isValid(std::int64_t value) const;
 
@@ -145,7 +145,7 @@ namespace magnesia {
         [[nodiscard]] double getMax() const;
 
         /**
-         *  @return true iff value the requirements for double settings.
+         *  @return true iff value fulfills the requirements for double settings.
          */
         [[nodiscard]] bool isValid(double value) const;
 
@@ -175,7 +175,7 @@ namespace magnesia {
         [[nodiscard]] const QSet<EnumSettingValue>& getPossibleValues() const;
 
         /**
-         *  @return true iff value the requirements for enum settings.
+         *  @return true iff value fulfills the requirements for enum settings.
          */
         [[nodiscard]] bool isValid(const EnumSettingValue& value) const;
 
@@ -200,7 +200,7 @@ namespace magnesia {
         /**
          * Checking that a HistoricServerConnection with that id exists is done by the StorageManager.
          *
-         *  @return true iff value the requirements for historic server connection settings.
+         *  @return true iff value fulfills the requirements for historic server connection settings.
          */
         [[nodiscard]] static bool isValid(StorageId value);
 
@@ -220,7 +220,7 @@ namespace magnesia {
         /**
          * Checking that a Certificate with that id exists is done by the StorageManager.
          *
-         *  @return true iff value the requirements for certificate settings.
+         *  @return true iff value fulfills the requirements for certificate settings.
          */
         [[nodiscard]] static bool isValid(StorageId value);
 
@@ -240,11 +240,31 @@ namespace magnesia {
         /**
          * Checking that a Key with that id exists is done by the StorageManager.
          *
-         *  @return true iff value the requirements for certificate settings.
+         *  @return true iff value fulfills the requirements for certificate settings.
          */
         [[nodiscard]] static bool isValid(StorageId value);
 
         KeySetting(QString name, QString human_readable_name, QString description);
+    };
+
+    /**
+     * A setting of type ApplicationCertificate.
+     *
+     * @see Certificate
+     */
+    class ApplicationCertificateSetting : public Setting {
+      public:
+        // The default is nullopt.
+        // Therefore, no getDefault function is needed.
+
+        /**
+         * Checking that an ApplicationCertificate with that id exists is done by the StorageManager.
+         *
+         *  @return true iff value fulfills the requirements for application certificate settings.
+         */
+        [[nodiscard]] static bool isValid(StorageId value);
+
+        ApplicationCertificateSetting(QString name, QString human_readable_name, QString description);
     };
 
     /**
@@ -265,7 +285,7 @@ namespace magnesia {
         /**
          * Checking that a Layout with that id, group and domain exists is done by the StorageManager.
          *
-         *  @return true iff value the requirements for layout settings.
+         *  @return true iff value fulfills the requirements for layout settings.
          */
         [[nodiscard]] static bool isValid(StorageId value);
 

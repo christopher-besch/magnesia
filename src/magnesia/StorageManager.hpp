@@ -3,6 +3,7 @@
 #include "HistoricServerConnection.hpp"
 #include "Layout.hpp"
 #include "database_types.hpp"
+#include "opcua_qt/ApplicationCertificate.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -43,9 +44,18 @@ namespace magnesia {
          * Exit the application on error.
          *
          * @param key the key to store.
-         * @return the new database id of the certificate or key.
+         * @return the new database id of the key.
          */
         virtual StorageId storeKey(const QSslKey& key) = 0;
+        /**
+         * Store an X.509 certificate key pair in the database.
+         *
+         * Exit the application on error.
+         *
+         * @param cert the certificate key pair to store.
+         * @return the new database id of the certificate key pair.
+         */
+        virtual StorageId storeApplicationCertificate(const opcua_qt::ApplicationCertificate& cert) = 0;
         /**
          * Store a HistoricServerConnection in the database.
          *
@@ -85,6 +95,16 @@ namespace magnesia {
          * @return the key or nullopt when not found.
          */
         [[nodiscard]] virtual std::optional<QSslKey> getKey(StorageId key_id) const = 0;
+        /**
+         * Retrieve an X.509 certificate key pair from the database.
+         *
+         * Exit the application on error.
+         *
+         * @param cert_id The id the certificate key pair is stored under.
+         * @return the ApplicationCertificate or nullopt when not found.
+         */
+        [[nodiscard]] virtual std::optional<opcua_qt::ApplicationCertificate>
+        getApplicationCertificate(StorageId cert_id) const = 0;
         /**
          * Retrieve a HistoricServerConnection from the database.
          *
@@ -129,6 +149,16 @@ namespace magnesia {
          */
         [[nodiscard]] virtual QList<QSslKey> getAllKeys() const = 0;
         /**
+         * Retrieve all X.509 certificate key pairs from the database.
+         *
+         * This can be used to populate drop down menus in the SettingsActivity.
+         *
+         * Exit the application on error.
+         *
+         * @return a list of all certificate key pairs.
+         */
+        [[nodiscard]] virtual QList<opcua_qt::ApplicationCertificate> getAllApplicationCertificates() const = 0;
+        /**
          * Retrieve all HistoricServerConnections from the database.
          *
          * This can be used to populate drop down menus in the SettingsActivity.
@@ -161,6 +191,16 @@ namespace magnesia {
          * @return a list of all certificate IDs.
          */
         [[nodiscard]] virtual QList<StorageId> getAllCertificateIds() const = 0;
+        /**
+         * Retrieve all X.509 certificate key pair IDs from the database.
+         *
+         * This can be used to populate drop down menus in the SettingsActivity.
+         *
+         * Exit the application on error.
+         *
+         * @return a list of all certificate key pair IDs.
+         */
+        [[nodiscard]] virtual QList<StorageId> getAllApplicationCertificateIds() const = 0;
         /**
          * Retrieve all X.509 key IDs from the database.
          *
@@ -203,6 +243,14 @@ namespace magnesia {
          * @param cert_id The id of the certificate.
          */
         virtual void deleteCertificate(StorageId cert_id) = 0;
+        /**
+         * Delete the X.509 certificate key pair with the specified id if it exists.
+         *
+         * Exit the application on error.
+         *
+         * @param cert_id The id of the certificate key pair.
+         */
+        virtual void deleteApplicationCertificate(StorageId cert_id) = 0;
         /**
          * Delete the X.509 key with the specified id if it exists.
          *
@@ -274,6 +322,12 @@ namespace magnesia {
          */
         void keyChanged(StorageId key_id);
         /**
+         * Emitted when an X.509 certificate key pair was set or removed.
+         *
+         * @param cert_id the id of the certificate key pair that changed
+         */
+        void applicationCertificateChanged(StorageId cert_id);
+        /**
          * Emitted when a Layout was set or removed.
          *
          * @param layout_id The id the Layout is stored under.
@@ -318,6 +372,7 @@ namespace magnesia {
         virtual void setEnumSetting(const SettingKey& key, const EnumSettingValue& value)                          = 0;
         virtual void setCertificateSetting(const SettingKey& key, StorageId cert_id)                               = 0;
         virtual void setKeySetting(const SettingKey& key, StorageId key_id)                                        = 0;
+        virtual void setApplicationCertificateSetting(const SettingKey& key, StorageId cert_id)                    = 0;
         virtual void setHistoricServerConnectionSetting(const SettingKey& key,
                                                         StorageId         historic_server_connection_id)                   = 0;
         virtual void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group)        = 0;
@@ -330,6 +385,10 @@ namespace magnesia {
         [[nodiscard]] virtual std::optional<StorageId>        getCertificateSettingId(const SettingKey& key) const = 0;
         [[nodiscard]] virtual std::optional<QSslKey>          getKeySetting(const SettingKey& key) const           = 0;
         [[nodiscard]] virtual std::optional<StorageId>        getKeySettingId(const SettingKey& key) const         = 0;
+        [[nodiscard]] virtual std::optional<opcua_qt::ApplicationCertificate>
+        getApplicationCertificateSetting(const SettingKey& key) const = 0;
+        [[nodiscard]] virtual std::optional<StorageId>
+        getApplicationCertificateSettingId(const SettingKey& key) const = 0;
         [[nodiscard]] virtual std::optional<HistoricServerConnection>
         getHistoricServerConnectionSetting(const SettingKey& key) const = 0;
         [[nodiscard]] virtual std::optional<StorageId>

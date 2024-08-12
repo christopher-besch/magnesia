@@ -4,6 +4,7 @@
 #include "Layout.hpp"
 #include "StorageManager.hpp"
 #include "database_types.hpp"
+#include "opcua_qt/ApplicationCertificate.hpp"
 #include "settings.hpp"
 
 #include <cstdint>
@@ -135,6 +136,17 @@ namespace magnesia {
          */
         bool setKeySetting(const SettingKey& key, StorageId key_id);
         /**
+         * Change an X.509 ApplicationCertificate.
+         *
+         * Fail when the setting can't be found or value is invalid.
+         *
+         * @param key The SettingKey of the setting to set.
+         * @param cert_id the id of the ApplicationCertificate.
+         *
+         * @return false on failure, true otherwise.
+         */
+        bool setApplicationCertificateSetting(const SettingKey& key, StorageId cert_id);
+        /**
          * Change a HistoricServerConnectionSetting.
          *
          * Fail when the setting can't be found or value is invalid.
@@ -231,6 +243,24 @@ namespace magnesia {
          * @return the Setting's value as a StorageId or nullopt when the setting is not defined.
          */
         [[nodiscard]] std::optional<StorageId> getKeySettingId(const SettingKey& key) const;
+        /**
+         * Get an X.509 ApplicationCertificate.
+         *
+         * @param key The SettingKey of the setting to get.
+         *
+         * @return the Setting's value or its default value when not set or nullopt when the setting is not defined.
+         */
+        [[nodiscard]] std::optional<opcua_qt::ApplicationCertificate>
+        getApplicationCertificateSetting(const SettingKey& key) const;
+        /**
+         * Get the id of an X.509 ApplicationCertificate.
+         *
+         * @param key The SettingKey of the setting to get.
+         *
+         * @return the Setting's value as an id or its default value when not set or nullopt when the setting is not
+         * defined.
+         */
+        [[nodiscard]] std::optional<StorageId> getApplicationCertificateSettingId(const SettingKey& key) const;
         /**
          * Get a HistoricServerConnectionSetting.
          *
