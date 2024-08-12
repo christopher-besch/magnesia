@@ -25,6 +25,7 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
+#include <QtTypeTraits>
 #include <QtTypes>
 #else
 #include <QtGlobal>
@@ -124,7 +125,7 @@ VALUES (NULL, :server_url, :endpoint_url, :endpoint_security_policy_uri, :endpoi
                                              historic_server_connection.trust_list_certificate_ids);
         setHistoricServerConnectionRevokedList(historic_server_connection_id,
                                                historic_server_connection.revoked_list_certificate_ids);
-        Q_EMIT historicConnectionChanged(historic_server_connection_id);
+        Q_EMIT historicServerConnectionChanged(historic_server_connection_id);
         return historic_server_connection_id;
     }
 
@@ -414,7 +415,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
             warnQuery("database Certificate deletion failed.", query);
             terminate();
         }
-        Q_EMIT certificateChanged(cert_id);
+        handleDeleteMonitor();
     }
 
     void SQLStorageManager::deleteKey(StorageId key_id) {
@@ -426,7 +427,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
             warnQuery("database Key deletion failed.", query);
             terminate();
         }
-        Q_EMIT keyChanged(key_id);
+        handleDeleteMonitor();
     }
 
     void SQLStorageManager::deleteHistoricServerConnection(StorageId historic_server_connection_id) {
@@ -438,7 +439,7 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
             warnQuery("database HistoricServerConnection deletion failed.", query);
             terminate();
         }
-        Q_EMIT historicConnectionChanged(historic_server_connection_id);
+        handleDeleteMonitor();
     }
 
     void SQLStorageManager::deleteLayout(StorageId layout_id, const LayoutGroup& group, const Domain& domain) {
@@ -454,7 +455,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
             warnQuery("database Layout deletion failed.", query);
             terminate();
         }
-        Q_EMIT layoutChanged(layout_id, group, domain);
+        handleDeleteMonitor();
     }
 
     void SQLStorageManager::setKV(const QString& key, const Domain& domain, const QString& value) {
@@ -498,7 +499,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
             warnQuery("database KeyValue deletion failed.", query);
             terminate();
         }
-        Q_EMIT kvChanged(key, domain);
+        handleDeleteMonitor();
     }
 
     void SQLStorageManager::resetSetting(const SettingKey& key) {
@@ -512,6 +513,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
             warnQuery("database Setting deletion failed.", query);
             terminate();
         }
+        handleDeleteMonitor();
     }
 
     void SQLStorageManager::setGenericSetting(const SettingKey& key) {
@@ -904,7 +906,7 @@ WHERE HistoricServerConnectionSetting.name = :name
         query.bindValue(":domain", key.domain);
         query.exec();
         if (query.lastError().isValid()) {
-            warnQuery("database HistoricServerConnection id retrieval failed.", query);
+            warnQuery("database HistoricServerConnectionSetting id retrieval failed.", query);
             terminate();
         }
 
@@ -970,6 +972,26 @@ WHERE LayoutSetting.name = :name
         // This allows users to smoothly update.
         QList<QString> migrations{
             R"sql(
+-- Every time a tuple in relation R is deleted the tuple with the DBRelation enum id of R and the identifier of the deleted tuple is appended to this relation.A
+-- This is realized using SQL TRIGGERs for the relations with onChange Qt signals.
+-- Once the application handled the event it is deleted from here.
+CREATE TABLE TupleDeleteMonitor (
+    primary_key_index INTEGER PRIMARY KEY,
+    -- the relation from which a tuple has been deleted
+    relation INTEGER NOT NULL,
+    -- the id of the tuple that has been deleted, if it has an id as primary key
+    id INTEGER,
+    -- the key of the tuple that has been deleted, if it has a key as primary key
+    key TEXT,
+    -- the key of the tuple that has been deleted, if it has a group as primary key
+    layout_group TEXT,
+    -- the name of the tuple that has been deleted, if it has a name as primary key
+    name TEXT,
+    -- the domain of the tuple that has been deleted, if it has a domain as primary key
+    domain TEXT
+) STRICT;
+)sql",
+            R"sql(
 CREATE TABLE Certificate (
     id INTEGER PRIMARY KEY,
     pem BLOB NOT NULL,
@@ -977,11 +999,25 @@ CREATE TABLE Certificate (
 ) STRICT;
 )sql",
             R"sql(
+CREATE TRIGGER delete_certificate DELETE ON Certificate
+BEGIN
+    INSERT INTO TupleDeleteMonitor VALUES (NULL, )sql"
+                + QString::number(qToUnderlying(DBRelation::Certificate)) + R"sql(, old.id, NULL, NULL, NULL, NULL);
+END;
+)sql",
+            R"sql(
 CREATE TABLE Key (
     id INTEGER PRIMARY KEY,
     pem BLOB NOT NULL,
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) STRICT;
+)sql",
+            R"sql(
+CREATE TRIGGER delete_key DELETE ON Key
+BEGIN
+    INSERT INTO TupleDeleteMonitor VALUES (NULL, )sql"
+                + QString::number(qToUnderlying(DBRelation::Key)) + R"sql(, old.id, NULL, NULL, NULL, NULL);
+END;
 )sql",
             R"sql(
 CREATE TABLE HistoricServerConnection (
@@ -1015,6 +1051,14 @@ CREATE TABLE HistoricServerConnection (
         REFERENCES Layout (id, layout_group, domain)
         ON DELETE CASCADE
 ) STRICT;
+)sql",
+            R"sql(
+CREATE TRIGGER delete_historic_server_connection DELETE ON HistoricServerConnection
+BEGIN
+    INSERT INTO TupleDeleteMonitor VALUES (NULL, )sql"
+                + QString::number(qToUnderlying(DBRelation::HistoricServerConnection))
+                + R"sql(, old.id, NULL, NULL, NULL, NULL);
+END;
 )sql",
             R"sql(
 CREATE TABLE HistoricServerConnectionTrustList (
@@ -1061,6 +1105,14 @@ CREATE TABLE Layout (
 ) STRICT;
 )sql",
             R"sql(
+CREATE TRIGGER delete_layout DELETE ON Layout
+BEGIN
+    INSERT INTO TupleDeleteMonitor VALUES (NULL, )sql"
+                + QString::number(qToUnderlying(DBRelation::Layout))
+                + R"sql(, old.id, NULL, old.layout_group, NULL, old.domain);
+END;
+)sql",
+            R"sql(
 CREATE TABLE KeyValue (
     key TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -1071,6 +1123,13 @@ CREATE TABLE KeyValue (
 ) STRICT;
 )sql",
             R"sql(
+CREATE TRIGGER delete_kv DELETE ON KeyValue
+BEGIN
+    INSERT INTO TupleDeleteMonitor VALUES (NULL, )sql"
+                + QString::number(qToUnderlying(DBRelation::KeyValue)) + R"sql(, NULL, old.key, NULL, NULL, old.domain);
+END;
+)sql",
+            R"sql(
 -- always needs to be in company of a specific setting type
 CREATE TABLE Setting (
     name TEXT NOT NULL,
@@ -1079,6 +1138,13 @@ CREATE TABLE Setting (
     --
     CONSTRAINT Setting_PK PRIMARY KEY (name, domain)
 ) STRICT;
+)sql",
+            R"sql(
+CREATE TRIGGER delete_setting DELETE ON Setting
+BEGIN
+    INSERT INTO TupleDeleteMonitor VALUES (NULL, )sql"
+                + QString::number(qToUnderlying(DBRelation::Setting)) + R"sql(, NULL, NULL, NULL, old.name, old.domain);
+END;
 )sql",
             R"sql(
 CREATE TABLE BooleanSetting (
@@ -1093,6 +1159,12 @@ CREATE TABLE BooleanSetting (
 ) STRICT;
 )sql",
             R"sql(
+CREATE TRIGGER delete_bool_setting DELETE ON BooleanSetting
+BEGIN
+    DELETE FROM Setting WHERE name = old.name AND domain = old.domain;
+END;
+)sql",
+            R"sql(
 CREATE TABLE StringSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -1103,6 +1175,12 @@ CREATE TABLE StringSetting (
         REFERENCES Setting (name, domain)
         ON DELETE CASCADE
 ) STRICT;
+)sql",
+            R"sql(
+CREATE TRIGGER delete_string_setting DELETE ON StringSetting
+BEGIN
+    DELETE FROM Setting WHERE name = old.name AND domain = old.domain;
+END;
 )sql",
             R"sql(
 CREATE TABLE IntSetting (
@@ -1117,6 +1195,12 @@ CREATE TABLE IntSetting (
 ) STRICT;
 )sql",
             R"sql(
+CREATE TRIGGER delete_int_setting DELETE ON IntSetting
+BEGIN
+    DELETE FROM Setting WHERE name = old.name AND domain = old.domain;
+END;
+)sql",
+            R"sql(
 CREATE TABLE DoubleSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -1129,6 +1213,12 @@ CREATE TABLE DoubleSetting (
 ) STRICT;
 )sql",
             R"sql(
+CREATE TRIGGER delete_double_setting DELETE ON DoubleSetting
+BEGIN
+    DELETE FROM Setting WHERE name = old.name AND domain = old.domain;
+END;
+)sql",
+            R"sql(
 CREATE TABLE EnumSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -1139,6 +1229,12 @@ CREATE TABLE EnumSetting (
         REFERENCES Setting (name, domain)
         ON DELETE CASCADE
 ) STRICT;
+)sql",
+            R"sql(
+CREATE TRIGGER delete_enum_setting DELETE ON EnumSetting
+BEGIN
+    DELETE FROM Setting WHERE name = old.name AND domain = old.domain;
+END;
 )sql",
             R"sql(
 CREATE TABLE CertificateSetting (
@@ -1156,6 +1252,12 @@ CREATE TABLE CertificateSetting (
 ) STRICT;
 )sql",
             R"sql(
+CREATE TRIGGER delete_certificate_setting DELETE ON CertificateSetting
+BEGIN
+    DELETE FROM Setting WHERE name = old.name AND domain = old.domain;
+END;
+)sql",
+            R"sql(
 CREATE TABLE KeySetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -1169,6 +1271,12 @@ CREATE TABLE KeySetting (
         REFERENCES Key (id)
         ON DELETE CASCADE
 ) STRICT;
+)sql",
+            R"sql(
+CREATE TRIGGER delete_key_setting DELETE ON KeySetting
+BEGIN
+    DELETE FROM Setting WHERE name = old.name AND domain = old.domain;
+END;
 )sql",
             R"sql(
 CREATE TABLE HistoricServerConnectionSetting (
@@ -1186,6 +1294,12 @@ CREATE TABLE HistoricServerConnectionSetting (
 ) STRICT;
 )sql",
             R"sql(
+CREATE TRIGGER delete_historic_server_connection_setting DELETE ON HistoricServerConnectionSetting
+BEGIN
+    DELETE FROM Setting WHERE name = old.name AND domain = old.domain;
+END;
+)sql",
+            R"sql(
 CREATE TABLE LayoutSetting (
     name TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -1200,6 +1314,12 @@ CREATE TABLE LayoutSetting (
         REFERENCES Layout (id, layout_group, domain)
         ON DELETE CASCADE
 ) STRICT;
+)sql",
+            R"sql(
+CREATE TRIGGER delete_layout_setting DELETE ON LayoutSetting
+BEGIN
+    DELETE FROM Setting WHERE name = old.name AND domain = old.domain;
+END;
 )sql",
         };
 
@@ -1254,6 +1374,76 @@ CREATE TABLE LayoutSetting (
             terminate();
         }
         return query.value(0).toULongLong();
+    }
+
+    void SQLStorageManager::handleDeleteMonitor() {
+        QSqlQuery query{R"sql(
+SELECT relation, id, key, layout_group, name, domain
+FROM TupleDeleteMonitor;
+)sql",
+                        m_database};
+        if (query.lastError().isValid()) {
+            warnQuery("retrieving TupleDeleteMonitor from database failed.", query);
+            terminate();
+        }
+        // Moving this below the switch might clear unhandled tuples if one of the slots connected to the signals
+        // emitted in the switch (directly or indirectly) causes the deletion of another tuple.
+        clearDeleteMonitor();
+        while (query.next()) {
+            switch (static_cast<DBRelation>(query.value("relation").toUInt())) {
+                case DBRelation::Certificate:
+                    qCDebug(lcSqlStorage) << "Certificate deleted";
+                    Q_EMIT certificateChanged(query.value("id").toULongLong());
+                    continue;
+                case DBRelation::Key:
+                    qCDebug(lcSqlStorage) << "Key deleted";
+                    Q_EMIT keyChanged(query.value("id").toULongLong());
+                    continue;
+                case DBRelation::HistoricServerConnection:
+                    qCDebug(lcSqlStorage) << "HistoricServerConnection deleted";
+                    Q_EMIT historicServerConnectionChanged(query.value("id").toULongLong());
+                    continue;
+                case DBRelation::Layout:
+                    qCDebug(lcSqlStorage) << "Layout deleted";
+                    Q_EMIT layoutChanged(query.value("id").toULongLong(), query.value("layout_group").toString(),
+                                         query.value("domain").toString());
+                    continue;
+                case DBRelation::KeyValue:
+                    qCDebug(lcSqlStorage) << "KeyValue deleted";
+                    Q_EMIT kvChanged(query.value("key").toString(), query.value("domain").toString());
+                    continue;
+                case DBRelation::Setting:
+                    qCDebug(lcSqlStorage) << "Setting deleted";
+                    Q_EMIT settingDeleted({query.value("name").toString(), query.value("domain").toString()});
+                    continue;
+                case DBRelation::HistoricServerConnectionTrustList:
+                case DBRelation::HistoricServerConnectionRevokedList:
+                case DBRelation::BooleanSetting:
+                case DBRelation::StringSetting:
+                case DBRelation::IntSetting:
+                case DBRelation::DoubleSetting:
+                case DBRelation::EnumSetting:
+                case DBRelation::CertificateSetting:
+                case DBRelation::KeySetting:
+                case DBRelation::HistoricServerConnectionSetting:
+                case DBRelation::LayoutSetting:
+                    // these should never appear
+                    break;
+            };
+            qCCritical(lcSqlStorage) << "Invalid deletion type";
+            terminate();
+        }
+    }
+
+    void SQLStorageManager::clearDeleteMonitor() {
+        const QSqlQuery query{R"sql(
+DELETE FROM TupleDeleteMonitor;
+)sql",
+                              m_database};
+        if (query.lastError().isValid()) {
+            warnQuery("clearing TupleDeleteMonitor from database failed.", query);
+            terminate();
+        }
     }
 
     void SQLStorageManager::warnQuery(const QString& message, const QSqlQuery& query) {

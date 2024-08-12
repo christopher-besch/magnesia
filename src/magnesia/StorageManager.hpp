@@ -286,7 +286,7 @@ namespace magnesia {
          *
          * @param historic_server_connection_id The id the HistoricServerConnection is stored under.
          */
-        void historicConnectionChanged(StorageId historic_server_connection_id);
+        void historicServerConnectionChanged(StorageId historic_server_connection_id);
         /**
          * Emitted when a key-value pair was set or removed.
          *
@@ -336,5 +336,13 @@ namespace magnesia {
         getHistoricServerConnectionSettingId(const SettingKey& key) const                              = 0;
         [[nodiscard]] virtual std::optional<Layout>    getLayoutSetting(const SettingKey& key) const   = 0;
         [[nodiscard]] virtual std::optional<StorageId> getLayoutSettingId(const SettingKey& key) const = 0;
+
+      signals:
+        /**
+         * Emitted when a setting was set or deleted (i.e., reset).
+         *
+         * @param key the key of the setting that was deleted.
+         */
+        void settingDeleted(SettingKey key);
     };
 } // namespace magnesia
