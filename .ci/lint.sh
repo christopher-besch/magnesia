@@ -38,7 +38,12 @@ run_clang_tidy() {
 
     # TODO: use run-clang-tidy -source-filter
     find src -name '*.[ch]pp' -print0 \
-        | xargs -0 run-clang-tidy -warnings-as-errors='*' -use-color -p "$BUILD_DIR" || fail clang-tidy $?
+        | xargs -0 run-clang-tidy \
+            -warnings-as-errors='*' \
+            -use-color \
+            -header-filter='.*' \
+            -p "$BUILD_DIR" \
+        || fail clang-tidy $?
 }
 
 run_codespell() {

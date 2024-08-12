@@ -12,7 +12,7 @@ namespace magnesia::opcua_qt::abstraction {
      * See https://reference.opcfoundation.org/Core/Part3/v104/docs/8.57
      */
     enum class AccessLevel : uint8_t {
-        NONE,
+        NONE            = 0,
         CURRENT_READ    = 1,
         CURRENT_WRITE   = 2,
         HISTORY_READ    = 4,

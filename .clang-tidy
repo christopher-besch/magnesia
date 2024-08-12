@@ -12,7 +12,9 @@ Checks:
   - -bugprone-easily-swappable-parameters
   # This is not a useful warning with qt
   - -cppcoreguidelines-owning-memory
+  - -llvm-header-guard
   - -modernize-use-trailing-return-type
+  - -performance-enum-size
   - -readability-math-missing-parentheses
   - -readability-redundant-access-specifiers
 

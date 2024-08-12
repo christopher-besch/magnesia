@@ -36,6 +36,6 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         [[nodiscard]] static opcua_qt::abstraction::Node* getNode(const QModelIndex& index);
 
       private:
-        opcua_qt::abstraction::Node* m_root_node;
+        opcua_qt::abstraction::Node* m_root_node{nullptr};
     };
 } // namespace magnesia::activities::dataviewer::panels::treeview_panel

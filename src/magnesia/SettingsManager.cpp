@@ -228,7 +228,7 @@ namespace magnesia {
     }
 
     template<typename SettingsType, typename ValueType>
-    SettingsType* SettingsManager::validate(const SettingKey& key, ValueType value) const {
+    SettingsType* SettingsManager::validate(const SettingKey& key, const ValueType& value) const {
         auto setting = findSettingDefinition(key);
         if (setting == std::nullopt) {
             return nullptr;

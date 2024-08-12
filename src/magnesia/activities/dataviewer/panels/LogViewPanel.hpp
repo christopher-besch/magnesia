@@ -32,7 +32,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         void filterLogs();
 
       private:
-        opcua_qt::LogLevel m_current_log_level;
+        opcua_qt::LogLevel m_current_log_level{magnesia::opcua_qt::LogLevel::DEBUG};
         LogViewModel*      m_log_view_model;
         QTableView*        m_table_view;
         QPushButton*       m_clear_log_button;
