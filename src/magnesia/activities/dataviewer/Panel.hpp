@@ -29,6 +29,8 @@ namespace magnesia::activities::dataviewer {
          */
         explicit Panel(DataViewer* dataviewer, panels::Panels panel, QWidget* parent = nullptr);
 
+        [[nodiscard]] DataViewer* getDataViewer() const noexcept;
+
       protected slots:
         /**
          * Called when any Panel signals that a node was selected. The default implementation filters calls to the ones
@@ -49,5 +51,6 @@ namespace magnesia::activities::dataviewer {
 
       private:
         panels::Panels m_panel_type;
+        DataViewer*    m_dataviewer;
     };
 } // namespace magnesia::activities::dataviewer

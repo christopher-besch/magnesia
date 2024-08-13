@@ -22,6 +22,7 @@
 #include <QObject>
 #include <QSplitter>
 #include <QString>
+#include <QStringView>
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QVariant>
@@ -42,6 +43,8 @@ namespace magnesia::activities::dataviewer::layout {
         : QFrame(parent), m_layout(new QVBoxLayout), m_widget(panel), m_dataviewer(dataviewer) {
         Q_ASSERT(dataviewer != nullptr);
 
+        m_layout->setContentsMargins(0, 0, 0, 0);
+
         buildToolbar();
 
         if (m_widget == nullptr) {
@@ -49,7 +52,7 @@ namespace magnesia::activities::dataviewer::layout {
             label->setAlignment(Qt::AlignCenter);
             m_widget = label;
         }
-        m_layout->addWidget(m_widget, 0, Qt::AlignCenter);
+        m_layout->addWidget(m_widget);
 
         setLayout(m_layout);
         setFrameShape(QFrame::Shape::Box);
@@ -68,11 +71,21 @@ namespace magnesia::activities::dataviewer::layout {
 
     QComboBox* PanelWrapper::buildPanelSelector() {
         auto* panel_selector = new QComboBox;
-        for (const auto& panel : panels::all) {
-            panel_selector->addItem(panel.name.toString(), QVariant::fromValue(panel));
-        }
         panel_selector->setPlaceholderText("<Select Panel>");
         panel_selector->setCurrentIndex(-1);
+
+        QStringView target_id;
+        if (auto* panel = get(); panel != nullptr) {
+            const auto& metadata = panel->metadata();
+            target_id            = metadata.id;
+        }
+
+        for (const auto& panel : panels::all) {
+            panel_selector->addItem(panel.name.toString(), QVariant::fromValue(panel));
+            if (panel.id == target_id) {
+                panel_selector->setCurrentIndex(panel_selector->count() - 1);
+            }
+        }
 
         // TODO: move this to member function?
         connect(panel_selector, &QComboBox::currentIndexChanged, this, [this, panel_selector](int index) {
@@ -106,11 +119,7 @@ namespace magnesia::activities::dataviewer::layout {
             Q_EMIT requestedSplit(this, Qt::Vertical);
         });
 
-        auto* separator = new QFrame;
-        separator->setFrameShape(QFrame::HLine);
-
-        m_layout->addWidget(toolbar);
-        m_layout->addWidget(separator);
+        m_layout->setMenuBar(toolbar);
     }
 
     PanelLayout::PanelLayout(DataViewer* dataviewer, Qt::Orientation orientation, PanelLayout* parent_layout,

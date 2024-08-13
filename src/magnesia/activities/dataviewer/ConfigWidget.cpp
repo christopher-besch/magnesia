@@ -12,7 +12,6 @@
 
 #include <utility>
 
-#include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QComboBox>
 #include <QFormLayout>
@@ -21,13 +20,14 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QLabel>
+#include <QLayout>
 #include <QLineEdit>
 #include <QList>
 #include <QLoggingCategory>
 #include <QMetaType>
+#include <QModelIndex>
 #include <QPushButton>
 #include <QSharedPointer>
-#include <QSizePolicy>
 #include <QString>
 #include <QTableView>
 #include <QVBoxLayout>
@@ -38,7 +38,6 @@
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
 #include <QtPreprocessorSupport>
-#include <QtTypeTraits>
 #else
 #include <QtGlobal>
 #endif
@@ -82,18 +81,15 @@ namespace magnesia::activities::dataviewer {
 
     ConfigWidget::ConfigWidget(QWidget* parent) : magnesia::ConfigWidget(parent) {
         auto* layout = new QHBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
 
-        auto* v_layout = new QVBoxLayout;
-
-        v_layout->addWidget(buildQuickConnect());
-
-        layout->addWidget(wrap_in_frame(v_layout), Qt::AlignCenter);
+        layout->addWidget(wrap_in_frame(buildQuickConnect()), Qt::AlignCenter);
         layout->addWidget(wrap_in_frame(buildRecentConnections()), Qt::AlignCenter);
 
         setLayout(layout);
     }
 
-    QWidget* ConfigWidget::buildQuickConnect() {
+    QLayout* ConfigWidget::buildQuickConnect() {
         auto* layout = new QFormLayout;
         {
             auto* label = new QLabel("<h2>Quick Connect</h2>");
@@ -126,7 +122,7 @@ namespace magnesia::activities::dataviewer {
             m_endpoint_selector->setSelectionBehavior(QAbstractItemView::SelectRows);
             m_endpoint_selector->setSelectionMode(QAbstractItemView::SingleSelection);
             m_endpoint_selector->verticalHeader()->setHidden(true);
-            m_endpoint_selector_model = new detail::EndpointTableModel;
+            m_endpoint_selector_model = new detail::EndpointTableModel(this);
             m_endpoint_selector->setModel(m_endpoint_selector_model);
             m_endpoint_selector->horizontalHeader()->setStretchLastSection(true);
             m_endpoint_selector->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -143,9 +139,7 @@ namespace magnesia::activities::dataviewer {
             layout->addRow(m_connect_button);
         }
 
-        auto* widget = new QWidget;
-        widget->setLayout(layout);
-        return widget;
+        return layout;
     }
 
     QWidget* ConfigWidget::buildRecentConnections() {
@@ -242,19 +236,18 @@ namespace magnesia::activities::dataviewer {
             const auto  column   = index.column();
 
             if (role == Qt::DisplayRole) {
-                if (column == 0) {
-                    return endpoint.getEndpointUrl();
+                switch (index.column()) {
+                    case 0:
+                        return endpoint.getEndpointUrl();
+                    case 1:
+                        return endpoint.getSecurityPolicyUri().remove("http://opcfoundation.org/UA/SecurityPolicy#");
+                    case 2:
+                        return to_qstring(endpoint.getSecurityMode());
+                    default:
+                        Q_ASSERT(false);
                 }
-                if (column == 1) {
-                    return endpoint.getSecurityPolicyUri().remove("http://opcfoundation.org/UA/SecurityPolicy#");
-                }
-                if (column == 2) {
-                    return to_qstring(endpoint.getSecurityMode());
-                }
-            } else if (role == Qt::ToolTipRole) {
-                if (column == 1) {
-                    return endpoint.getSecurityPolicyUri();
-                }
+            } else if (role == Qt::ToolTipRole && column == 1) {
+                return endpoint.getSecurityPolicyUri();
             } else if (role == Qt::UserRole) {
                 return QVariant::fromValue(endpoint);
             }
@@ -263,14 +256,15 @@ namespace magnesia::activities::dataviewer {
 
         QVariant EndpointTableModel::headerData(int section, Qt::Orientation orientation, int role) const {
             if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-                if (section == 0) {
-                    return "Endpoint URL";
-                }
-                if (section == 1) {
-                    return "Security Policy URI";
-                }
-                if (section == 2) {
-                    return "Security Mode";
+                switch (section) {
+                    case 0:
+                        return "Endpoint URL";
+                    case 1:
+                        return "Security Policy URI";
+                    case 2:
+                        return "Security Mode";
+                    default:
+                        Q_ASSERT(false);
                 }
             }
             return {};

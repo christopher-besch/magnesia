@@ -1,6 +1,5 @@
 #include "AttributeViewPanel.hpp"
 
-#include "../../../Application.hpp"
 #include "../../../opcua_qt/abstraction/NodeId.hpp"
 #include "../DataViewer.hpp"
 #include "../Panel.hpp"
@@ -33,9 +32,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
     }
 
     void AttributeViewPanel::selectNode(const NodeId& node_id) {
-        // TODO: Get real id
-        const int connection_id = 1;
-        auto*     connection    = Application::instance().getConnectionManager().getConnection(connection_id);
+        auto* connection = getDataViewer()->getConnection();
         m_model->setNode(connection->getNode(node_id), connection);
     }
 

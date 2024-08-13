@@ -8,8 +8,9 @@
 #include <QWidget>
 
 namespace magnesia::activities::dataviewer {
-    Panel::Panel(DataViewer* dataviewer, panels::Panels panel, QWidget* parent) : QWidget(parent), m_panel_type(panel) {
-        connect(dataviewer, &DataViewer::nodeSelected, this, &Panel::selectNodeAll);
+    Panel::Panel(DataViewer* dataviewer, panels::Panels panel, QWidget* parent)
+        : QWidget(parent), m_panel_type(panel), m_dataviewer(dataviewer) {
+        connect(m_dataviewer, &DataViewer::nodeSelected, this, &Panel::selectNodeAll);
     }
 
     void Panel::selectNodeAll(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients) {
@@ -30,5 +31,9 @@ namespace magnesia::activities::dataviewer {
     bool Panel::restoreState(const QJsonObject& /*data*/) {
         // don't do anything in the default implementation
         return true;
+    }
+
+    DataViewer* Panel::getDataViewer() const noexcept {
+        return m_dataviewer;
     }
 } // namespace magnesia::activities::dataviewer

@@ -1,19 +1,19 @@
 #include "ReferenceViewModel.hpp"
 
+#include "../../../opcua_qt/Connection.hpp"
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
-#include "../DataViewer.hpp"
 
 #include <utility>
 
 #include <QAbstractTableModel>
+#include <QModelIndex>
 #include <QObject>
 #include <QVariant>
 #include <Qt>
 
 namespace magnesia::activities::dataviewer::panels::reference_view_panel {
-
-    ReferenceViewModel::ReferenceViewModel(DataViewer* data_viewer, QObject* parent)
-        : QAbstractTableModel(parent), m_data_viewer(data_viewer) {}
+    ReferenceViewModel::ReferenceViewModel(opcua_qt::Connection* connection, QObject* parent)
+        : QAbstractTableModel(parent), m_connection(connection) {}
 
     int ReferenceViewModel::rowCount(const QModelIndex& /*parent*/) const {
         return static_cast<int>(m_references.size());
@@ -24,25 +24,22 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
     }
 
     QVariant ReferenceViewModel::headerData(int section, Qt::Orientation orientation, int role) const {
-        if (role != Qt::DisplayRole) {
+        if (role != Qt::DisplayRole || orientation != Qt::Horizontal) {
             return {};
         }
 
-        if (orientation == Qt::Horizontal) {
-            switch (section) {
-                case 0:
-                    return QString("Reference");
-                case 1:
-                    return QString("Target Displayname");
-                default:
-                    return {};
-            }
+        switch (section) {
+            case 0:
+                return "Reference";
+            case 1:
+                return "Target Displayname";
+            default:
+                return {};
         }
-        return {};
     }
 
     QVariant ReferenceViewModel::data(const QModelIndex& index, int role) const {
-        if (!index.isValid() || role != Qt::DisplayRole) {
+        if (!checkIndex(index) || role != Qt::DisplayRole) {
             return {};
         }
 
@@ -59,13 +56,14 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
 
     void ReferenceViewModel::nodeSelected(opcua_qt::abstraction::Node* node) {
         beginResetModel();
+        m_references.clear();
         auto references = node->getReferences();
         m_references.clear();
 
         for (const auto& reference : references) {
             auto  node_id        = reference.getReferenceType();
             auto  is_forward     = reference.isForward();
-            auto* reference_type = m_data_viewer->getConnection()->getNode(node_id);
+            auto* reference_type = m_connection->getNode(node_id);
 
             QString reference_name;
 
@@ -80,9 +78,8 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
                 reference_name = reference_type->getDisplayName().getText();
             }
 
-            m_references.append(std::pair<QString, QString>(reference_name, reference.getDisplayName().getText()));
+            m_references.emplaceBack(reference_name, reference.getDisplayName().getText());
         }
         endResetModel();
     }
-
 } // namespace magnesia::activities::dataviewer::panels::reference_view_panel

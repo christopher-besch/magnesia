@@ -32,7 +32,7 @@ namespace magnesia::activities::dataviewer {
         explicit ConfigWidget(QWidget* parent = nullptr);
 
       private:
-        QWidget* buildQuickConnect();
+        QLayout* buildQuickConnect();
         QWidget* buildRecentConnections();
         void     reset();
 
