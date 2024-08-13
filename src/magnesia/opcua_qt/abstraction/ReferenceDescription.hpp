@@ -36,6 +36,11 @@ namespace magnesia::opcua_qt::abstraction {
         [[nodiscard]] LocalizedText getDisplayName() const noexcept;
 
         /**
+         * Get if the reference is forward, which means from the current node to the target node.
+         */
+        [[nodiscard]] bool isForward() const noexcept;
+
+        /**
          * Get the underlying reference description
          */
         [[nodiscard]] const opcua::ReferenceDescription& handle() const noexcept;

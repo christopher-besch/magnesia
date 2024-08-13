@@ -24,6 +24,10 @@ namespace magnesia::opcua_qt::abstraction {
         return LocalizedText(m_description.getDisplayName());
     }
 
+    bool ReferenceDescription::isForward() const noexcept {
+        return m_description.getIsForward();
+    }
+
     const opcua::ReferenceDescription& ReferenceDescription::handle() const noexcept {
         return m_description;
     }
