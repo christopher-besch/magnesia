@@ -156,6 +156,8 @@ namespace magnesia::activities::settings {
         auto* storage_manager = &Application::instance().getStorageManager();
         connect(storage_manager, &StorageManager::certificateChanged, this, &Settings::onCertificateChange);
         connect(storage_manager, &StorageManager::keyChanged, this, &Settings::onKeyChange);
+        connect(storage_manager, &StorageManager::applicationCertificateChanged, this,
+                &Settings::onApplicationCertificateChange);
         connect(storage_manager, &StorageManager::layoutChanged, this, &Settings::onLayoutChange);
         connect(storage_manager, &StorageManager::historicServerConnectionChanged, this,
                 &Settings::onHistoricServerConnectionChange);
@@ -175,6 +177,12 @@ namespace magnesia::activities::settings {
     void Settings::onKeyChange(StorageId /*key_id*/) {
         setUpdatesEnabled(false);
         reCreateKeys();
+        reCreateSettings();
+        setUpdatesEnabled(true);
+    }
+
+    void Settings::onApplicationCertificateChange(StorageId /*cert_id*/) {
+        setUpdatesEnabled(false);
         reCreateSettings();
         setUpdatesEnabled(true);
     }
@@ -357,6 +365,10 @@ namespace magnesia::activities::settings {
             return createSettingWidget(specific_setting, domain);
         }
         if (const auto* specific_setting = dynamic_cast<const KeySetting*>(setting); specific_setting != nullptr) {
+            return createSettingWidget(specific_setting, domain);
+        }
+        if (const auto* specific_setting = dynamic_cast<const ApplicationCertificateSetting*>(setting);
+            specific_setting != nullptr) {
             return createSettingWidget(specific_setting, domain);
         }
         if (const auto* specific_setting = dynamic_cast<const LayoutSetting*>(setting); specific_setting != nullptr) {
@@ -566,6 +578,38 @@ namespace magnesia::activities::settings {
             }
             Application::instance().getSettingsManager().setKeySetting(key,
                                                                        combo_box->itemData(index).value<StorageId>());
+        });
+        return wrap_in_setting_widget(right_layout, setting);
+    }
+
+    QWidget* Settings::createSettingWidget(const ApplicationCertificateSetting* setting, const Domain& domain) {
+        auto* right_layout = new QVBoxLayout;
+
+        const SettingKey key{setting->getName(), domain};
+        const auto       cur_setting_value =
+            Application::instance().getSettingsManager().getApplicationCertificateSettingId(key);
+        const auto cert_ids = Application::instance().getStorageManager().getAllApplicationCertificateIds();
+
+        auto* combo_box = new QComboBox;
+        // used when nullopt
+        combo_box->addItem("None");
+        combo_box->setCurrentIndex(0);
+        for (const auto& cert_id : cert_ids) {
+            const auto& cert = Application::instance().getStorageManager().getApplicationCertificate(cert_id);
+            Q_ASSERT(cert.has_value());
+            combo_box->addItem(cert.value().getCertificate().subjectDisplayName(), cert_id);
+            if (cur_setting_value.has_value() && cur_setting_value.value() == cert_id) {
+                combo_box->setCurrentIndex(combo_box->count() - 1);
+            }
+        }
+        right_layout->addWidget(combo_box);
+        QObject::connect(combo_box, &QComboBox::currentIndexChanged, combo_box, [combo_box, key](int index) {
+            if (index == 0) {
+                Application::instance().getSettingsManager().resetSetting(key);
+                return;
+            }
+            Application::instance().getSettingsManager().setApplicationCertificateSetting(
+                key, combo_box->itemData(index).value<StorageId>());
         });
         return wrap_in_setting_widget(right_layout, setting);
     }

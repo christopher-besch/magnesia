@@ -69,6 +69,14 @@ namespace magnesia::activities::settings {
          */
         void onKeyChange(StorageId key_id);
         /**
+         * To be called when an ApplicationCertificate was changed
+         *
+         * @param cert_id the changed ApplicationCertificate's Id
+         *
+         * @see StorageManager::applicationCertificateChanged
+         */
+        void onApplicationCertificateChange(StorageId cert_id);
+        /**
          * To be called when a Layout was changed
          *
          * @param layout_id the changed Layout's Id
@@ -119,6 +127,7 @@ namespace magnesia::activities::settings {
         static QWidget* createSettingWidget(const HistoricServerConnectionSetting* setting, const Domain& domain);
         static QWidget* createSettingWidget(const CertificateSetting* setting, const Domain& domain);
         static QWidget* createSettingWidget(const KeySetting* setting, const Domain& domain);
+        static QWidget* createSettingWidget(const ApplicationCertificateSetting* setting, const Domain& domain);
         static QWidget* createSettingWidget(const LayoutSetting* setting, const Domain& domain);
 
       private:

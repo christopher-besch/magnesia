@@ -4,6 +4,7 @@
 #include "Layout.hpp"
 #include "StorageManager.hpp"
 #include "database_types.hpp"
+#include "opcua_qt/ApplicationCertificate.hpp"
 #include "settings.hpp"
 #include "terminate.hpp"
 
@@ -95,6 +96,11 @@ namespace magnesia {
         return setSetting<KeySetting>(key, key_id, &StorageManager::setKeySetting);
     }
 
+    bool SettingsManager::setApplicationCertificateSetting(const SettingKey& key, StorageId cert_id) {
+        return setSetting<ApplicationCertificateSetting>(key, cert_id,
+                                                         &StorageManager::setApplicationCertificateSetting);
+    }
+
     bool SettingsManager::setHistoricServerConnectionSetting(const SettingKey& key,
                                                              StorageId         historic_server_connection_id) {
         return setSetting<HistoricServerConnectionSetting>(key, historic_server_connection_id,
@@ -170,6 +176,17 @@ namespace magnesia {
 
     std::optional<StorageId> SettingsManager::getKeySettingId(const SettingKey& key) const {
         return getSetting<KeySetting, StorageId>(key, &StorageManager::getKeySettingId);
+    }
+
+    std::optional<opcua_qt::ApplicationCertificate>
+    SettingsManager::getApplicationCertificateSetting(const SettingKey& key) const {
+        return getSetting<ApplicationCertificateSetting, opcua_qt::ApplicationCertificate>(
+            key, &StorageManager::getApplicationCertificateSetting);
+    }
+
+    std::optional<StorageId> SettingsManager::getApplicationCertificateSettingId(const SettingKey& key) const {
+        return getSetting<ApplicationCertificateSetting, StorageId>(
+            key, &StorageManager::getApplicationCertificateSettingId);
     }
 
     std::optional<HistoricServerConnection>

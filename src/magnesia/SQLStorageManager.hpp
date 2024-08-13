@@ -4,6 +4,7 @@
 #include "Layout.hpp"
 #include "StorageManager.hpp"
 #include "database_types.hpp"
+#include "opcua_qt/ApplicationCertificate.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -35,6 +36,7 @@ namespace magnesia {
         enum class DBRelation : uint8_t {
             Certificate                         = 0,
             Key                                 = 1,
+            ApplicationCertificate              = 2,
             HistoricServerConnection            = 3,
             HistoricServerConnectionTrustList   = 4,
             HistoricServerConnectionRevokedList = 5,
@@ -57,27 +59,33 @@ namespace magnesia {
 
         StorageId storeCertificate(const QSslCertificate& cert) override;
         StorageId storeKey(const QSslKey& key) override;
+        StorageId storeApplicationCertificate(const opcua_qt::ApplicationCertificate& cert) override;
         StorageId storeHistoricServerConnection(const HistoricServerConnection& historic_server_connection) override;
         StorageId storeLayout(const Layout& layout, const LayoutGroup& group, const Domain& domain) override;
 
         [[nodiscard]] std::optional<QSslCertificate> getCertificate(StorageId cert_id) const override;
         [[nodiscard]] std::optional<QSslKey>         getKey(StorageId key_id) const override;
+        [[nodiscard]] std::optional<opcua_qt::ApplicationCertificate>
+        getApplicationCertificate(StorageId cert_id) const override;
         [[nodiscard]] std::optional<HistoricServerConnection>
         getHistoricServerConnection(StorageId historic_server_connection_id) const override;
         [[nodiscard]] std::optional<Layout> getLayout(StorageId layout_id, const LayoutGroup& group,
                                                       const Domain& domain) const override;
 
-        [[nodiscard]] QList<QSslCertificate>          getAllCertificates() const override;
-        [[nodiscard]] QList<QSslKey>                  getAllKeys() const override;
-        [[nodiscard]] QList<HistoricServerConnection> getAllHistoricServerConnections() const override;
+        [[nodiscard]] QList<QSslCertificate>                  getAllCertificates() const override;
+        [[nodiscard]] QList<QSslKey>                          getAllKeys() const override;
+        [[nodiscard]] QList<opcua_qt::ApplicationCertificate> getAllApplicationCertificates() const override;
+        [[nodiscard]] QList<HistoricServerConnection>         getAllHistoricServerConnections() const override;
         [[nodiscard]] QList<Layout>    getAllLayouts(const LayoutGroup& group, const Domain& domain) const override;
         [[nodiscard]] QList<StorageId> getAllCertificateIds() const override;
         [[nodiscard]] QList<StorageId> getAllKeyIds() const override;
+        [[nodiscard]] QList<StorageId> getAllApplicationCertificateIds() const override;
         [[nodiscard]] QList<StorageId> getAllHistoricServerConnectionIds() const override;
         [[nodiscard]] QList<StorageId> getAllLayoutIds(const LayoutGroup& group, const Domain& domain) const override;
 
         void deleteCertificate(StorageId cert_id) override;
         void deleteKey(StorageId key_id) override;
+        void deleteApplicationCertificate(StorageId cert_id) override;
         void deleteHistoricServerConnection(StorageId historic_server_connection_id) override;
         void deleteLayout(StorageId layout_id, const LayoutGroup& group, const Domain& domain) override;
 
@@ -94,6 +102,7 @@ namespace magnesia {
         void setEnumSetting(const SettingKey& key, const EnumSettingValue& value) override;
         void setCertificateSetting(const SettingKey& key, StorageId cert_id) override;
         void setKeySetting(const SettingKey& key, StorageId key_id) override;
+        void setApplicationCertificateSetting(const SettingKey& key, StorageId cert_id) override;
         void setHistoricServerConnectionSetting(const SettingKey& key,
                                                 StorageId         historic_server_connection_id) override;
         void setLayoutSetting(const SettingKey& key, StorageId layout_id, const LayoutGroup& group) override;
@@ -106,6 +115,9 @@ namespace magnesia {
         [[nodiscard]] std::optional<StorageId>        getCertificateSettingId(const SettingKey& key) const override;
         [[nodiscard]] std::optional<QSslKey>          getKeySetting(const SettingKey& key) const override;
         [[nodiscard]] std::optional<StorageId>        getKeySettingId(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<opcua_qt::ApplicationCertificate>
+                                               getApplicationCertificateSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<StorageId> getApplicationCertificateSettingId(const SettingKey& key) const override;
         [[nodiscard]] std::optional<HistoricServerConnection>
         getHistoricServerConnectionSetting(const SettingKey& key) const override;
         [[nodiscard]] std::optional<StorageId>
