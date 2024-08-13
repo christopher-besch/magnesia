@@ -73,6 +73,21 @@ namespace magnesia {
         return cert_id;
     }
 
+    StorageId SQLStorageManager::storeKey(const QSslKey& key) {
+        Q_ASSERT(!key.isNull());
+        QSqlQuery query{m_database};
+        query.prepare(R"sql(INSERT INTO Key VALUES (NULL, :pem, CURRENT_TIMESTAMP);)sql");
+        query.bindValue(":pem", key.toPem());
+        query.exec();
+        if (query.lastError().isValid()) {
+            warnQuery("database Key storing failed.", query);
+            terminate();
+        }
+        auto key_id = getLastRowId();
+        Q_EMIT keyChanged(key_id);
+        return key_id;
+    }
+
     StorageId SQLStorageManager::storeApplicationCertificate(const opcua_qt::ApplicationCertificate& cert) {
         const auto cert_id = storeCertificate(cert.getCertificate());
         const auto key_id  = storeKey(cert.getPrivateKey());
@@ -91,22 +106,6 @@ namespace magnesia {
         return app_cert_id;
     }
 
-    StorageId SQLStorageManager::storeKey(const QSslKey& key) {
-        Q_ASSERT(!key.isNull());
-        QSqlQuery query{m_database};
-        query.prepare(R"sql(INSERT INTO Key VALUES (NULL, :pem, CURRENT_TIMESTAMP);)sql");
-        query.bindValue(":pem", key.toPem());
-        query.exec();
-        if (query.lastError().isValid()) {
-            warnQuery("database Key storing failed.", query);
-            terminate();
-        }
-        auto key_id = getLastRowId();
-        Q_EMIT keyChanged(key_id);
-        return key_id;
-    }
-
-    // TODO: use applicationcertificate
     StorageId
     SQLStorageManager::storeHistoricServerConnection(const HistoricServerConnection& historic_server_connection) {
         QSqlQuery query{m_database};
@@ -125,8 +124,8 @@ VALUES (NULL, :server_url, :endpoint_url, :endpoint_security_policy_uri, :endpoi
         if (historic_server_connection.password.has_value()) {
             query.bindValue(":password", historic_server_connection.password.value());
         }
-        if (historic_server_connection.certificate_id.has_value()) {
-            query.bindValue(":certificate_id", historic_server_connection.certificate_id.value());
+        if (historic_server_connection.application_certificate_id.has_value()) {
+            query.bindValue(":certificate_id", historic_server_connection.application_certificate_id.value());
         }
         query.bindValue(":layout_id", historic_server_connection.last_layout_id);
         query.bindValue(":layout_group", historic_server_connection.last_layout_group);
@@ -340,8 +339,9 @@ WHERE ApplicationCertificate.certificate_id = Certificate.id
         while (query.next()) {
             auto certs =
                 QSslCertificate::fromData(query.value("Certificate.pem").toByteArray(), QSsl::EncodingFormat::Pem);
-            // you may not store more than one certificate
             if (certs.size() != 1) {
+                qCCritical(lcSqlStorage)
+                    << "application certificate's certificate pem data contains more than one certificate";
                 terminate();
             }
             // TODO: use actual key type
@@ -1196,7 +1196,6 @@ CREATE TABLE ApplicationCertificate (
     key_id INTEGER NOT NULL,
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     --
-    UNIQUE(certificate_id, key_id),
     CONSTRAINT ApplicationCertificate_TO_Certificate FOREIGN KEY (certificate_id)
         REFERENCES Certificate (id)
         ON DELETE CASCADE,
@@ -1208,7 +1207,9 @@ CREATE TABLE ApplicationCertificate (
             R"sql(
 CREATE TRIGGER delete_application_certificate DELETE ON ApplicationCertificate
 BEGIN
-    INSERT INTO TupleDeleteMonitor VALUES (NULL, 2, old.id, NULL, NULL, NULL, NULL);
+    INSERT INTO TupleDeleteMonitor VALUES (NULL, )sql"
+                + QString::number(qToUnderlying(DBRelation::ApplicationCertificate))
+                + R"sql(, old.id, NULL, NULL, NULL, NULL);
 END;
 )sql",
             R"sql(
@@ -1585,7 +1586,7 @@ END;
         return query.value(0).toULongLong();
     }
 
-    // NOLINTNEXTLINE readability-function-cognitive-complexity
+    // NOLINTNEXTLINE(readability-function-cognitive-complexity)
     void SQLStorageManager::handleDeleteMonitor() {
         QSqlQuery query{R"sql(
 SELECT relation, id, key, layout_group, name, domain
@@ -1610,8 +1611,8 @@ FROM TupleDeleteMonitor;
                     Q_EMIT keyChanged(query.value("id").toULongLong());
                     continue;
                 case DBRelation::ApplicationCertificate:
-                    qCInfo(lcSqlStorage) << "ApplicationCertificate deleted";
-                    Q_EMIT certificateChanged(query.value("id").toULongLong());
+                    qCDebug(lcSqlStorage) << "ApplicationCertificate deleted";
+                    Q_EMIT applicationCertificateChanged(query.value("id").toULongLong());
                     continue;
                 case DBRelation::HistoricServerConnection:
                     qCDebug(lcSqlStorage) << "HistoricServerConnection deleted";
@@ -1778,7 +1779,7 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
                 query.value("username").isValid() ? std::optional{query.value("username").toString()} : std::nullopt,
             .password =
                 query.value("password").isValid() ? std::optional{query.value("password").toString()} : std::nullopt,
-            .certificate_id               = query.value("certificate_id").isValid()
+            .application_certificate_id   = query.value("certificate_id").isValid()
                                                 ? std::optional{query.value("certificate_id").toULongLong()}
                                                 : std::nullopt,
             .trust_list_certificate_ids   = getHistoricServerConnectionTrustList(historic_server_connection_id),

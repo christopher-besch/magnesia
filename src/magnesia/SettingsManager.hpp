@@ -244,7 +244,7 @@ namespace magnesia {
          */
         [[nodiscard]] std::optional<StorageId> getKeySettingId(const SettingKey& key) const;
         /**
-         * Get an X.509 ApplicationCertificate.
+         * Get an X.509 ApplicationCertificateSetting.
          *
          * @param key The SettingKey of the setting to get.
          *
@@ -253,12 +253,11 @@ namespace magnesia {
         [[nodiscard]] std::optional<opcua_qt::ApplicationCertificate>
         getApplicationCertificateSetting(const SettingKey& key) const;
         /**
-         * Get the id of an X.509 ApplicationCertificate.
+         * Get the id of an X.509 ApplicationCertificateSetting.
          *
          * @param key The SettingKey of the setting to get.
          *
-         * @return the Setting's value as an id or its default value when not set or nullopt when the setting is not
-         * defined.
+         * @return the Setting's value as a StorageId or nullopt when the setting is not defined.
          */
         [[nodiscard]] std::optional<StorageId> getApplicationCertificateSettingId(const SettingKey& key) const;
         /**

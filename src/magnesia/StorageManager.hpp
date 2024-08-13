@@ -192,16 +192,6 @@ namespace magnesia {
          */
         [[nodiscard]] virtual QList<StorageId> getAllCertificateIds() const = 0;
         /**
-         * Retrieve all X.509 certificate key pair IDs from the database.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @return a list of all certificate key pair IDs.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllApplicationCertificateIds() const = 0;
-        /**
          * Retrieve all X.509 key IDs from the database.
          *
          * This can be used to populate drop down menus in the SettingsActivity.
@@ -211,6 +201,16 @@ namespace magnesia {
          * @return a list of all key IDs.
          */
         [[nodiscard]] virtual QList<StorageId> getAllKeyIds() const = 0;
+        /**
+         * Retrieve all X.509 certificate key pair IDs from the database.
+         *
+         * This can be used to populate drop down menus in the SettingsActivity.
+         *
+         * Exit the application on error.
+         *
+         * @return a list of all certificate key pair IDs.
+         */
+        [[nodiscard]] virtual QList<StorageId> getAllApplicationCertificateIds() const = 0;
         /**
          * Retrieve all HistoricServerConnection IDs from the database.
          *
@@ -244,14 +244,6 @@ namespace magnesia {
          */
         virtual void deleteCertificate(StorageId cert_id) = 0;
         /**
-         * Delete the X.509 certificate key pair with the specified id if it exists.
-         *
-         * Exit the application on error.
-         *
-         * @param cert_id The id of the certificate key pair.
-         */
-        virtual void deleteApplicationCertificate(StorageId cert_id) = 0;
-        /**
          * Delete the X.509 key with the specified id if it exists.
          *
          * Exit the application on error.
@@ -259,6 +251,14 @@ namespace magnesia {
          * @param key_id The id of the key.
          */
         virtual void deleteKey(StorageId key_id) = 0;
+        /**
+         * Delete the X.509 certificate key pair with the specified id if it exists.
+         *
+         * Exit the application on error.
+         *
+         * @param cert_id The id of the certificate key pair.
+         */
+        virtual void deleteApplicationCertificate(StorageId cert_id) = 0;
         /**
          * Delete the HistoricServerConnection with the specified id if it exists.
          *

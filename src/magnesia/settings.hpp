@@ -210,7 +210,7 @@ namespace magnesia {
     /**
      * A setting of type Certificate.
      *
-     * @see Certificate
+     * @see QSslCertificate
      */
     class CertificateSetting : public Setting {
       public:
@@ -230,7 +230,7 @@ namespace magnesia {
     /**
      * A setting of type Key.
      *
-     * @see Certificate
+     * @see QSslKey
      */
     class KeySetting : public Setting {
       public:
@@ -250,7 +250,7 @@ namespace magnesia {
     /**
      * A setting of type ApplicationCertificate.
      *
-     * @see Certificate
+     * @see ApplicationCertificate
      */
     class ApplicationCertificateSetting : public Setting {
       public:

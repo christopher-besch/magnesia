@@ -156,6 +156,8 @@ namespace magnesia::activities::settings {
         auto* storage_manager = &Application::instance().getStorageManager();
         connect(storage_manager, &StorageManager::certificateChanged, this, &Settings::onCertificateChange);
         connect(storage_manager, &StorageManager::keyChanged, this, &Settings::onKeyChange);
+        connect(storage_manager, &StorageManager::applicationCertificateChanged, this,
+                &Settings::onApplicationCertificateChange);
         connect(storage_manager, &StorageManager::layoutChanged, this, &Settings::onLayoutChange);
         connect(storage_manager, &StorageManager::historicServerConnectionChanged, this,
                 &Settings::onHistoricServerConnectionChange);
@@ -175,6 +177,12 @@ namespace magnesia::activities::settings {
     void Settings::onKeyChange(StorageId /*key_id*/) {
         setUpdatesEnabled(false);
         reCreateKeys();
+        reCreateSettings();
+        setUpdatesEnabled(true);
+    }
+
+    void Settings::onApplicationCertificateChange(StorageId /*cert_id*/) {
+        setUpdatesEnabled(false);
         reCreateSettings();
         setUpdatesEnabled(true);
     }
@@ -361,7 +369,7 @@ namespace magnesia::activities::settings {
         }
         if (const auto* specific_setting = dynamic_cast<const ApplicationCertificateSetting*>(setting);
             specific_setting != nullptr) {
-            return Settings::createSettingWidget(specific_setting, domain);
+            return createSettingWidget(specific_setting, domain);
         }
         if (const auto* specific_setting = dynamic_cast<const LayoutSetting*>(setting); specific_setting != nullptr) {
             return createSettingWidget(specific_setting, domain);
