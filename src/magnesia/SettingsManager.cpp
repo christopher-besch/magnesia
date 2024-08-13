@@ -26,6 +26,8 @@ namespace magnesia {
         if (m_storage_manager.isNull()) {
             terminate();
         }
+
+        connect(m_storage_manager, &StorageManager::settingDeleted, this, &SettingsManager::settingChanged);
     }
 
     void SettingsManager::defineSettingDomain(const Domain& domain, const QList<QSharedPointer<Setting>>& settings) {
@@ -46,7 +48,7 @@ namespace magnesia {
             terminate();
         }
         m_storage_manager->resetSetting(key);
-        Q_EMIT settingChanged(key);
+        // using settingDeleted from the StorageManager to signal the change
         return true;
     }
 
@@ -147,7 +149,7 @@ namespace magnesia {
     }
 
     std::optional<double> SettingsManager::getDoubleSetting(const SettingKey& key) const {
-        return getSetting<DoubleSetting, std::int64_t>(key, &StorageManager::getDoubleSetting);
+        return getSetting<DoubleSetting, double>(key, &StorageManager::getDoubleSetting);
     }
 
     std::optional<EnumSettingValue> SettingsManager::getEnumSetting(const SettingKey& key) const {
@@ -158,8 +160,16 @@ namespace magnesia {
         return getSetting<CertificateSetting, QSslCertificate>(key, &StorageManager::getCertificateSetting);
     }
 
+    std::optional<StorageId> SettingsManager::getCertificateSettingId(const SettingKey& key) const {
+        return getSetting<CertificateSetting, StorageId>(key, &StorageManager::getCertificateSettingId);
+    }
+
     std::optional<QSslKey> SettingsManager::getKeySetting(const SettingKey& key) const {
         return getSetting<KeySetting, QSslKey>(key, &StorageManager::getKeySetting);
+    }
+
+    std::optional<StorageId> SettingsManager::getKeySettingId(const SettingKey& key) const {
+        return getSetting<KeySetting, StorageId>(key, &StorageManager::getKeySettingId);
     }
 
     std::optional<HistoricServerConnection>
@@ -168,8 +178,17 @@ namespace magnesia {
             key, &StorageManager::getHistoricServerConnectionSetting);
     }
 
+    std::optional<StorageId> SettingsManager::getHistoricServerConnectionSettingId(const SettingKey& key) const {
+        return getSetting<HistoricServerConnectionSetting, StorageId>(
+            key, &StorageManager::getHistoricServerConnectionSettingId);
+    }
+
     std::optional<Layout> SettingsManager::getLayoutSetting(const SettingKey& key) const {
         return getSetting<LayoutSetting, Layout>(key, &StorageManager::getLayoutSetting);
+    }
+
+    std::optional<StorageId> SettingsManager::getLayoutSettingId(const SettingKey& key) const {
+        return getSetting<LayoutSetting, StorageId>(key, &StorageManager::getLayoutSettingId);
     }
 
     QList<Domain> SettingsManager::getAllDomains() const {

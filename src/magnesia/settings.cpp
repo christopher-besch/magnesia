@@ -7,18 +7,17 @@
 #include <utility>
 
 #include <QSet>
-#include <QString>
 
 namespace magnesia {
-    QString Setting::getName() {
+    QString Setting::getName() const {
         return m_name;
     }
 
-    QString Setting::getHumanReadableName() {
+    QString Setting::getHumanReadableName() const {
         return m_human_readable_name;
     }
 
-    QString Setting::getDescription() {
+    QString Setting::getDescription() const {
         return m_description;
     }
 
@@ -54,6 +53,14 @@ namespace magnesia {
         return m_default_value;
     }
 
+    std::int64_t IntSetting::getMin() const {
+        return m_min;
+    }
+
+    std::int64_t IntSetting::getMax() const {
+        return m_max;
+    }
+
     bool IntSetting::isValid(std::int64_t value) const {
         return value >= m_min && value <= m_max;
     }
@@ -71,6 +78,14 @@ namespace magnesia {
         return m_default_value;
     }
 
+    double DoubleSetting::getMin() const {
+        return m_min;
+    }
+
+    double DoubleSetting::getMax() const {
+        return m_max;
+    }
+
     bool DoubleSetting::isValid(double value) const {
         return value >= m_min && value <= m_max;
     }
@@ -86,6 +101,10 @@ namespace magnesia {
 
     EnumSettingValue EnumSetting::getDefault() const {
         return m_default_value;
+    }
+
+    const QSet<EnumSettingValue>& EnumSetting::getPossibleValues() const {
+        return m_possible_values;
     }
 
     bool EnumSetting::isValid(const EnumSettingValue& value) const {

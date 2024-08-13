@@ -3,7 +3,7 @@
 #include <cstdint>
 
 namespace magnesia::opcua_qt {
-    /*
+    /**
      * The security mode of a connection.
      *
      * @see Connection

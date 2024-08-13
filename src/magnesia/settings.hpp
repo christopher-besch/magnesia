@@ -4,10 +4,16 @@
 
 #include <cstdint>
 
+#include <QLayout>
 #include <QSet>
 #include <QString>
+#include <QWidget>
 
 namespace magnesia {
+    namespace activities::settings_activity {
+        class SettingsActivity;
+    } // namespace activities::settings_activity
+
     /**
      * Base class for all Settings definitions.
      *
@@ -21,9 +27,9 @@ namespace magnesia {
       public:
         virtual ~Setting() = default;
 
-        QString getName();
-        QString getHumanReadableName();
-        QString getDescription();
+        [[nodiscard]] QString getName() const;
+        [[nodiscard]] QString getHumanReadableName() const;
+        [[nodiscard]] QString getDescription() const;
 
       protected:
         /**
@@ -96,6 +102,16 @@ namespace magnesia {
         [[nodiscard]] std::int64_t getDefault() const;
 
         /**
+         *  @return the min value.
+         */
+        [[nodiscard]] std::int64_t getMin() const;
+
+        /**
+         *  @return the max value.
+         */
+        [[nodiscard]] std::int64_t getMax() const;
+
+        /**
          *  @return true iff value the requirements for int settings.
          */
         [[nodiscard]] bool isValid(std::int64_t value) const;
@@ -118,6 +134,15 @@ namespace magnesia {
          *  @return the value.
          */
         [[nodiscard]] double getDefault() const;
+        /**
+         *  @return the min value.
+         */
+        [[nodiscard]] double getMin() const;
+
+        /**
+         *  @return the max value.
+         */
+        [[nodiscard]] double getMax() const;
 
         /**
          *  @return true iff value the requirements for double settings.
@@ -145,6 +170,11 @@ namespace magnesia {
         [[nodiscard]] EnumSettingValue getDefault() const;
 
         /**
+         *  @return the possible value.
+         */
+        [[nodiscard]] const QSet<EnumSettingValue>& getPossibleValues() const;
+
+        /**
          *  @return true iff value the requirements for enum settings.
          */
         [[nodiscard]] bool isValid(const EnumSettingValue& value) const;
@@ -157,7 +187,7 @@ namespace magnesia {
         QSet<EnumSettingValue> m_possible_values;
     };
 
-    /*
+    /**
      * A setting of type HistoricServerConnection.
      *
      * @see HistoricServerConnection
@@ -177,7 +207,7 @@ namespace magnesia {
         HistoricServerConnectionSetting(QString name, QString human_readable_name, QString description);
     };
 
-    /*
+    /**
      * A setting of type Certificate.
      *
      * @see Certificate
@@ -197,7 +227,7 @@ namespace magnesia {
         CertificateSetting(QString name, QString human_readable_name, QString description);
     };
 
-    /*
+    /**
      * A setting of type Key.
      *
      * @see Certificate
@@ -217,7 +247,7 @@ namespace magnesia {
         KeySetting(QString name, QString human_readable_name, QString description);
     };
 
-    /*
+    /**
      * A setting of type Layout.
      *
      * @see Layout

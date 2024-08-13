@@ -18,8 +18,39 @@
 #include <qtmetamacros.h>
 
 namespace magnesia {
+    /**
+     * The SQLStorageManager uses an SQLite database to store data.
+     * Deletion triggers are used to get notified about cascading deletions.
+     * Settings are implemented as a total partition.
+     * I.e., there is a Setting and BooleanSetting tuple for each bool setting.
+     * The deletion of the former uses ON DELETE CASCADE to delete the latter as well.
+     * The other direction is implemented using deletion triggers.
+     */
     class SQLStorageManager : public StorageManager {
         Q_OBJECT
+
+      private:
+        // These are used to identify in what relation a tuple has been deleted using TRIGGER ON DELETE.
+        // NOTE: Don't change the values of the variants, they are independently persisted to the database.
+        enum class DBRelation : uint8_t {
+            Certificate                         = 0,
+            Key                                 = 1,
+            HistoricServerConnection            = 3,
+            HistoricServerConnectionTrustList   = 4,
+            HistoricServerConnectionRevokedList = 5,
+            Layout                              = 6,
+            KeyValue                            = 7,
+            Setting                             = 8,
+            BooleanSetting                      = 9,
+            StringSetting                       = 10,
+            IntSetting                          = 11,
+            DoubleSetting                       = 12,
+            EnumSetting                         = 13,
+            CertificateSetting                  = 14,
+            KeySetting                          = 15,
+            HistoricServerConnectionSetting     = 16,
+            LayoutSetting                       = 17,
+        };
 
       public:
         explicit SQLStorageManager(const QString& db_location, QObject* parent = nullptr);
@@ -72,10 +103,15 @@ namespace magnesia {
         [[nodiscard]] std::optional<double>           getDoubleSetting(const SettingKey& key) const override;
         [[nodiscard]] std::optional<EnumSettingValue> getEnumSetting(const SettingKey& key) const override;
         [[nodiscard]] std::optional<QSslCertificate>  getCertificateSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<StorageId>        getCertificateSettingId(const SettingKey& key) const override;
         [[nodiscard]] std::optional<QSslKey>          getKeySetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<StorageId>        getKeySettingId(const SettingKey& key) const override;
         [[nodiscard]] std::optional<HistoricServerConnection>
-                                            getHistoricServerConnectionSetting(const SettingKey& key) const override;
+        getHistoricServerConnectionSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<StorageId>
+                                            getHistoricServerConnectionSettingId(const SettingKey& key) const override;
         [[nodiscard]] std::optional<Layout> getLayoutSetting(const SettingKey& key) const override;
+        [[nodiscard]] std::optional<StorageId> getLayoutSettingId(const SettingKey& key) const override;
 
       private:
         void migrate();
@@ -90,6 +126,9 @@ namespace magnesia {
          * This updates the generic Setting's last_updated.
          */
         void setGenericSetting(const SettingKey& key);
+
+        void handleDeleteMonitor();
+        void clearDeleteMonitor();
 
         static void warnQuery(const QString& message, const QSqlQuery& query);
 

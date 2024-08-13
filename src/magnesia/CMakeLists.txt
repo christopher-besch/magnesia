@@ -21,6 +21,8 @@ set(SOURCES
     activities/dataviewer/panels/ReferenceViewPanel.cpp
     activities/dataviewer/panels/TreeViewModel.cpp
     activities/dataviewer/panels/TreeViewPanel.cpp
+    activities/settings/Settings.cpp
+    activities/settings/SettingsUrlHandler.cpp
     Activity.cpp
     ActivityMetadata.cpp
     Application.cpp

@@ -4,7 +4,7 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::opcua_qt {
-    /*
+    /**
      * The severity level of a log entry.
      *
      * @see LogEntry
