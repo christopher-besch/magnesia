@@ -42,6 +42,14 @@ namespace {
         }
         return {};
     }
+
+    template<typename T>
+    std::optional<T> get_optional(const QSqlQuery& query, const QString& name) {
+        if (query.isNull(name)) {
+            return std::nullopt;
+        }
+        return query.value(name).value<T>();
+    };
 } // namespace
 
 namespace magnesia {
@@ -1701,13 +1709,9 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
             .endpoint_security_policy_uri = query.value("endpoint_security_policy_uri").toString(),
             .endpoint_message_security_mode =
                 static_cast<opcua_qt::MessageSecurityMode>(query.value("endpoint_message_security_mode").toUInt()),
-            .username =
-                query.value("username").isValid() ? std::optional{query.value("username").toString()} : std::nullopt,
-            .password =
-                query.value("password").isValid() ? std::optional{query.value("password").toString()} : std::nullopt,
-            .application_certificate_id   = query.value("certificate_id").isValid()
-                                                ? std::optional{query.value("certificate_id").toULongLong()}
-                                                : std::nullopt,
+            .username                     = get_optional<QString>(query, "username"),
+            .password                     = get_optional<QString>(query, "password"),
+            .application_certificate_id   = get_optional<qulonglong>(query, "certificate_id"),
             .trust_list_certificate_ids   = getHistoricServerConnectionTrustList(historic_server_connection_id),
             .revoked_list_certificate_ids = getHistoricServerConnectionRevokedList(historic_server_connection_id),
             .last_layout_id               = query.value("layout_id").toULongLong(),
