@@ -35,6 +35,15 @@
 
 Q_LOGGING_CATEGORY(lcSqlStorage, "magnesia.storage.sql")
 
+namespace {
+    QVariant bind_optional(auto&& optional) {
+        if (optional.has_value()) {
+            return std::forward<decltype(optional)>(optional).value();
+        }
+        return {};
+    }
+} // namespace
+
 namespace magnesia {
     SQLStorageManager::SQLStorageManager(const QString& db_location, QObject* parent)
         : StorageManager(parent), m_database{QSqlDatabase::addDatabase("QSQLITE")} {
@@ -119,15 +128,9 @@ VALUES (NULL, :server_url, :endpoint_url, :endpoint_security_policy_uri, :endpoi
         query.bindValue(":endpoint_security_policy_uri", historic_server_connection.endpoint_security_policy_uri);
         query.bindValue(":endpoint_message_security_mode",
                         static_cast<qlonglong>(historic_server_connection.endpoint_message_security_mode));
-        if (historic_server_connection.username.has_value()) {
-            query.bindValue(":username", historic_server_connection.username.value());
-        }
-        if (historic_server_connection.password.has_value()) {
-            query.bindValue(":password", historic_server_connection.password.value());
-        }
-        if (historic_server_connection.application_certificate_id.has_value()) {
-            query.bindValue(":certificate_id", historic_server_connection.application_certificate_id.value());
-        }
+        query.bindValue(":username", bind_optional(historic_server_connection.username));
+        query.bindValue(":password", bind_optional(historic_server_connection.password));
+        query.bindValue(":certificate_id", bind_optional(historic_server_connection.application_certificate_id));
         query.bindValue(":layout_id", historic_server_connection.last_layout_id);
         query.bindValue(":layout_group", historic_server_connection.last_layout_group);
         query.bindValue(":layout_domain", historic_server_connection.last_layout_domain);
