@@ -139,9 +139,9 @@ VALUES (NULL, :server_url, :endpoint_url, :endpoint_security_policy_uri, :endpoi
         query.bindValue(":username", bind_optional(historic_server_connection.username));
         query.bindValue(":password", bind_optional(historic_server_connection.password));
         query.bindValue(":certificate_id", bind_optional(historic_server_connection.application_certificate_id));
-        query.bindValue(":layout_id", historic_server_connection.last_layout_id);
-        query.bindValue(":layout_group", historic_server_connection.last_layout_group);
-        query.bindValue(":layout_domain", historic_server_connection.last_layout_domain);
+        query.bindValue(":layout_id", bind_optional(historic_server_connection.last_layout_id));
+        query.bindValue(":layout_group", bind_optional(historic_server_connection.last_layout_group));
+        query.bindValue(":layout_domain", bind_optional(historic_server_connection.last_layout_domain));
         query.bindValue(":last_used", historic_server_connection.last_used);
         query.exec();
         if (query.lastError().isValid()) {
@@ -1159,9 +1159,9 @@ CREATE TABLE HistoricServerConnection (
     password TEXT,
     certificate_id INT,
 
-    layout_id INT NOT NULL,
-    layout_group TEXT NOT NULL,
-    layout_domain TEXT NOT NULL,
+    layout_id INT,
+    layout_group TEXT,
+    layout_domain TEXT,
 
     last_used TEXT NOT NULL,
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1714,9 +1714,9 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
             .application_certificate_id   = get_optional<qulonglong>(query, "certificate_id"),
             .trust_list_certificate_ids   = getHistoricServerConnectionTrustList(historic_server_connection_id),
             .revoked_list_certificate_ids = getHistoricServerConnectionRevokedList(historic_server_connection_id),
-            .last_layout_id               = query.value("layout_id").toULongLong(),
-            .last_layout_group            = query.value("layout_group").toString(),
-            .last_layout_domain           = query.value("layout_domain").toString(),
+            .last_layout_id               = get_optional<qulonglong>(query, "layout_id"),
+            .last_layout_group            = get_optional<QString>(query, "layout_group"),
+            .last_layout_domain           = get_optional<QString>(query, "layout_domain"),
             .last_used                    = query.value("last_used").toDateTime(),
         };
     }
