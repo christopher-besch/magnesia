@@ -12,6 +12,16 @@ additional_commands:
       TARGET: 1
       OUTPUT_SCRIPT: 1
       NO_UNSUPPORTED_PLATFORM_ERROR: 0
+  qt_add_resources:
+    pargs: 2
+    kwargs:
+      PREFIX: 1
+      LANG: 1
+      BASE: 1
+      BIG_RESOURCES: 0
+      OUTPUT_TARGETS: 1
+      FILES: '*'
+      OPTIONS: '*'
   set_target_properties:
     pargs: 1
     kwargs:
