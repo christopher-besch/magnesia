@@ -9,6 +9,7 @@
 #include "activities/activities.hpp"
 #include "opcua_qt/ConnectionManager.hpp"
 #include "qt_version_check.hpp"
+#include "settings.hpp"
 #include "terminate.hpp"
 
 #include <functional>
@@ -85,6 +86,12 @@ namespace magnesia {
           m_tab_widget(new QTabWidget{&m_main_window}) {
         Q_ASSERT(s_instance == nullptr && "You can only have one mangesia::Application at a time");
         s_instance = this;
+
+        m_settings_manager->defineSettingDomain(
+            "general", {QSharedPointer<magnesia::IntSetting>{new magnesia::IntSetting{
+                           "opcua_poll_intervall", "OPC UA Polling Interval",
+                           // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+                           "in milliseconds; reload the application to apply", 500, 10, 30000}}});
 
         m_tab_widget->setTabsClosable(true);
         m_tab_widget->setDocumentMode(true);
