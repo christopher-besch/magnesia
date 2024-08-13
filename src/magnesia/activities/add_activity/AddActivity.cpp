@@ -44,7 +44,7 @@ namespace magnesia::activities::add_activity {
 
         h_layout->addWidget(activity_list, 1);
         h_layout->addLayout(config_widget_stack, 5); // NOLINT: cppcoreguidelines-avoid-magic-numbers
-        h_layout->setContentsMargins(0, 2, 0, 0);
+        h_layout->setContentsMargins(4, 4, 4, 4);
 
         setLayout(h_layout);
     }
