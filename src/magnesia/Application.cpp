@@ -9,31 +9,76 @@
 #include "activities/activities.hpp"
 #include "opcua_qt/ConnectionManager.hpp"
 #include "qt_version_check.hpp"
+#include "terminate.hpp"
 
 #include <functional>
 #include <span>
 
+#include <QCoreApplication>
+#include <QDir>
 #include <QLoggingCategory>
 #include <QObject>
+#include <QStandardPaths>
 #include <QString>
 #include <QStyle>
+#include <QTabBar>
 #include <QTabWidget>
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
+#include <QtEnvironmentVariables>
 #else
 #include <QtGlobal>
 #endif
 
 Q_LOGGING_CATEGORY(lcApplication, "magnesia")
 
+namespace {
+    bool use_debug() {
+#ifndef NDEBUG
+        bool debug = true;
+#else
+        bool debug = false;
+#endif
+        if (qEnvironmentVariableIsSet("MAGNESIA_DEBUG")) {
+            debug = qEnvironmentVariableIntValue("MAGNESIA_DEBUG") != 0;
+        }
+
+        return debug;
+    }
+
+    QDir ensure_data_dir(bool debug) {
+        QDir appdir;
+
+        if (debug) {
+            appdir = {"magnesia_data"};
+        } else {
+            appdir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        }
+
+        if (!QDir{}.mkpath(appdir.absolutePath())) {
+            qCCritical(lcApplication) << "can't create data directory" << appdir.absolutePath();
+            terminate();
+        }
+
+        qCInfo(lcApplication) << "using data directory" << appdir.absolutePath();
+        return appdir;
+    }
+
+    QString db_path(const QDir& appdir) {
+        if (qEnvironmentVariableIsSet("MAGNESIA_EPHEMERAL_DB")) {
+            return ":memory:";
+        }
+        return appdir.absoluteFilePath(QCoreApplication::applicationName() + ".db");
+    }
+} // namespace
+
 namespace magnesia {
     Application* Application::s_instance{nullptr};
 
     Application::Application(QObject* parent)
-        : QObject(parent),
-          // TODO: use persistent db instead of :memory:
-          m_storage_manager(new SQLStorageManager{":memory:", this}),
+        : QObject(parent), m_data_dir(ensure_data_dir(use_debug())),
+          m_storage_manager(new SQLStorageManager{db_path(m_data_dir), this}),
           // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete): https://github.com/llvm/llvm-project/issues/62985
           m_settings_manager(new SettingsManager{m_storage_manager, this}),
           m_connection_manager{new opcua_qt::ConnectionManager{this}}, m_router(new Router{this}),
