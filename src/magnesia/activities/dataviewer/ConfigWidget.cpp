@@ -2,6 +2,7 @@
 
 #include "../../Application.hpp"
 #include "../../ConfigWidget.hpp"
+#include "../../HistoricServerConnection.hpp"
 #include "../../StorageManager.hpp"
 #include "../../opcua_qt/Connection.hpp"
 #include "../../opcua_qt/ConnectionBuilder.hpp"
@@ -166,6 +167,45 @@ namespace magnesia::activities::dataviewer {
 
         auto* model = new detail::HistoricServerConnectionModel(this);
         table->setModel(model);
+
+        connect(table->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
+                [this, model](const QModelIndex& current) {
+                    qCDebug(lcDVConfig) << "Recent connection selection changed to" << current;
+                    auto connection = model->data(current, Qt::UserRole).value<HistoricServerConnection>();
+
+                    m_address->setText(connection.server_url.toString());
+                    m_username->setText(connection.username.value_or(""));
+                    m_password->setText(connection.password.value_or(""));
+                    // TODO: m_certificate->setCurrentIndex(???);
+                });
+
+        connect(table, &QTableView::activated, this, [this, model](const QModelIndex& index) {
+            qCDebug(lcDVConfig) << "Recent connection activated" << index;
+            auto historic = model->data(index, Qt::UserRole).value<HistoricServerConnection>();
+
+            ConnectionBuilder builder;
+            builder.logger(new opcua_qt::Logger);
+            builder.url(historic.server_url);
+            if (historic.username.has_value()) {
+                builder.username(*historic.username);
+            }
+            if (historic.password.has_value()) {
+                builder.password(*historic.password);
+            }
+            // TODO: certificates
+            builder.endpoint(Endpoint{
+                historic.endpoint_url,
+                historic.endpoint_security_policy_uri,
+                historic.endpoint_message_security_mode,
+            });
+
+            auto* connection = builder.build();
+            Q_ASSERT(connection != nullptr);
+            connect(connection, &Connection::connected, this, [connection, logger = builder.getLogger()] {
+                Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer");
+            });
+            connection->connectAndRun();
+        });
 
         layout->addWidget(table);
 
