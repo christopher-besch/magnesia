@@ -86,8 +86,8 @@ namespace magnesia::opcua_qt {
          *
          * @return Returns a Subscription pointer
          */
-        [[nodiscard]] abstraction::Subscription* createSubscription(abstraction::NodeId&             node_id,
-                                                                    QList<abstraction::AttributeId>& attribute_ids);
+        [[nodiscard]] abstraction::Subscription*
+        createSubscription(abstraction::NodeId& node_id, const QList<abstraction::AttributeId>& attribute_ids);
         /**
          * @brief Stops polling for updates and disconnects the client
          */

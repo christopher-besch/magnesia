@@ -110,8 +110,8 @@ namespace magnesia::opcua_qt {
         return abstraction::Node::fromOPCUANode(m_client.getNode(node_id.handle()), this);
     }
 
-    abstraction::Subscription* Connection::createSubscription(abstraction::NodeId&             node_id,
-                                                              QList<abstraction::AttributeId>& attribute_ids) {
+    abstraction::Subscription* Connection::createSubscription(abstraction::NodeId&                   node_id,
+                                                              const QList<abstraction::AttributeId>& attribute_ids) {
         auto* subscription = new abstraction::Subscription(m_client.createSubscription());
         for (const abstraction::AttributeId attribute_id : attribute_ids) {
             subscription->subscribeDataChanged(node_id, attribute_id);
