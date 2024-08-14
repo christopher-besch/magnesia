@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <iterator>
 #include <optional>
+#include <string_view>
 #include <utility>
 
 #include <open62541pp/AccessControl.h>
@@ -40,11 +41,15 @@ namespace magnesia::opcua_qt {
                                               const QList<QSslCertificate>&                trust_list,
                                               const QList<QSslCertificate>&                revocation_list) {
         if (certificate.has_value()) {
-            opcua::ByteString user_certificate{certificate.value().getCertificate().toDer().toStdString()};
-            opcua::ByteString private_key{certificate.value().getPrivateKey().toPem().toStdString()};
+            const auto              cert_der = certificate->getCertificate().toDer();
+            const opcua::ByteString user_certificate(std::string_view{cert_der.begin(), cert_der.end()});
+
+            const auto              key_pem = certificate->getPrivateKey().toPem();
+            const opcua::ByteString private_key(std::string_view{key_pem.begin(), key_pem.end()});
 
             const auto cert_to_bytestring = [](const QSslCertificate& cert) {
-                return opcua::ByteString{cert.toDer().toStdString()};
+                const auto der = cert.toDer();
+                return opcua::ByteString(std::string_view{der.begin(), der.end()});
             };
 
             QList<opcua::ByteString> trust_list_bytestring;
