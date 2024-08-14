@@ -3,6 +3,7 @@
 #include "../..//database_types.hpp"
 #include "../../ConfigWidget.hpp"
 #include "../../HistoricServerConnection.hpp"
+#include "../../StorageManager.hpp"
 #include "../../opcua_qt/ConnectionBuilder.hpp"
 #include "../../opcua_qt/abstraction/Endpoint.hpp"
 
@@ -98,7 +99,10 @@ namespace magnesia::activities::dataviewer {
             [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation,
                                               int role = Qt::DisplayRole) const override;
 
+            bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
           private slots:
+            void onHistoricServerConnectionChanged(StorageId historic_server_connection_id, StorageChange type);
             void reload();
 
           private:

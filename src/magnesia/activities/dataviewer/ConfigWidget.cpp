@@ -4,6 +4,7 @@
 #include "../../ConfigWidget.hpp"
 #include "../../HistoricServerConnection.hpp"
 #include "../../StorageManager.hpp"
+#include "../../database_types.hpp"
 #include "../../opcua_qt/Connection.hpp"
 #include "../../opcua_qt/ConnectionBuilder.hpp"
 #include "../../opcua_qt/Logger.hpp"
@@ -167,6 +168,15 @@ namespace magnesia::activities::dataviewer {
 
         auto* model = new detail::HistoricServerConnectionModel(this);
         table->setModel(model);
+
+        table->setContextMenuPolicy(Qt::ActionsContextMenu);
+        table->addAction("Remove selected", this, [table] {
+            if (!table->selectionModel()->hasSelection()) {
+                return;
+            }
+            auto row = table->selectionModel()->currentIndex().row();
+            table->model()->removeRows(row, 1);
+        });
 
         connect(table->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
                 [this, model](const QModelIndex& current) {
@@ -385,7 +395,7 @@ namespace magnesia::activities::dataviewer {
         HistoricServerConnectionModel::HistoricServerConnectionModel(QObject* parent) : QAbstractTableModel(parent) {
             auto* storage_manager = &Application::instance().getStorageManager();
             connect(storage_manager, &StorageManager::historicServerConnectionChanged, this,
-                    &HistoricServerConnectionModel::reload);
+                    &HistoricServerConnectionModel::onHistoricServerConnectionChanged);
 
             reload();
         }
@@ -452,6 +462,17 @@ namespace magnesia::activities::dataviewer {
             return {};
         }
 
+        void HistoricServerConnectionModel::onHistoricServerConnectionChanged(StorageId historic_server_connection_id,
+                                                                              StorageChange type) {
+            if (auto con = std::ranges::find(std::as_const(m_connections), historic_server_connection_id,
+                                             &decltype(m_connections)::value_type::first);
+                type == StorageChange::Deleted && con == m_connections.cend()) {
+                return;
+            }
+
+            reload();
+        }
+
         void HistoricServerConnectionModel::reload() {
             auto connections = Application::instance().getStorageManager().getAllHistoricServerConnections();
             std::ranges::sort(connections, std::ranges::greater{},
@@ -460,6 +481,24 @@ namespace magnesia::activities::dataviewer {
             beginResetModel();
             m_connections = std::move(connections);
             endResetModel();
+        }
+
+        bool HistoricServerConnectionModel::removeRows(int row, int count, const QModelIndex& parent) {
+            if (row < 0 || rowCount() <= row) {
+                return false;
+            }
+            if (count != 1) {
+                return false;
+            }
+
+            auto connection = m_connections.at(row);
+
+            beginRemoveRows(parent, row, row + count - 1);
+            m_connections.remove(row);
+            Application::instance().getStorageManager().deleteHistoricServerConnection(connection.first);
+            endRemoveRows();
+
+            return true;
         }
     } // namespace detail
 } // namespace magnesia::activities::dataviewer
