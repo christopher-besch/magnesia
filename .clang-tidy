@@ -8,10 +8,10 @@ Checks:
   - -google-*
   - -llvmlibc-*
   - -bugprone-easily-swappable-parameters
-  - -modernize-use-trailing-return-type
-  - -readability-redundant-access-specifiers
   # This is not a useful warning with qt
   - -cppcoreguidelines-owning-memory
+  - -modernize-use-trailing-return-type
+  - -readability-redundant-access-specifiers
 
 FormatStyle: file
 CheckOptions:
