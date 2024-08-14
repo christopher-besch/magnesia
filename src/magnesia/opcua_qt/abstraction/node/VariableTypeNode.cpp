@@ -7,10 +7,8 @@
 #include "../Variant.hpp"
 #include "Node.hpp"
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <iterator>
 #include <optional>
 #include <utility>
 
@@ -52,12 +50,8 @@ namespace magnesia::opcua_qt::abstraction {
 
     std::optional<QList<quint32>> VariableTypeNode::getArrayDimensions() {
         try {
-            auto vector = handle().readArrayDimensions();
-            auto list   = QList<quint32>();
-
-            list.reserve(static_cast<qsizetype>(vector.size()));
-            std::copy(vector.begin(), vector.end(), std::back_inserter(list));
-
+            auto           vector = handle().readArrayDimensions();
+            QList<quint32> list{vector.begin(), vector.end()};
             return list;
         } catch (opcua::BadStatus&) {
             return std::nullopt;

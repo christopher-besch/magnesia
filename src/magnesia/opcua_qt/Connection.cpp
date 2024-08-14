@@ -10,6 +10,8 @@
 #include "abstraction/Subscription.hpp"
 #include "abstraction/node/Node.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <optional>
 #include <utility>
 
@@ -38,16 +40,19 @@ namespace magnesia::opcua_qt {
                                               const QList<QSslCertificate>&                trust_list,
                                               const QList<QSslCertificate>&                revocation_list) {
         if (certificate.has_value()) {
-            auto user_certificate      = opcua::ByteString(certificate.value().getCertificate().toDer().toStdString());
-            auto private_key           = opcua::ByteString(certificate.value().getPrivateKey().toPem().toStdString());
-            auto trust_list_bytestring = QList<opcua::ByteString>();
-            for (const auto& cert : trust_list) {
-                trust_list_bytestring.emplace_back(opcua::ByteString(cert.toDer().toStdString()));
-            }
-            auto revocation_list_bytestring = QList<opcua::ByteString>();
-            for (const auto& cert : revocation_list) {
-                revocation_list_bytestring.emplace_back(opcua::ByteString(cert.toDer().toStdString()));
-            }
+            opcua::ByteString user_certificate{certificate.value().getCertificate().toDer().toStdString()};
+            opcua::ByteString private_key{certificate.value().getPrivateKey().toPem().toStdString()};
+
+            const auto cert_to_bytestring = [](const QSslCertificate& cert) {
+                return opcua::ByteString{cert.toDer().toStdString()};
+            };
+
+            QList<opcua::ByteString> trust_list_bytestring;
+            std::ranges::transform(trust_list, std::back_inserter(trust_list_bytestring), cert_to_bytestring);
+
+            QList<opcua::ByteString> revocation_list_bytestring;
+            std::ranges::transform(revocation_list, std::back_inserter(revocation_list_bytestring), cert_to_bytestring);
+
             return {user_certificate, private_key, trust_list_bytestring, revocation_list_bytestring};
         }
         return opcua::Client();

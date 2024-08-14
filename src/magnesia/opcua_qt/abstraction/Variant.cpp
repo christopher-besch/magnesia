@@ -3,7 +3,9 @@
 #include "../../qt_version_check.hpp"
 #include "NodeId.hpp"
 
+#include <algorithm>
 #include <cstdint>
+#include <iterator>
 #include <optional>
 #include <string>
 #include <utility>
@@ -14,6 +16,7 @@
 #include <open62541pp/types/NodeId.h>
 #include <open62541pp/types/Variant.h>
 
+#include <QByteArrayView>
 #include <QDateTime>
 #include <QList>
 #include <QString>
@@ -51,25 +54,20 @@ namespace magnesia::opcua_qt::abstraction {
             return std::nullopt;
         }
 
-        auto vector = m_variant.getArray<T>();
-        auto list   = QList<T>();
-
-        list.reserve(static_cast<qsizetype>(vector.size()));
-        std::copy(vector.begin(), vector.end(), std::back_inserter(list));
+        auto     span = m_variant.getArray<T>();
+        QList<T> list{std::move_iterator{span.begin()}, std::move_iterator{span.end()}};
 
         return list;
     }
 
     template<typename T>
     QList<QVariant> Variant::getQVariantArray() const {
-        auto vector = m_variant.getArray<T>();
+        auto span = m_variant.getArray<T>();
 
         auto list = QList<QVariant>();
-        list.reserve(static_cast<qsizetype>(vector.size()));
-
-        for (const auto& var : vector) {
-            list.append(QVariant::fromValue(var));
-        }
+        list.reserve(static_cast<qsizetype>(span.size()));
+        std::ranges::transform(span, std::back_inserter(list),
+                               [](const auto& val) { return QVariant::fromValue(val); });
 
         return list;
     }
@@ -151,37 +149,34 @@ namespace magnesia::opcua_qt::abstraction {
                     return {getQVariantArray<double>()};
 
                 case UA_DATATYPEKIND_STRING: {
-                    auto vector = m_variant.getArray<opcua::String>();
+                    auto span = m_variant.getArray<opcua::String>();
 
                     auto list = QList<QVariant>();
-                    list.reserve(static_cast<qsizetype>(vector.size()));
-                    for (const auto& var : vector) {
-                        list.append(QVariant::fromValue(QString::fromStdString(std::string(var))));
-                    }
+                    list.reserve(static_cast<qsizetype>(span.size()));
+                    std::ranges::transform(span, std::back_inserter(list),
+                                           [](const opcua::String& string) { return QLatin1StringView{string.get()}; });
 
                     return {list};
                 }
                 case UA_DATATYPEKIND_DATETIME: {
-                    auto vector = m_variant.getArray<opcua::DateTime>();
+                    auto span = m_variant.getArray<opcua::DateTime>();
 
                     auto list = QList<QVariant>();
-                    list.reserve(static_cast<qsizetype>(vector.size()));
-                    for (const auto& var : vector) {
-                        list.append(QVariant::fromValue(QDateTime::fromSecsSinceEpoch(var.toUnixTime())));
-                    }
+                    list.reserve(static_cast<qsizetype>(span.size()));
+                    std::ranges::transform(span, std::back_inserter(list), [](const opcua::DateTime& val) {
+                        return QDateTime::fromSecsSinceEpoch(val.toUnixTime());
+                    });
 
                     return {list};
                 }
                 case UA_DATATYPEKIND_GUID:
                     return {getQVariantArray<opcua::Guid>()};
                 case UA_DATATYPEKIND_STATUSCODE: {
-                    auto vector = m_variant.getArray<UA_StatusCode>();
+                    auto span = m_variant.getArray<UA_StatusCode>();
 
                     auto list = QList<QVariant>();
-                    list.reserve(static_cast<qsizetype>(vector.size()));
-                    for (const auto& var : vector) {
-                        list.append(QVariant::fromValue(QString::fromStdString(std::string(UA_StatusCode_name(var)))));
-                    }
+                    list.reserve(static_cast<qsizetype>(span.size()));
+                    std::ranges::transform(span, std::back_inserter(list), UA_StatusCode_name);
 
                     return {list};
                 }
