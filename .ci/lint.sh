@@ -36,6 +36,7 @@ run_clang_tidy() {
     # so ignore if the target doesn't exist.
     cmake --build "$BUILD_DIR" --target libopen62541.a || true
 
+    # TODO: use run-clang-tidy -source-filter
     find src -name '*.[ch]pp' -print0 \
         | xargs -0 run-clang-tidy -warnings-as-errors='*' -use-color -p "$BUILD_DIR" || fail clang-tidy $?
 }

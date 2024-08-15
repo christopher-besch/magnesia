@@ -8,10 +8,12 @@ Checks:
   - -google-*
   - -linuxkernel-*
   - -llvmlibc-*
+  - -boost-use-ranges # using modernize-use-ranges
   - -bugprone-easily-swappable-parameters
   # This is not a useful warning with qt
   - -cppcoreguidelines-owning-memory
   - -modernize-use-trailing-return-type
+  - -readability-math-missing-parentheses
   - -readability-redundant-access-specifiers
 
 FormatStyle: file
@@ -21,6 +23,8 @@ CheckOptions:
   bugprone-assert-side-effect.IgnoredFunctions: QMetaType::fromType
 
   hicpp-signed-bitwise.IgnorePositiveIntegerLiterals: true
+
+  modernize-use-ranges.UseReversePipe: true
 
   readability-identifier-naming.NamespaceCase: lower_case
   readability-identifier-naming.EnumCase: CamelCase
