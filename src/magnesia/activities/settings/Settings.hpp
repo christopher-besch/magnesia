@@ -152,7 +152,7 @@ namespace magnesia::activities::settings {
     };
 
     inline constexpr ActivityMetadata metadata{
-        .name        = u"Settings Activity",
+        .name        = u"Settings",
         .global_init = [] { Application::instance().openActivity(new Settings, "Settings", false); },
     };
 } // namespace magnesia::activities::settings
