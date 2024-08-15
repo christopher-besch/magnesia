@@ -6,6 +6,7 @@
 #include "../../qt_version_check.hpp"
 #include "version.hpp"
 
+#include <QByteArrayView>
 #include <QFont>
 #include <QLabel>
 #include <QPlainTextEdit>
@@ -47,7 +48,7 @@ namespace magnesia::activities::about {
             layout->addWidget(version_header);
         }
         {
-            auto* version_label = new QLabel{cmake::project_version.data()};
+            auto* version_label = new QLabel{QLatin1StringView{cmake::project_version}};
             layout->addWidget(version_label);
         }
 
