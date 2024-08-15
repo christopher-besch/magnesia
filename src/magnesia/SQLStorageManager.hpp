@@ -81,11 +81,6 @@ namespace magnesia {
                                                           getAllHistoricServerConnections() const override;
         [[nodiscard]] QList<std::pair<StorageId, Layout>> getAllLayouts(const LayoutGroup& group,
                                                                         const Domain&      domain) const override;
-        [[nodiscard]] QList<StorageId>                    getAllCertificateIds() const override;
-        [[nodiscard]] QList<StorageId>                    getAllKeyIds() const override;
-        [[nodiscard]] QList<StorageId>                    getAllApplicationCertificateIds() const override;
-        [[nodiscard]] QList<StorageId>                    getAllHistoricServerConnectionIds() const override;
-        [[nodiscard]] QList<StorageId> getAllLayoutIds(const LayoutGroup& group, const Domain& domain) const override;
 
         void deleteCertificate(StorageId cert_id) override;
         void deleteKey(StorageId key_id) override;

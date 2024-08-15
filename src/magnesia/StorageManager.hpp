@@ -186,60 +186,6 @@ namespace magnesia {
                                                                                 const Domain&      domain) const = 0;
 
         /**
-         * Retrieve all X.509 certificate IDs from the database.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @return a list of all certificate IDs.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllCertificateIds() const = 0;
-        /**
-         * Retrieve all X.509 key IDs from the database.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @return a list of all key IDs.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllKeyIds() const = 0;
-        /**
-         * Retrieve all X.509 certificate key pair IDs from the database.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @return a list of all certificate key pair IDs.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllApplicationCertificateIds() const = 0;
-        /**
-         * Retrieve all HistoricServerConnection IDs from the database.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @return a list of all HistoricServerConnections IDs.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllHistoricServerConnectionIds() const = 0;
-        /**
-         * Retrieve all Layout IDs from the database for a specified group and domain.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @param group The LayoutGroup the layouts belong to.
-         * @param domain The Domain the layouts belong to.
-         * @return a list of all Layout IDs with the specified group and domain.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllLayoutIds(const LayoutGroup& group,
-                                                               const Domain&      domain) const = 0;
-
-        /**
          * Delete the X.509 certificate with the specified id if it exists.
          *
          * Exit the application on error.
