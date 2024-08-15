@@ -1,5 +1,6 @@
 #include "Connection.hpp"
 
+#include "../Application.hpp"
 #include "../qt_version_check.hpp"
 #include "ApplicationCertificate.hpp"
 #include "Logger.hpp"
@@ -84,7 +85,10 @@ namespace magnesia::opcua_qt {
         }
 
         connect(this, &Connection::connected, this, [&] {
-            m_timer.setInterval(500); // NOLINT: cppcoreguidelines-avoid-magic-numbers
+            m_timer.setInterval(static_cast<int>(Application::instance()
+                                                     .getSettingsManager()
+                                                     .getIntSetting({"opcua_poll_intervall", "general"})
+                                                     .value()));
             connect(&m_timer, &QTimer::timeout, this, [&] { m_client.runIterate(0); });
             m_timer.start();
         });
