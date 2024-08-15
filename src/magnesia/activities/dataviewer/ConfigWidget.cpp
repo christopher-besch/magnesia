@@ -15,6 +15,8 @@
 
 #include <algorithm>
 #include <functional>
+#include <memory>
+#include <optional>
 #include <utility>
 
 #include <open62541pp/Result.h>
@@ -84,6 +86,44 @@ namespace magnesia::activities::dataviewer {
 
         QString format_security_policy(QString uri) {
             return uri.remove("http://opcfoundation.org/UA/SecurityPolicy#");
+        }
+
+        bool record_recent_connection(const ConnectionBuilder& builder, std::optional<StorageId> old = std::nullopt) {
+            const auto& server_url = builder.getUrl();
+            if (!server_url.has_value()) {
+                return false;
+            }
+
+            const auto& endpoint = builder.getEndpoint();
+            if (!endpoint.has_value()) {
+                return false;
+            }
+
+            Application::instance().getStorageManager().storeHistoricServerConnection({
+                .server_url                     = *server_url,
+                .endpoint_url                   = endpoint->getEndpointUrl(),
+                .endpoint_security_policy_uri   = endpoint->getSecurityPolicyUri(),
+                .endpoint_message_security_mode = endpoint->getSecurityMode(),
+                .username                       = builder.getUsername(),
+                .password                       = builder.getPassword(),
+                .application_certificate_id     = {}, // TODO: builder->getCertificate()->getCertificate()
+                .trust_list_certificate_ids     = {}, // TODO: builder->getTrustList()
+                .revoked_list_certificate_ids   = {}, // TODO: builder->getRevokedList()
+                .last_layout_id                 = {}, // TODO
+                .last_layout_group              = {}, // TODO
+                .last_layout_domain             = {}, // TODO
+                .last_used                      = QDateTime::currentDateTimeUtc(),
+            });
+
+            if (old.has_value()) {
+                Application::instance().getStorageManager().deleteHistoricServerConnection(*old);
+            }
+
+            return true;
+        }
+
+        void open_dataviewer(Connection* connection, opcua_qt::Logger* logger) {
+            Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer");
         }
     } // namespace
 
@@ -181,7 +221,8 @@ namespace magnesia::activities::dataviewer {
         connect(table->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
                 [this, model](const QModelIndex& current) {
                     qCDebug(lcDVConfig) << "Recent connection selection changed to" << current;
-                    auto connection = model->data(current, Qt::UserRole).value<HistoricServerConnection>();
+                    auto connection = model->data(current, detail::HistoricServerConnectionModel::ConnectionRole)
+                                          .value<HistoricServerConnection>();
 
                     m_address->setText(connection.server_url.toString());
                     m_username->setText(connection.username.value_or(""));
@@ -191,28 +232,33 @@ namespace magnesia::activities::dataviewer {
 
         connect(table, &QTableView::activated, this, [this, model](const QModelIndex& index) {
             qCDebug(lcDVConfig) << "Recent connection activated" << index;
-            auto historic = model->data(index, Qt::UserRole).value<HistoricServerConnection>();
+            auto historic = model->data(index, detail::HistoricServerConnectionModel::ConnectionRole)
+                                .value<HistoricServerConnection>();
+            auto conid = model->data(index, detail::HistoricServerConnectionModel::ConnectionIdRole).value<StorageId>();
 
-            ConnectionBuilder builder;
-            builder.logger(new opcua_qt::Logger);
-            builder.url(historic.server_url);
+            auto builder = std::make_unique<ConnectionBuilder>();
+            builder->logger(new opcua_qt::Logger);
+            builder->url(historic.server_url);
             if (historic.username.has_value()) {
-                builder.username(*historic.username);
+                builder->username(*historic.username);
             }
             if (historic.password.has_value()) {
-                builder.password(*historic.password);
+                builder->password(*historic.password);
             }
             // TODO: certificates
-            builder.endpoint(Endpoint{
+            builder->endpoint(Endpoint{
                 historic.endpoint_url,
                 historic.endpoint_security_policy_uri,
                 historic.endpoint_message_security_mode,
             });
 
-            auto* connection = builder.build();
+            auto* connection = builder->build();
             Q_ASSERT(connection != nullptr);
-            connect(connection, &Connection::connected, this, [connection, logger = builder.getLogger()] {
-                Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer");
+            // FIXME: the builder is only destroyed when the dataviewer is closed, as the lambda is destroyed when the
+            // signal connection is destroyed
+            connect(connection, &Connection::connected, this, [connection, conid, builder = std::move(builder)] {
+                record_recent_connection(*builder, conid);
+                open_dataviewer(connection, builder->getLogger());
             });
             connection->connectAndRun();
         });
@@ -226,36 +272,6 @@ namespace magnesia::activities::dataviewer {
         m_current_connection_builder = nullptr;
         m_endpoint_selector_model->clear();
         m_connect_button->setEnabled(false);
-    }
-
-    bool ConfigWidget::recordRecentConnection() {
-        const auto& server_url = m_current_connection_builder->getUrl();
-        if (!server_url.has_value()) {
-            return false;
-        }
-
-        const auto& endpoint = m_current_connection_builder->getEndpoint();
-        if (!endpoint.has_value()) {
-            return false;
-        }
-
-        Application::instance().getStorageManager().storeHistoricServerConnection({
-            .server_url                     = *server_url,
-            .endpoint_url                   = endpoint->getEndpointUrl(),
-            .endpoint_security_policy_uri   = endpoint->getSecurityPolicyUri(),
-            .endpoint_message_security_mode = endpoint->getSecurityMode(),
-            .username                       = m_current_connection_builder->getUsername(),
-            .password                       = m_current_connection_builder->getPassword(),
-            .application_certificate_id = {}, // TODO: m_current_connection_builder->getCertificate()->getCertificate()
-            .trust_list_certificate_ids = {}, // TODO: m_current_connection_builder->getTrustList()
-            .revoked_list_certificate_ids = {}, // TODO: m_current_connection_builder->getRevokedList()
-            .last_layout_id               = {}, // TODO
-            .last_layout_group            = {}, // TODO
-            .last_layout_domain           = {}, // TODO
-            .last_used                    = QDateTime::currentDateTimeUtc(),
-        });
-
-        return true;
     }
 
     void ConfigWidget::onFindEndpoints() {
@@ -322,12 +338,13 @@ namespace magnesia::activities::dataviewer {
 
         auto* connection = m_current_connection_builder->build();
         Q_ASSERT(connection != nullptr);
-        connect(connection, &Connection::connected, this,
-                [this, connection, logger = m_current_connection_builder->getLogger()] {
-                    recordRecentConnection();
-                    reset();
-                    Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer");
-                });
+        // FIXME: the builder can only destroyed when the dataviewer is closed, as the lambda is destroyed when the
+        // signal connection is destroyed
+        connect(connection, &Connection::connected, this, [this, connection, builder = m_current_connection_builder] {
+            record_recent_connection(*builder);
+            reset();
+            open_dataviewer(connection, builder->getLogger());
+        });
         m_connect_button->setEnabled(false);
         connection->connectAndRun();
     }
@@ -432,8 +449,11 @@ namespace magnesia::activities::dataviewer {
                 }
             }
 
-            if (role == Qt::UserRole) {
+            if (role == ConnectionRole) {
                 return QVariant::fromValue(connection.second);
+            }
+            if (role == ConnectionIdRole) {
+                return QVariant::fromValue(connection.first);
             }
 
             return {};

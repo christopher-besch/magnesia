@@ -42,7 +42,6 @@ namespace magnesia::activities::dataviewer {
         QLayout* buildQuickConnect();
         QLayout* buildRecentConnections();
         void     reset();
-        bool     recordRecentConnection();
 
       private slots:
         void onFindEndpoints();
@@ -100,6 +99,14 @@ namespace magnesia::activities::dataviewer {
                                               int role = Qt::DisplayRole) const override;
 
             bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
+          public:
+            enum {
+                /// data role for the HistoricServerConnection object associated with the index
+                ConnectionRole = Qt::UserRole,
+                /// data role for the HistoricServerConnection's StorageId associated with the index
+                ConnectionIdRole,
+            };
 
           private slots:
             void onHistoricServerConnectionChanged(StorageId historic_server_connection_id, StorageChange type);
