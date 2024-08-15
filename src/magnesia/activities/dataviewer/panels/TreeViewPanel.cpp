@@ -1,4 +1,3 @@
-
 #include "TreeViewPanel.hpp"
 
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
