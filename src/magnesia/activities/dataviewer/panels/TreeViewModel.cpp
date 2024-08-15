@@ -26,13 +26,15 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         }
 
         auto* parent_node = getNode(parent);
+        Node* node        = nullptr;
 
         // Start tree with root node
         if (parent_node == nullptr) {
-            parent_node = m_root_node;
+            node = m_root_node;
+        } else {
+            node = parent_node->getChildren().value(row);
         }
 
-        auto* node = parent_node->getChildren().value(row);
         return node != nullptr ? createIndex(row, column, node) : QModelIndex();
     }
 
@@ -65,7 +67,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
         auto* node = getNode(parent);
         if (node == nullptr) {
-            node = m_root_node;
+            return 1;
         }
 
         return static_cast<int>(node->getChildren().size());
