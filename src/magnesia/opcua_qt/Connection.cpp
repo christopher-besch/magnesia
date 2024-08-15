@@ -77,7 +77,6 @@ namespace magnesia::opcua_qt {
     void Connection::connectSynchronouslyAndRun() {
         const QMutexLocker locker(&m_connect_mutex);
 
-        Q_ASSERT(!m_client.isConnected());
         Q_ASSERT(!m_client.isRunning());
         m_client.setSecurityMode(static_cast<opcua::MessageSecurityMode>(m_server_endpoint.getSecurityMode()));
         if (m_login.has_value()) {

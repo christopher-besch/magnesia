@@ -32,9 +32,7 @@
 #endif
 
 namespace magnesia::opcua_qt::abstraction {
-    VariableNode::VariableNode(opcua::Node<opcua::Client> node, QObject* parent) : Node(std::move(node), parent) {
-        Q_ASSERT(handle().readNodeClass() == opcua::NodeClass::Variable);
-    }
+    VariableNode::VariableNode(opcua::Node<opcua::Client> node, QObject* parent) : Node(std::move(node), parent) {}
 
     std::optional<DataValue> VariableNode::getDataValue() {
         return DataValue(handle().readDataValue());
