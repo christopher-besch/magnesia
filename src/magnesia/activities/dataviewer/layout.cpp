@@ -53,9 +53,10 @@ namespace magnesia::activities::dataviewer::layout {
             m_widget = label;
         }
         m_layout->addWidget(m_widget);
+        m_layout->setContentsMargins(0, 0, 0, 0);
 
         setLayout(m_layout);
-        setFrameShape(QFrame::Shape::Box);
+        setFrameShape(QFrame::Shape::StyledPanel);
     }
 
     class Panel* PanelWrapper::unwrap() {

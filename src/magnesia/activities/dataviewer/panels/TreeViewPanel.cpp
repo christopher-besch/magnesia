@@ -9,6 +9,7 @@
 #include "TreeViewModel.hpp"
 
 #include <QDebug>
+#include <QFrame>
 #include <QHBoxLayout>
 #include <QItemSelectionModel>
 #include <QModelIndex>
@@ -28,10 +29,13 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
         m_model->setRootNode(root_node);
         m_tree_view->setModel(m_model);
+        m_tree_view->setFrameShape(QFrame::Shape::NoFrame);
 
         auto* layout = new QHBoxLayout;
         layout->addWidget(m_tree_view);
         layout->setAlignment(Qt::AlignCenter);
+        layout->setContentsMargins(0, 0, 0, 0);
+
         setLayout(layout);
 
         connect(m_tree_view->selectionModel(), &QItemSelectionModel::currentChanged, this,

@@ -7,6 +7,9 @@
 #include "../panels.hpp"
 #include "ReferenceViewModel.hpp"
 
+#include <QComboBox>
+#include <QFrame>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QTableView>
 #include <QVBoxLayout>
@@ -22,9 +25,12 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
         m_table_view->horizontalHeader()->setStretchLastSection(true);
         m_table_view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
         m_table_view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        m_table_view->setFrameShape(QFrame::Shape::NoFrame);
 
         auto* toplayout = new QVBoxLayout;
         toplayout->addWidget(m_table_view);
+        toplayout->setContentsMargins(0, 0, 0, 0);
+
         setLayout(toplayout);
     }
 

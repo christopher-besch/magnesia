@@ -25,6 +25,7 @@ namespace magnesia::activities::about {
     About::About(QWidget* parent) : Activity(parent) {
         auto* layout = new QVBoxLayout();
         layout->setAlignment(Qt::AlignCenter);
+        layout->setContentsMargins(4, 4, 4, 4);
 
         {
             auto* title = new QLabel("Magnesia");
