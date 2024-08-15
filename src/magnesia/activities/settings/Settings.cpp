@@ -38,7 +38,9 @@
 #include <QtGlobal>
 #endif
 
-Q_LOGGING_CATEGORY(lcSettings, "magnesia.settings")
+namespace {
+    Q_LOGGING_CATEGORY(lc_settings, "magnesia.settings")
+} // namespace
 
 namespace magnesia::activities::settings {
     // TODO: combine with implementation in dataviewer
@@ -87,7 +89,7 @@ namespace magnesia::activities::settings {
         connect(m_sidebar_domain_list, &QListWidget::itemClicked, this, [this] {
             const int current_selected = m_sidebar_domain_list->currentRow();
             const int count            = m_sidebar_domain_list->count();
-            qCDebug(lcSettings) << "changing to" << current_selected;
+            qCDebug(lc_settings) << "changing to" << current_selected;
             // The last and penultimate items are links to certificates and keys, not a setting domain.
             // When a new special section is added, this needs to be adjusted.
             switch (count - current_selected) {
@@ -305,21 +307,21 @@ namespace magnesia::activities::settings {
 
     bool Settings::focusDomain(const Domain& domain) {
         if (m_domain_widgets.contains(domain)) {
-            qCDebug(lcSettings) << "focus domain:" << domain;
+            qCDebug(lc_settings) << "focus domain:" << domain;
             m_scroll_area->ensureWidgetVisible(m_domain_widgets[domain]);
             return true;
         }
-        qCWarning(lcSettings) << "can't focus domain:" << domain;
+        qCWarning(lc_settings) << "can't focus domain:" << domain;
         return false;
     }
 
     bool Settings::focusSetting(const SettingKey& key) {
         if (m_setting_widgets.contains(key)) {
             m_scroll_area->ensureWidgetVisible(m_setting_widgets[key]);
-            qCDebug(lcSettings) << "focus setting:" << key.domain << key.name;
+            qCDebug(lc_settings) << "focus setting:" << key.domain << key.name;
             return true;
         }
-        qCWarning(lcSettings) << "can't focus setting:" << key.domain << key.name;
+        qCWarning(lc_settings) << "can't focus setting:" << key.domain << key.name;
         return false;
     }
 
@@ -370,7 +372,7 @@ namespace magnesia::activities::settings {
         if (const auto* specific_setting = dynamic_cast<const LayoutSetting*>(setting); specific_setting != nullptr) {
             return createSettingWidget(specific_setting, domain);
         }
-        qCCritical(lcSettings) << "failed to create widget for unknown Setting type";
+        qCCritical(lc_settings) << "failed to create widget for unknown Setting type";
         terminate();
     }
 

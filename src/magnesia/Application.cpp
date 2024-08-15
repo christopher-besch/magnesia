@@ -31,7 +31,9 @@
 #include <QtGlobal>
 #endif
 
-Q_LOGGING_CATEGORY(lcApplication, "magnesia")
+namespace {
+    Q_LOGGING_CATEGORY(lc_application, "magnesia")
+} // namespace
 
 namespace {
     bool use_debug() {
@@ -57,11 +59,11 @@ namespace {
         }
 
         if (!QDir{}.mkpath(appdir.absolutePath())) {
-            qCCritical(lcApplication) << "can't create data directory" << appdir.absolutePath();
+            qCCritical(lc_application) << "can't create data directory" << appdir.absolutePath();
             terminate();
         }
 
-        qCInfo(lcApplication) << "using data directory" << appdir.absolutePath();
+        qCInfo(lc_application) << "using data directory" << appdir.absolutePath();
         return appdir;
     }
 
@@ -120,7 +122,7 @@ namespace magnesia {
     void Application::initializeActivities() {
         for (const auto& activity : getActivityMetadata()) {
             if (activity.global_init != nullptr) {
-                qCInfo(lcApplication) << "initializing activity" << activity.name;
+                qCInfo(lc_application) << "initializing activity" << activity.name;
                 std::invoke(activity.global_init);
             }
         }

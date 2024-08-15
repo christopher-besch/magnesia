@@ -24,7 +24,9 @@
 #include <QWidget>
 #include <Qt>
 
-Q_LOGGING_CATEGORY(lcDataViewer, "magnesia.dataviewer.configwidget")
+namespace {
+    Q_LOGGING_CATEGORY(lc_data_viewer, "magnesia.dataviewer.configwidget")
+} // namespace
 
 namespace magnesia::activities::dataviewer {
     namespace detail {
@@ -93,7 +95,7 @@ namespace magnesia::activities::dataviewer {
                         return;
                     }
 
-                    qCDebug(lcDataViewer) << "selected layout" << index;
+                    qCDebug(lc_data_viewer) << "selected layout" << index;
                     auto model_index = layout_selector->model()->index(index, 0);
                     auto state       = layout_selector->model()->data(model_index, Qt::UserRole);
                     m_root_layout->restoreState(state.toJsonDocument());
@@ -103,7 +105,7 @@ namespace magnesia::activities::dataviewer {
             auto state = m_root_layout->saveState();
             auto name  = save_edit->text();
 
-            qCDebug(lcDataViewer) << "saving layout" << name << "with json_data" << state;
+            qCDebug(lc_data_viewer) << "saving layout" << name << "with json_data" << state;
 
             Application::instance().getStorageManager().storeLayout(
                 {
