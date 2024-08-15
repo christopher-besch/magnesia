@@ -109,4 +109,27 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     Node* TreeViewModel::getNode(const QModelIndex& index) {
         return static_cast<Node*>(index.internalPointer());
     }
+
+    bool TreeViewModel::canFetchMore(const QModelIndex& parent) const {
+        const auto* node = getNode(parent);
+        if (node == nullptr) {
+            return true;
+        }
+        return !node->childrenCountCached().has_value();
+    }
+
+    bool TreeViewModel::hasChildren(const QModelIndex& parent) const {
+        const auto* node = getNode(parent);
+        if (node == nullptr) {
+            return true;
+        }
+
+        auto children_count = node->childrenCountCached();
+        if (!children_count.has_value()) {
+            // we don't yet know if the node has children
+            // return true to enable finding out later
+            return true;
+        }
+        return children_count.value() != 0;
+    }
 } // namespace magnesia::activities::dataviewer::panels::treeview_panel
