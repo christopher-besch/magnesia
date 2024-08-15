@@ -70,7 +70,7 @@ namespace magnesia {
             terminate();
         }
         auto cert_id = getLastRowId();
-        Q_EMIT certificateChanged(cert_id);
+        Q_EMIT certificateChanged(cert_id, StorageChange::Created);
         return cert_id;
     }
 
@@ -85,7 +85,7 @@ namespace magnesia {
             terminate();
         }
         auto key_id = getLastRowId();
-        Q_EMIT keyChanged(key_id);
+        Q_EMIT keyChanged(key_id, StorageChange::Created);
         return key_id;
     }
 
@@ -103,7 +103,7 @@ namespace magnesia {
             terminate();
         }
         auto app_cert_id = getLastRowId();
-        Q_EMIT applicationCertificateChanged(app_cert_id);
+        Q_EMIT applicationCertificateChanged(app_cert_id, StorageChange::Created);
         return app_cert_id;
     }
 
@@ -142,7 +142,7 @@ VALUES (NULL, :server_url, :endpoint_url, :endpoint_security_policy_uri, :endpoi
                                              historic_server_connection.trust_list_certificate_ids);
         setHistoricServerConnectionRevokedList(historic_server_connection_id,
                                                historic_server_connection.revoked_list_certificate_ids);
-        Q_EMIT historicServerConnectionChanged(historic_server_connection_id);
+        Q_EMIT historicServerConnectionChanged(historic_server_connection_id, StorageChange::Created);
         return historic_server_connection_id;
     }
 
@@ -161,7 +161,7 @@ INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURR
             terminate();
         }
         auto layout_id = getLastRowId();
-        Q_EMIT layoutChanged(layout_id, group, domain);
+        Q_EMIT layoutChanged(layout_id, group, domain, StorageChange::Created);
         return layout_id;
     }
 
@@ -492,7 +492,7 @@ DELETE FROM Layout WHERE id = :id AND layout_group = :layout_group AND domain = 
             warnQuery("database KeyValue replace failed.", query);
             terminate();
         }
-        Q_EMIT kvChanged(key, domain);
+        Q_EMIT kvChanged(key, domain, StorageChange::Modified);
     }
 
     std::optional<QString> SQLStorageManager::getKV(const QString& key, const Domain& domain) const {
@@ -1526,28 +1526,29 @@ FROM TupleDeleteMonitor;
             switch (static_cast<DBRelation>(query.value("relation").toUInt())) {
                 case DBRelation::Certificate:
                     qCDebug(lcSqlStorage) << "Certificate deleted";
-                    Q_EMIT certificateChanged(query.value("id").toULongLong());
+                    Q_EMIT certificateChanged(query.value("id").toULongLong(), StorageChange::Deleted);
                     continue;
                 case DBRelation::Key:
                     qCDebug(lcSqlStorage) << "Key deleted";
-                    Q_EMIT keyChanged(query.value("id").toULongLong());
+                    Q_EMIT keyChanged(query.value("id").toULongLong(), StorageChange::Deleted);
                     continue;
                 case DBRelation::ApplicationCertificate:
                     qCDebug(lcSqlStorage) << "ApplicationCertificate deleted";
-                    Q_EMIT applicationCertificateChanged(query.value("id").toULongLong());
+                    Q_EMIT applicationCertificateChanged(query.value("id").toULongLong(), StorageChange::Deleted);
                     continue;
                 case DBRelation::HistoricServerConnection:
                     qCDebug(lcSqlStorage) << "HistoricServerConnection deleted";
-                    Q_EMIT historicServerConnectionChanged(query.value("id").toULongLong());
+                    Q_EMIT historicServerConnectionChanged(query.value("id").toULongLong(), StorageChange::Deleted);
                     continue;
                 case DBRelation::Layout:
                     qCDebug(lcSqlStorage) << "Layout deleted";
                     Q_EMIT layoutChanged(query.value("id").toULongLong(), query.value("layout_group").toString(),
-                                         query.value("domain").toString());
+                                         query.value("domain").toString(), StorageChange::Deleted);
                     continue;
                 case DBRelation::KeyValue:
                     qCDebug(lcSqlStorage) << "KeyValue deleted";
-                    Q_EMIT kvChanged(query.value("key").toString(), query.value("domain").toString());
+                    Q_EMIT kvChanged(query.value("key").toString(), query.value("domain").toString(),
+                                     StorageChange::Deleted);
                     continue;
                 case DBRelation::Setting:
                     qCDebug(lcSqlStorage) << "Setting deleted";
