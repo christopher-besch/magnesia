@@ -1563,7 +1563,8 @@ FROM TupleDeleteMonitor;
                     continue;
                 case DBRelation::Setting:
                     qCDebug(lcSqlStorage) << "Setting deleted";
-                    Q_EMIT settingDeleted({query.value("name").toString(), query.value("domain").toString()});
+                    Q_EMIT settingDeleted(
+                        {.name = query.value("name").toString(), .domain = query.value("domain").toString()});
                     continue;
                 case DBRelation::HistoricServerConnectionTrustList:
                 case DBRelation::HistoricServerConnectionRevokedList:

@@ -96,10 +96,11 @@ namespace magnesia::opcua_qt {
         }
 
         connect(this, &Connection::connected, this, [&] {
-            m_timer.setInterval(static_cast<int>(Application::instance()
-                                                     .getSettingsManager()
-                                                     .getIntSetting({"opcua_poll_intervall", "general"})
-                                                     .value()));
+            m_timer.setInterval(
+                static_cast<int>(Application::instance()
+                                     .getSettingsManager()
+                                     .getIntSetting({.name = "opcua_poll_intervall", .domain = "general"})
+                                     .value()));
             connect(&m_timer, &QTimer::timeout, this, [&] { m_client.runIterate(0); });
             m_timer.start();
         });
