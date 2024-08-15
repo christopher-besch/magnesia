@@ -23,7 +23,6 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     TreeViewPanel::TreeViewPanel(DataViewer* dataviewer, QWidget* parent)
         : Panel(dataviewer, Panels::treeview, parent), m_tree_view(new QTreeView(this)),
           m_model(new TreeViewModel(this)) {
-
         auto* connection = dataviewer->getConnection();
         auto* root_node  = connection->getRootNode();
 

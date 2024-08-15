@@ -82,7 +82,6 @@ namespace magnesia::activities::settings {
     Settings::Settings(QWidget* parent)
         : Activity{parent}, m_sidebar_domain_list{new QListWidget}, m_scroll_area{new QScrollArea},
           m_domain_list{new QVBoxLayout}, m_certificate_list{new QVBoxLayout}, m_key_list{new QVBoxLayout} {
-
         // sidebar (in activity layout)
         m_sidebar_domain_list->setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
         connect(m_sidebar_domain_list, &QListWidget::itemClicked, this, [this] {

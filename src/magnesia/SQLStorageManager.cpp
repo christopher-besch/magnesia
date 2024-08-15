@@ -55,7 +55,6 @@ namespace {
 namespace magnesia {
     SQLStorageManager::SQLStorageManager(const QString& db_location, QObject* parent)
         : StorageManager(parent), m_database{QSqlDatabase::addDatabase("QSQLITE")} {
-
         qCInfo(lcSqlStorage) << "using database" << db_location;
         m_database.setDatabaseName(db_location);
 
