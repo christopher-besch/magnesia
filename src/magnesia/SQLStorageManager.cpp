@@ -301,9 +301,11 @@ SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_gro
         QList<std::pair<StorageId, QSslCertificate>> certificates{};
         while (query.next()) {
             const auto certs = QSslCertificate::fromData(query.value("pem").toByteArray(), QSsl::EncodingFormat::Pem);
-            for (const auto& cert : certs) {
-                certificates.emplaceBack(query.value("id").toULongLong(), cert);
+            // you may not store more than one certificate
+            if (certs.size() != 1) {
+                return {};
             }
+            certificates.emplaceBack(query.value("id").toULongLong(), certs.front());
         }
         return certificates;
     }
