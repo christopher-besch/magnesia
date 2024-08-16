@@ -1,9 +1,10 @@
 #pragma once
 
-#include "../..//database_types.hpp"
 #include "../../ConfigWidget.hpp"
 #include "../../HistoricServerConnection.hpp"
 #include "../../StorageManager.hpp"
+#include "../../database_types.hpp"
+#include "../../opcua_qt/ApplicationCertificate.hpp"
 #include "../../opcua_qt/ConnectionBuilder.hpp"
 #include "../../opcua_qt/abstraction/Endpoint.hpp"
 
@@ -12,6 +13,7 @@
 
 #include <open62541pp/Result.h>
 
+#include <QAbstractListModel>
 #include <QAbstractTableModel>
 #include <QComboBox>
 #include <QLineEdit>
@@ -84,6 +86,28 @@ namespace magnesia::activities::dataviewer {
 
           private:
             QList<opcua_qt::Endpoint> m_endpoints;
+        };
+
+        class CertificateModel : public QAbstractListModel {
+            Q_OBJECT
+
+          public:
+            explicit CertificateModel(QObject* parent = nullptr);
+
+            [[nodiscard]] int      rowCount(const QModelIndex& parent = QModelIndex()) const override;
+            [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+
+            bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
+          private:
+            void              addCertificate(StorageId cert_id);
+            [[nodiscard]] int rowIndex(StorageId cert_id) const;
+
+          private slots:
+            void onApplicationCertificateChanged(StorageId cert_id, StorageChange type);
+
+          private:
+            QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>> m_certificates;
         };
 
         class HistoricServerConnectionModel : public QAbstractTableModel {
