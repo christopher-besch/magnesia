@@ -164,7 +164,7 @@ INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURR
         query.bindValue(":layout_group", group);
         query.bindValue(":domain", domain);
         query.bindValue(":name", layout.name);
-        query.bindValue(":json_data", layout.json_data.toJson());
+        query.bindValue(":json_data", layout.json_data.toJson(QJsonDocument::Compact));
         query.exec();
         if (query.lastError().isValid()) {
             warnQuery("database Layout storing failed.", query);
