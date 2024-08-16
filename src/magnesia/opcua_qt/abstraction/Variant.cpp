@@ -64,7 +64,7 @@ namespace magnesia::opcua_qt::abstraction {
     QList<QVariant> Variant::getQVariantArray() const {
         auto span = m_variant.getArray<T>();
 
-        auto list = QList<QVariant>();
+        QList<QVariant> list;
         list.reserve(static_cast<qsizetype>(span.size()));
         std::ranges::transform(span, std::back_inserter(list),
                                [](const auto& val) { return QVariant::fromValue(val); });
@@ -151,7 +151,7 @@ namespace magnesia::opcua_qt::abstraction {
                 case UA_DATATYPEKIND_STRING: {
                     auto span = m_variant.getArray<opcua::String>();
 
-                    auto list = QList<QVariant>();
+                    QList<QVariant> list;
                     list.reserve(static_cast<qsizetype>(span.size()));
                     std::ranges::transform(span, std::back_inserter(list),
                                            [](const opcua::String& string) { return QLatin1StringView{string.get()}; });
@@ -161,7 +161,7 @@ namespace magnesia::opcua_qt::abstraction {
                 case UA_DATATYPEKIND_DATETIME: {
                     auto span = m_variant.getArray<opcua::DateTime>();
 
-                    auto list = QList<QVariant>();
+                    QList<QVariant> list;
                     list.reserve(static_cast<qsizetype>(span.size()));
                     std::ranges::transform(span, std::back_inserter(list), [](const opcua::DateTime& val) {
                         return QDateTime::fromSecsSinceEpoch(val.toUnixTime());
@@ -174,7 +174,7 @@ namespace magnesia::opcua_qt::abstraction {
                 case UA_DATATYPEKIND_STATUSCODE: {
                     auto span = m_variant.getArray<UA_StatusCode>();
 
-                    auto list = QList<QVariant>();
+                    QList<QVariant> list;
                     list.reserve(static_cast<qsizetype>(span.size()));
                     std::ranges::transform(span, std::back_inserter(list), UA_StatusCode_name);
 
