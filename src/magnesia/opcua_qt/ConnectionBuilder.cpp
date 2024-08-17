@@ -1,21 +1,21 @@
 #include "ConnectionBuilder.hpp"
 
-#include "../Application.hpp"
 #include "../qt_version_check.hpp"
 #include "ApplicationCertificate.hpp"
 #include "Connection.hpp"
 #include "Logger.hpp"
 #include "abstraction/Endpoint.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <optional>
-#include <utility>
-#include <vector>
 
 #include <open62541pp/Client.h>
-#include <open62541pp/types/Composed.h>
+#include <open62541pp/ErrorHandling.h>
+#include <open62541pp/Result.h>
 
 #include <QList>
-#include <QObject>
+#include <QMutexLocker>
 #include <QSslCertificate>
 #include <QString>
 #include <QThreadPool>
@@ -30,9 +30,9 @@
 
 namespace magnesia::opcua_qt {
     ConnectionBuilder& ConnectionBuilder::url(const QUrl& url) noexcept {
-        m_get_endpoint_mutex.lock();
+        const QMutexLocker locker(&m_get_endpoint_mutex);
+
         m_url = url;
-        m_get_endpoint_mutex.unlock();
         return *this;
     }
 
@@ -73,55 +73,36 @@ namespace magnesia::opcua_qt {
     }
 
     void ConnectionBuilder::findEndpoints() {
-        QThreadPool::globalInstance()->start([&] { findEndopintsSynchronously(); });
-    }
-
-    std::optional<QString>&& ConnectionBuilder::getUsername() noexcept {
-        return std::move(m_username);
-    }
-
-    std::optional<QString>&& ConnectionBuilder::getPassword() noexcept {
-        return std::move(m_password);
-    }
-
-    std::optional<ApplicationCertificate>&& ConnectionBuilder::getCertificate() noexcept {
-        return std::move(m_certificate);
-    }
-
-    QList<QSslCertificate>&& ConnectionBuilder::getTrustList() noexcept {
-        return std::move(m_trust_list);
-    }
-
-    QList<QSslCertificate>&& ConnectionBuilder::getRevokedList() noexcept {
-        return std::move(m_revoked_list);
-    }
-
-    std::optional<Endpoint>&& ConnectionBuilder::getEndpoint() noexcept {
-        return std::move(m_endpoint);
-    }
-
-    Logger* ConnectionBuilder::getLogger() noexcept {
-        return std::exchange(m_logger, nullptr);
+        QThreadPool::globalInstance()->start([&] { Q_EMIT endpointsFound(findEndopintsSynchronously()); });
     }
 
     Connection* ConnectionBuilder::build() {
         if (!m_endpoint.has_value() || m_logger == nullptr) {
             return nullptr;
         }
-        return Application::instance().getConnectionManager().createConnection(*this);
+
+        std::optional<opcua::Login> login;
+        if (m_username.has_value() && m_password.has_value()) {
+            login           = opcua::Login();
+            login->username = m_username.value().toStdString();
+            login->password = m_password.value().toStdString();
+        }
+
+        return new Connection(m_endpoint.value(), login, m_certificate, m_trust_list, m_revoked_list, m_logger);
     }
 
-    void ConnectionBuilder::findEndopintsSynchronously() {
-        // never unlock this as the function may not be called more than once
-        m_get_endpoint_mutex.lock();
+    opcua::Result<QList<Endpoint>> ConnectionBuilder::findEndopintsSynchronously() {
+        const QMutexLocker locker(&m_get_endpoint_mutex);
+
         Q_ASSERT(m_url.has_value());
-        auto                                          client = opcua::Client();
-        const std::vector<opcua::EndpointDescription> endpoints =
-            client.getEndpoints(m_url.value().toString().toStdString());
-        for (const opcua::EndpointDescription& endpoint : endpoints) {
-            // store these in the builder to not have them be deleted at the end of the scope
-            m_endpoints.append(Endpoint(endpoint));
+        try {
+            const auto endpoint_descriptions = opcua::Client{}.getEndpoints(m_url.value().toString().toStdString());
+            QList<Endpoint> endpoints;
+            std::ranges::transform(endpoint_descriptions, std::back_inserter(endpoints),
+                                   [](auto endpoint) { return Endpoint{endpoint}; });
+            return endpoints;
+        } catch (const opcua::BadStatus& status) {
+            return opcua::BadResult(status.code());
         }
-        Q_EMIT endpointsFound(m_endpoints);
     }
 } // namespace magnesia::opcua_qt

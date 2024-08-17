@@ -5,7 +5,6 @@
 #include "Router.hpp"
 #include "SettingsManager.hpp"
 #include "StorageManager.hpp"
-#include "opcua_qt/ConnectionManager.hpp"
 #include "qt_version_check.hpp"
 
 #include <span>
@@ -84,12 +83,6 @@ namespace magnesia {
         SettingsManager& getSettingsManager();
 
         /**
-         * Provides a reference to the current `ConnectionManager` that should be used by activities to create and
-         * manage OPC UA connections.
-         */
-        opcua_qt::ConnectionManager& getConnectionManager();
-
-        /**
          * Provides a reference to the current `Router` that should be used by activities to route messages to the
          * relevant parties.
          */
@@ -128,10 +121,9 @@ namespace magnesia {
       private:
         QDir m_data_dir;
 
-        StorageManager*              m_storage_manager{nullptr};
-        SettingsManager*             m_settings_manager{nullptr};
-        opcua_qt::ConnectionManager* m_connection_manager{nullptr};
-        Router*                      m_router{nullptr};
+        StorageManager*  m_storage_manager{nullptr};
+        SettingsManager* m_settings_manager{nullptr};
+        Router*          m_router{nullptr};
 
         // Not a pointer to maintain ownership. QMainWindow doesn't accept a QObject pointer (this) as parent so the
         // QObject tree doesn't destruct this when the Application is destroyed, leaving a bunch of stuff behind that

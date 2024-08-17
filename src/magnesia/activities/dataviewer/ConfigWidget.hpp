@@ -6,6 +6,8 @@
 
 #include <cstddef>
 
+#include <open62541pp/Result.h>
+
 #include <QAbstractItemModel>
 #include <QComboBox>
 #include <QLineEdit>
@@ -38,7 +40,7 @@ namespace magnesia::activities::dataviewer {
 
       private slots:
         void onFindEndpoints();
-        void onEndpointsFound(const QList<opcua_qt::Endpoint>& endpoints);
+        void onEndpointsFound(const opcua::Result<QList<opcua_qt::Endpoint>>& result);
         void onConnect();
 
       private:

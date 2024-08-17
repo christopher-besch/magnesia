@@ -9,6 +9,7 @@
 #include "Variant.hpp"
 
 #include <cstdint>
+#include <iterator>
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Common.h>
@@ -40,14 +41,8 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     QList<MonitoredItem> Subscription::getMonitoredItems() noexcept {
-        auto vector = m_subscription.getMonitoredItems();
-        auto items  = QList<MonitoredItem>();
-        items.reserve(static_cast<qsizetype>(vector.size()));
-
-        for (auto& item : items) {
-            items.append(item);
-        }
-
+        auto                 vector = m_subscription.getMonitoredItems();
+        QList<MonitoredItem> items{std::move_iterator{vector.begin()}, std::move_iterator{vector.end()}};
         return items;
     }
 

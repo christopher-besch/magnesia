@@ -44,15 +44,13 @@ namespace magnesia::opcua_qt {
          * @param trust_list list of trusted certificates
          * @param revocation_list Certificate revocation lists (CRL)
          * @param logger the logger to use
-         * @param connection_id the unique id for this connection
          * @param parent the QObject parent for this connection (should be the connection manager)
          *
          * trust_list and revocation_list have no effect if there is no client certificate.
          */
         Connection(Endpoint endpoint, const std::optional<opcua::Login>& login,
                    const std::optional<ApplicationCertificate>& certificate, const QList<QSslCertificate>& trust_list,
-                   const QList<QSslCertificate>& revocation_list, Logger* logger, int connection_id,
-                   QObject* parent = nullptr);
+                   const QList<QSslCertificate>& revocation_list, Logger* logger, QObject* parent = nullptr);
         /**
          * @brief Connects the underlying OPC UA client and poll for subscription updates asynchronously. The signal
          * connected gets emitted when the connection has been established.
@@ -60,12 +58,6 @@ namespace magnesia::opcua_qt {
          * Don't do anything when the connection has already been established
          */
         void connectAndRun();
-        /**
-         * @brief Returns the connection id
-         *
-         * @return the int id
-         */
-        [[nodiscard]] int getId() const noexcept;
         /**
          * @brief gets the endpoint url with which the connection is connected
          *
@@ -94,8 +86,8 @@ namespace magnesia::opcua_qt {
          *
          * @return Returns a Subscription pointer
          */
-        [[nodiscard]] abstraction::Subscription* createSubscription(abstraction::NodeId&             node_id,
-                                                                    QList<abstraction::AttributeId>& attribute_ids);
+        [[nodiscard]] abstraction::Subscription*
+        createSubscription(abstraction::NodeId& node_id, const QList<abstraction::AttributeId>& attribute_ids);
         /**
          * @brief Stops polling for updates and disconnects the client
          */
@@ -120,7 +112,6 @@ namespace magnesia::opcua_qt {
 
       private:
         opcua::Client               m_client;
-        int                         m_id;
         opcua_qt::Endpoint          m_server_endpoint;
         std::optional<opcua::Login> m_login;
         QTimer                      m_timer;

@@ -7,6 +7,8 @@
 
 #include <optional>
 
+#include <open62541pp/Result.h>
+
 #include <QList>
 #include <QMutex>
 #include <QObject>
@@ -16,8 +18,6 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::opcua_qt {
-    class ConnectionManager;
-
     /**
      * @brief Class that is used to create a connection.
      */
@@ -131,26 +131,13 @@ namespace magnesia::opcua_qt {
       signals:
         /**
          * @brief emits a list of endpoints from the url
-         *
-         * The endpoints are valid as long as the ConnectionBuilder lives.
          */
-        void endpointsFound(const QList<Endpoint>& endpoints);
+        void endpointsFound(opcua::Result<QList<Endpoint>> result);
 
       private:
-        friend ConnectionManager;
-        // these functions gut the connection manager so they shall not be called twice
-        [[nodiscard]] std::optional<QString>&&                getUsername() noexcept;
-        [[nodiscard]] std::optional<QString>&&                getPassword() noexcept;
-        [[nodiscard]] std::optional<ApplicationCertificate>&& getCertificate() noexcept;
-        [[nodiscard]] QList<QSslCertificate>&&                getTrustList() noexcept;
-        [[nodiscard]] QList<QSslCertificate>&&                getRevokedList() noexcept;
-        [[nodiscard]] std::optional<Endpoint>&&               getEndpoint() noexcept;
-        [[nodiscard]] Logger*                                 getLogger() noexcept;
-
-        void findEndopintsSynchronously();
+        opcua::Result<QList<Endpoint>> findEndopintsSynchronously();
 
       private:
-        QList<Endpoint>                       m_endpoints;
         std::optional<QUrl>                   m_url;
         std::optional<Endpoint>               m_endpoint;
         Logger*                               m_logger{nullptr};

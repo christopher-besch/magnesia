@@ -17,6 +17,7 @@
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Common.h>
+#include <open62541pp/ErrorHandling.h>
 #include <open62541pp/Node.h>
 #include <open62541pp/Span.h>
 
@@ -48,13 +49,17 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::optional<QList<quint32>> VariableNode::getArrayDimensions() {
-        auto vector = handle().readArrayDimensions();
-        auto list   = QList<quint32>();
+        try {
+            auto vector = handle().readArrayDimensions();
+            auto list   = QList<quint32>();
 
-        list.reserve(static_cast<qsizetype>(vector.size()));
-        std::copy(vector.begin(), vector.end(), std::back_inserter(list));
+            list.reserve(static_cast<qsizetype>(vector.size()));
+            std::copy(vector.begin(), vector.end(), std::back_inserter(list));
 
-        return list;
+            return list;
+        } catch (opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     std::optional<AccessLevelBitmask> VariableNode::getAccessLevel() {
@@ -66,7 +71,11 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::optional<double> VariableNode::getMinimumSamplingInterval() {
-        return handle().readMinimumSamplingInterval();
+        try {
+            return handle().readMinimumSamplingInterval();
+        } catch (opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     std::optional<bool> VariableNode::isHistorizing() {

@@ -9,6 +9,7 @@
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Common.h>
+#include <open62541pp/ErrorHandling.h>
 #include <open62541pp/Node.h>
 
 #include <QObject>
@@ -26,7 +27,11 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::optional<LocalizedText> ReferenceTypeNode::getInverseName() {
-        return LocalizedText(handle().readInverseName());
+        try {
+            return LocalizedText(handle().readInverseName());
+        } catch (opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     std::optional<bool> ReferenceTypeNode::isAbstract() {

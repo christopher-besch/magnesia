@@ -34,6 +34,9 @@ namespace magnesia::activities::dataviewer {
     DataViewer::DataViewer(opcua_qt::Connection* connection, opcua_qt::Logger* logger, QWidget* parent)
         : Activity(parent), m_root_layout(new layout::PanelLayout(this, Qt::Horizontal, nullptr)),
           m_connection(connection), m_logger(logger) {
+        m_connection->setParent(this);
+        m_logger->setParent(this);
+
         auto* layout = new QVBoxLayout;
         // layout->setContentsMargins(2, 2, 2, 2);
         layout->setContentsMargins(4, 4, 4, 4);
