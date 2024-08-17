@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <utility>
 
 #include <QList>
 #include <QObject>
@@ -135,9 +136,9 @@ namespace magnesia {
          *
          * Exit the application on error.
          *
-         * @return a list of all certificates.
+         * @return a list of pairs of all certificates and their ids.
          */
-        [[nodiscard]] virtual QList<QSslCertificate> getAllCertificates() const = 0;
+        [[nodiscard]] virtual QList<std::pair<StorageId, QSslCertificate>> getAllCertificates() const = 0;
         /**
          * Retrieve all X.509 keys from the database.
          *
@@ -145,9 +146,9 @@ namespace magnesia {
          *
          * Exit the application on error.
          *
-         * @return a list of all keys.
+         * @return a list of pairs of all keys and their ids.
          */
-        [[nodiscard]] virtual QList<QSslKey> getAllKeys() const = 0;
+        [[nodiscard]] virtual QList<std::pair<StorageId, QSslKey>> getAllKeys() const = 0;
         /**
          * Retrieve all X.509 certificate key pairs from the database.
          *
@@ -155,9 +156,10 @@ namespace magnesia {
          *
          * Exit the application on error.
          *
-         * @return a list of all certificate key pairs.
+         * @return a list of pairs of all certificate key pairs and their ids.
          */
-        [[nodiscard]] virtual QList<opcua_qt::ApplicationCertificate> getAllApplicationCertificates() const = 0;
+        [[nodiscard]] virtual QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>>
+        getAllApplicationCertificates() const = 0;
         /**
          * Retrieve all HistoricServerConnections from the database.
          *
@@ -165,9 +167,10 @@ namespace magnesia {
          *
          * Exit the application on error.
          *
-         * @return a list of all HistoricServerConnections.
+         * @return a list of pairs of all HistoricServerConnections and their ids.
          */
-        [[nodiscard]] virtual QList<HistoricServerConnection> getAllHistoricServerConnections() const = 0;
+        [[nodiscard]] virtual QList<std::pair<StorageId, HistoricServerConnection>>
+        getAllHistoricServerConnections() const = 0;
         /**
          * Retrieve all Layouts from the database for a specified group and domain.
          *
@@ -177,63 +180,10 @@ namespace magnesia {
          *
          * @param group The LayoutGroup the layouts belong to.
          * @param domain The Domain the layouts belong to.
-         * @return a list of all Layouts with the specified group and domain.
+         * @return a list of pairs of all Layouts with the specified group and domain and their ids.
          */
-        [[nodiscard]] virtual QList<Layout> getAllLayouts(const LayoutGroup& group, const Domain& domain) const = 0;
-
-        /**
-         * Retrieve all X.509 certificate IDs from the database.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @return a list of all certificate IDs.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllCertificateIds() const = 0;
-        /**
-         * Retrieve all X.509 key IDs from the database.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @return a list of all key IDs.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllKeyIds() const = 0;
-        /**
-         * Retrieve all X.509 certificate key pair IDs from the database.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @return a list of all certificate key pair IDs.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllApplicationCertificateIds() const = 0;
-        /**
-         * Retrieve all HistoricServerConnection IDs from the database.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @return a list of all HistoricServerConnections IDs.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllHistoricServerConnectionIds() const = 0;
-        /**
-         * Retrieve all Layout IDs from the database for a specified group and domain.
-         *
-         * This can be used to populate drop down menus in the SettingsActivity.
-         *
-         * Exit the application on error.
-         *
-         * @param group The LayoutGroup the layouts belong to.
-         * @param domain The Domain the layouts belong to.
-         * @return a list of all Layout IDs with the specified group and domain.
-         */
-        [[nodiscard]] virtual QList<StorageId> getAllLayoutIds(const LayoutGroup& group,
-                                                               const Domain&      domain) const = 0;
+        [[nodiscard]] virtual QList<std::pair<StorageId, Layout>> getAllLayouts(const LayoutGroup& group,
+                                                                                const Domain&      domain) const = 0;
 
         /**
          * Delete the X.509 certificate with the specified id if it exists.

@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <utility>
 
 #include <QJsonDocument>
 #include <QList>
@@ -290,41 +291,47 @@ SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_gro
         };
     }
 
-    QList<QSslCertificate> SQLStorageManager::getAllCertificates() const {
-        QSqlQuery query{R"sql(SELECT pem FROM Certificate;)sql", m_database};
+    QList<std::pair<StorageId, QSslCertificate>> SQLStorageManager::getAllCertificates() const {
+        QSqlQuery query{R"sql(SELECT id, pem FROM Certificate;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database all Certificate retrieval failed.", query);
             terminate();
         }
 
-        QList<QSslCertificate> certificates{};
+        QList<std::pair<StorageId, QSslCertificate>> certificates{};
         while (query.next()) {
-            certificates.append(QSslCertificate::fromData(query.value("pem").toByteArray(), QSsl::EncodingFormat::Pem));
+            const auto certs = QSslCertificate::fromData(query.value("pem").toByteArray(), QSsl::EncodingFormat::Pem);
+            // you may not store more than one certificate
+            if (certs.size() != 1) {
+                return {};
+            }
+            certificates.emplaceBack(query.value("id").toULongLong(), certs.front());
         }
         return certificates;
     }
 
-    QList<QSslKey> SQLStorageManager::getAllKeys() const {
-        QSqlQuery query{R"sql(SELECT pem FROM Key;)sql", m_database};
+    QList<std::pair<StorageId, QSslKey>> SQLStorageManager::getAllKeys() const {
+        QSqlQuery query{R"sql(SELECT id, pem FROM Key;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database all Key retrieval failed.", query);
             terminate();
         }
 
-        QList<QSslKey> keys{};
+        QList<std::pair<StorageId, QSslKey>> keys{};
         while (query.next()) {
             // TODO: use actual key type
-            const QSslKey key{query.value("pem").toByteArray(), QSsl::Rsa, QSsl::Pem};
+            QSslKey key{query.value("pem").toByteArray(), QSsl::Rsa, QSsl::Pem};
             Q_ASSERT(!key.isNull());
-            keys.append(key);
+            keys.emplaceBack(query.value("id").toULongLong(), std::move(key));
         }
         return keys;
     }
 
-    QList<opcua_qt::ApplicationCertificate> SQLStorageManager::getAllApplicationCertificates() const {
+    QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>>
+    SQLStorageManager::getAllApplicationCertificates() const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
-SELECT Certificate.pem, Key.pem
+SELECT ApplicationCertificate.id, Certificate.pem, Key.pem
 FROM ApplicationCertificate, Certificate, Key
 WHERE ApplicationCertificate.certificate_id = Certificate.id
     AND ApplicationCertificate.key_id = Key.id;
@@ -335,7 +342,7 @@ WHERE ApplicationCertificate.certificate_id = Certificate.id
             terminate();
         }
 
-        QList<opcua_qt::ApplicationCertificate> app_certificates{};
+        QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>> app_certificates{};
         while (query.next()) {
             auto certs =
                 QSslCertificate::fromData(query.value("Certificate.pem").toByteArray(), QSsl::EncodingFormat::Pem);
@@ -345,31 +352,19 @@ WHERE ApplicationCertificate.certificate_id = Certificate.id
                 terminate();
             }
             // TODO: use actual key type
-            const QSslKey key{query.value("Key.pem").toByteArray(), QSsl::Rsa, QSsl::Pem};
+            QSslKey key{query.value("Key.pem").toByteArray(), QSsl::Rsa, QSsl::Pem};
             Q_ASSERT(!key.isNull());
-            app_certificates.emplaceBack(key, certs.front());
+            app_certificates.emplaceBack(query.value("ApplicationCertificate.id").toULongLong(),
+                                         opcua_qt::ApplicationCertificate{std::move(key), certs.front()});
         }
         return app_certificates;
     }
 
-    QList<HistoricServerConnection> SQLStorageManager::getAllHistoricServerConnections() const {
+    QList<std::pair<StorageId, HistoricServerConnection>> SQLStorageManager::getAllHistoricServerConnections() const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
-
 SELECT
-    id,
-    server_url,
-    endpoint_url,
-    endpoint_security_policy_uri,
-    endpoint_message_security_mode,
-    username,
-    password,
-    certificate_id,
-    layout_id,
-    layout_group,
-    layout_domain,
-    last_used
-AS historic_server_connection_id,
+    id AS historic_server_connection_id,
     server_url,
     endpoint_url,
     endpoint_security_policy_uri,
@@ -389,17 +384,19 @@ FROM HistoricServerConnection;
             terminate();
         }
 
-        QList<HistoricServerConnection> historic_connections{};
+        QList<std::pair<StorageId, HistoricServerConnection>> historic_connections{};
         while (query.next()) {
-            historic_connections.append(queryToHistoricServerConnection(query));
+            historic_connections.emplaceBack(query.value("historic_server_connection_id").toULongLong(),
+                                             queryToHistoricServerConnection(query));
         }
         return historic_connections;
     }
 
-    QList<Layout> SQLStorageManager::getAllLayouts(const LayoutGroup& group, const Domain& domain) const {
+    QList<std::pair<StorageId, Layout>> SQLStorageManager::getAllLayouts(const LayoutGroup& group,
+                                                                         const Domain&      domain) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
-SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain = :domain;
+SELECT id, name, json_data FROM Layout WHERE layout_group = :layout_group AND domain = :domain;
                       )sql");
         query.bindValue(":layout_group", group);
         query.bindValue(":domain", domain);
@@ -409,90 +406,15 @@ SELECT name, json_data FROM Layout WHERE layout_group = :layout_group AND domain
             terminate();
         }
 
-        QList<Layout> layouts{};
+        QList<std::pair<StorageId, Layout>> layouts{};
         while (query.next()) {
-            layouts.append({
-                .name      = query.value("name").toString(),
-                .json_data = QJsonDocument::fromJson(query.value("json_data").toString().toUtf8()),
-            });
+            layouts.emplaceBack(query.value("id").toULongLong(),
+                                Layout{
+                                    .name      = query.value("name").toString(),
+                                    .json_data = QJsonDocument::fromJson(query.value("json_data").toString().toUtf8()),
+                                });
         }
         return layouts;
-    }
-
-    QList<StorageId> SQLStorageManager::getAllCertificateIds() const {
-        QSqlQuery query{R"sql(SELECT id FROM Certificate;)sql", m_database};
-        if (query.lastError().isValid()) {
-            warnQuery("database all Certificate IDs retrieval failed.", query);
-            terminate();
-        }
-
-        QList<StorageId> certificate_ids{};
-        while (query.next()) {
-            certificate_ids.append(query.value("id").toULongLong());
-        }
-        return certificate_ids;
-    }
-
-    QList<StorageId> SQLStorageManager::getAllKeyIds() const {
-        QSqlQuery query{R"sql(SELECT id FROM Key;)sql", m_database};
-        if (query.lastError().isValid()) {
-            warnQuery("database all Key IDs retrieval failed.", query);
-            terminate();
-        }
-
-        QList<StorageId> key_ids{};
-        while (query.next()) {
-            key_ids.append(query.value("id").toULongLong());
-        }
-        return key_ids;
-    }
-
-    QList<StorageId> SQLStorageManager::getAllApplicationCertificateIds() const {
-        QSqlQuery query{R"sql(SELECT id FROM ApplicationCertificate;)sql", m_database};
-        if (query.lastError().isValid()) {
-            warnQuery("database all ApplicationCertificate IDs retrieval failed.", query);
-            terminate();
-        }
-
-        QList<StorageId> certificate_ids{};
-        while (query.next()) {
-            certificate_ids.append(query.value("id").toULongLong());
-        }
-        return certificate_ids;
-    }
-
-    QList<StorageId> SQLStorageManager::getAllHistoricServerConnectionIds() const {
-        QSqlQuery query{m_database};
-        query.prepare(R"sql(SELECT id FROM HistoricServerConnection;)sql");
-        query.exec();
-        if (query.lastError().isValid()) {
-            warnQuery("database all HistoricServerConnection IDs retrieval failed.", query);
-            terminate();
-        }
-
-        QList<StorageId> historic_server_connection_ids{};
-        while (query.next()) {
-            historic_server_connection_ids.append(query.value("id").toULongLong());
-        }
-        return historic_server_connection_ids;
-    }
-
-    QList<StorageId> SQLStorageManager::getAllLayoutIds(const LayoutGroup& group, const Domain& domain) const {
-        QSqlQuery query{m_database};
-        query.prepare(R"sql(SELECT id FROM Layout WHERE layout_group = :layout_group AND domain = :domain;)sql");
-        query.bindValue(":layout_group", group);
-        query.bindValue(":domain", domain);
-        query.exec();
-        if (query.lastError().isValid()) {
-            warnQuery("database all Layout IDs retrieval failed.", query);
-            terminate();
-        }
-
-        QList<StorageId> layout_ids{};
-        while (query.next()) {
-            layout_ids.append(query.value("id").toULongLong());
-        }
-        return layout_ids;
     }
 
     void SQLStorageManager::deleteCertificate(StorageId cert_id) {

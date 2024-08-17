@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <utility>
 
 #include <QList>
 #include <QObject>
@@ -72,16 +73,14 @@ namespace magnesia {
         [[nodiscard]] std::optional<Layout> getLayout(StorageId layout_id, const LayoutGroup& group,
                                                       const Domain& domain) const override;
 
-        [[nodiscard]] QList<QSslCertificate>                  getAllCertificates() const override;
-        [[nodiscard]] QList<QSslKey>                          getAllKeys() const override;
-        [[nodiscard]] QList<opcua_qt::ApplicationCertificate> getAllApplicationCertificates() const override;
-        [[nodiscard]] QList<HistoricServerConnection>         getAllHistoricServerConnections() const override;
-        [[nodiscard]] QList<Layout>    getAllLayouts(const LayoutGroup& group, const Domain& domain) const override;
-        [[nodiscard]] QList<StorageId> getAllCertificateIds() const override;
-        [[nodiscard]] QList<StorageId> getAllKeyIds() const override;
-        [[nodiscard]] QList<StorageId> getAllApplicationCertificateIds() const override;
-        [[nodiscard]] QList<StorageId> getAllHistoricServerConnectionIds() const override;
-        [[nodiscard]] QList<StorageId> getAllLayoutIds(const LayoutGroup& group, const Domain& domain) const override;
+        [[nodiscard]] QList<std::pair<StorageId, QSslCertificate>> getAllCertificates() const override;
+        [[nodiscard]] QList<std::pair<StorageId, QSslKey>>         getAllKeys() const override;
+        [[nodiscard]] QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>>
+        getAllApplicationCertificates() const override;
+        [[nodiscard]] QList<std::pair<StorageId, HistoricServerConnection>>
+                                                          getAllHistoricServerConnections() const override;
+        [[nodiscard]] QList<std::pair<StorageId, Layout>> getAllLayouts(const LayoutGroup& group,
+                                                                        const Domain&      domain) const override;
 
         void deleteCertificate(StorageId cert_id) override;
         void deleteKey(StorageId key_id) override;

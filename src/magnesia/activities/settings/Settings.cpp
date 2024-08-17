@@ -255,12 +255,10 @@ namespace magnesia::activities::settings {
         qDeleteAll(m_certificate_widgets);
         m_certificate_widgets.clear();
 
-        for (const StorageId cert_id : Application::instance().getStorageManager().getAllCertificateIds()) {
-            auto cert = Application::instance().getStorageManager().getCertificate(cert_id);
-            Q_ASSERT(cert.has_value());
+        for (const auto& [cert_id, cert] : Application::instance().getStorageManager().getAllCertificates()) {
             auto* layout = new QHBoxLayout;
 
-            auto* label = new QLabel{cert.value().subjectDisplayName()};
+            auto* label = new QLabel{cert.subjectDisplayName()};
             layout->addWidget(label);
 
             auto* view_button = new QPushButton{"View"};
@@ -286,9 +284,7 @@ namespace magnesia::activities::settings {
         qDeleteAll(m_key_widgets);
         m_key_widgets.clear();
 
-        for (const StorageId key_id : Application::instance().getStorageManager().getAllKeyIds()) {
-            auto key = Application::instance().getStorageManager().getKey(key_id);
-            Q_ASSERT(key.has_value());
+        for (const auto& [key_id, _] : Application::instance().getStorageManager().getAllKeys()) {
             auto* layout = new QHBoxLayout;
 
             // TODO: figure out a better label
@@ -491,18 +487,15 @@ namespace magnesia::activities::settings {
         const SettingKey key{setting->getName(), domain};
         const auto       cur_setting_value =
             Application::instance().getSettingsManager().getHistoricServerConnectionSettingId(key);
-        const auto server_con_ids = Application::instance().getStorageManager().getAllHistoricServerConnectionIds();
+        const auto server_cons = Application::instance().getStorageManager().getAllHistoricServerConnections();
 
         auto* combo_box = new QComboBox;
         // used when nullopt
         combo_box->addItem("None");
         combo_box->setCurrentIndex(0);
-        for (const auto& server_con_id : server_con_ids) {
-            const auto& server_con =
-                Application::instance().getStorageManager().getHistoricServerConnection(server_con_id);
-            Q_ASSERT(server_con.has_value());
+        for (const auto& [server_con_id, server_con] : server_cons) {
             // TODO: better text, maybe include timestamp
-            combo_box->addItem(server_con.value().endpoint_url.toString(), server_con_id);
+            combo_box->addItem(server_con.endpoint_url.toString(), server_con_id);
             if (cur_setting_value.has_value() && cur_setting_value.value() == server_con_id) {
                 combo_box->setCurrentIndex(combo_box->count() - 1);
             }
@@ -524,16 +517,14 @@ namespace magnesia::activities::settings {
 
         const SettingKey key{setting->getName(), domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getCertificateSettingId(key);
-        const auto       cert_ids          = Application::instance().getStorageManager().getAllCertificateIds();
+        const auto       certs             = Application::instance().getStorageManager().getAllCertificates();
 
         auto* combo_box = new QComboBox;
         // used when nullopt
         combo_box->addItem("None");
         combo_box->setCurrentIndex(0);
-        for (const auto& cert_id : cert_ids) {
-            const auto& cert = Application::instance().getStorageManager().getCertificate(cert_id);
-            Q_ASSERT(cert.has_value());
-            combo_box->addItem(cert.value().subjectDisplayName(), cert_id);
+        for (const auto& [cert_id, cert] : certs) {
+            combo_box->addItem(cert.subjectDisplayName(), cert_id);
             if (cur_setting_value.has_value() && cur_setting_value.value() == cert_id) {
                 combo_box->setCurrentIndex(combo_box->count() - 1);
             }
@@ -555,13 +546,13 @@ namespace magnesia::activities::settings {
 
         const SettingKey key{setting->getName(), domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getKeySettingId(key);
-        const auto       key_ids           = Application::instance().getStorageManager().getAllKeyIds();
+        const auto       keys              = Application::instance().getStorageManager().getAllKeys();
 
         auto* combo_box = new QComboBox;
         // used when nullopt
         combo_box->addItem("None");
         combo_box->setCurrentIndex(0);
-        for (const auto& key_id : key_ids) {
+        for (const auto& [key_id, _] : keys) {
             const auto& ssl_key = Application::instance().getStorageManager().getKey(key_id);
             Q_ASSERT(ssl_key.has_value());
             // TODO: find better name
@@ -588,16 +579,14 @@ namespace magnesia::activities::settings {
         const SettingKey key{setting->getName(), domain};
         const auto       cur_setting_value =
             Application::instance().getSettingsManager().getApplicationCertificateSettingId(key);
-        const auto cert_ids = Application::instance().getStorageManager().getAllApplicationCertificateIds();
+        const auto certs = Application::instance().getStorageManager().getAllApplicationCertificates();
 
         auto* combo_box = new QComboBox;
         // used when nullopt
         combo_box->addItem("None");
         combo_box->setCurrentIndex(0);
-        for (const auto& cert_id : cert_ids) {
-            const auto& cert = Application::instance().getStorageManager().getApplicationCertificate(cert_id);
-            Q_ASSERT(cert.has_value());
-            combo_box->addItem(cert.value().getCertificate().subjectDisplayName(), cert_id);
+        for (const auto& [cert_id, cert] : certs) {
+            combo_box->addItem(cert.getCertificate().subjectDisplayName(), cert_id);
             if (cur_setting_value.has_value() && cur_setting_value.value() == cert_id) {
                 combo_box->setCurrentIndex(combo_box->count() - 1);
             }
@@ -619,18 +608,14 @@ namespace magnesia::activities::settings {
 
         const SettingKey key{setting->getName(), domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getLayoutSettingId(key);
-        const auto       layout_ids =
-            Application::instance().getStorageManager().getAllLayoutIds(setting->getGroup(), domain);
+        const auto layouts = Application::instance().getStorageManager().getAllLayouts(setting->getGroup(), domain);
 
         auto* combo_box = new QComboBox;
         // used when nullopt
         combo_box->addItem("None");
         combo_box->setCurrentIndex(0);
-        for (const auto& layout_id : layout_ids) {
-            const auto& layout =
-                Application::instance().getStorageManager().getLayout(layout_id, setting->getGroup(), domain);
-            Q_ASSERT(layout.has_value());
-            combo_box->addItem(layout.value().name, layout_id);
+        for (const auto& [layout_id, layout] : layouts) {
+            combo_box->addItem(layout.name, layout_id);
             if (cur_setting_value.has_value() && cur_setting_value.value() == layout_id) {
                 combo_box->setCurrentIndex(combo_box->count() - 1);
             }

@@ -146,11 +146,11 @@ namespace magnesia::activities::dataviewer {
                     return "<Save Layout>";
                 }
 
-                return m_layouts[index.row()].name;
+                return m_layouts[index.row()].second.name;
             }
             if (role == Qt::UserRole) {
                 if (index.row() < m_layouts.count()) {
-                    return m_layouts[index.row()].json_data;
+                    return m_layouts[index.row()].second.json_data;
                 }
             }
 

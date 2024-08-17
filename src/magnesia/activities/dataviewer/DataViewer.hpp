@@ -8,6 +8,8 @@
 #include "../../opcua_qt/abstraction/NodeId.hpp"
 #include "dataviewer_fwd.hpp"
 
+#include <utility>
+
 #include <QAbstractListModel>
 #include <QLayout>
 #include <QList>
@@ -66,9 +68,9 @@ namespace magnesia::activities::dataviewer {
             void reload();
 
           private:
-            Domain        m_domain;
-            LayoutGroup   m_group;
-            QList<Layout> m_layouts;
+            Domain                              m_domain;
+            LayoutGroup                         m_group;
+            QList<std::pair<StorageId, Layout>> m_layouts;
         };
     } // namespace detail
 } // namespace magnesia::activities::dataviewer
