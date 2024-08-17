@@ -1,17 +1,22 @@
 #pragma once
 
+#include "../..//database_types.hpp"
 #include "../../ConfigWidget.hpp"
+#include "../../HistoricServerConnection.hpp"
+#include "../../StorageManager.hpp"
 #include "../../opcua_qt/ConnectionBuilder.hpp"
 #include "../../opcua_qt/abstraction/Endpoint.hpp"
 
 #include <cstddef>
+#include <utility>
 
 #include <open62541pp/Result.h>
 
-#include <QAbstractItemModel>
+#include <QAbstractTableModel>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QList>
+#include <QModelIndex>
 #include <QPushButton>
 #include <QSharedPointer>
 #include <QTableView>
@@ -35,7 +40,7 @@ namespace magnesia::activities::dataviewer {
 
       private:
         QLayout* buildQuickConnect();
-        QWidget* buildRecentConnections();
+        QLayout* buildRecentConnections();
         void     reset();
 
       private slots:
@@ -79,6 +84,47 @@ namespace magnesia::activities::dataviewer {
 
           private:
             QList<opcua_qt::Endpoint> m_endpoints;
+        };
+
+        class HistoricServerConnectionModel : public QAbstractTableModel {
+            Q_OBJECT
+
+          public:
+            explicit HistoricServerConnectionModel(QObject* parent = nullptr);
+
+            [[nodiscard]] int      rowCount(const QModelIndex& parent = QModelIndex()) const override;
+            [[nodiscard]] int      columnCount(const QModelIndex& parent = QModelIndex()) const override;
+            [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+            [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation,
+                                              int role = Qt::DisplayRole) const override;
+
+            bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
+          public:
+            enum {
+                /// data role for the HistoricServerConnection object associated with the index
+                ConnectionRole = Qt::UserRole,
+                /// data role for the HistoricServerConnection's StorageId associated with the index
+                ConnectionIdRole,
+            };
+
+          private slots:
+            void onHistoricServerConnectionChanged(StorageId historic_server_connection_id, StorageChange type);
+            void reload();
+
+          private:
+            enum {
+                EndpointUrlColumn,
+                EndpointSecurityPolicyColumn,
+                EndpointSecurityModeColumn,
+                UsernameColumn,
+                LastUsedColumn,
+
+                COLUMN_COUNT,
+            };
+
+          private:
+            QList<std::pair<StorageId, HistoricServerConnection>> m_connections;
         };
     } // namespace detail
 } // namespace magnesia::activities::dataviewer

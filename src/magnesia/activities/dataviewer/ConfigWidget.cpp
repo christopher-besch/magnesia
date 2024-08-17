@@ -2,6 +2,9 @@
 
 #include "../../Application.hpp"
 #include "../../ConfigWidget.hpp"
+#include "../../HistoricServerConnection.hpp"
+#include "../../StorageManager.hpp"
+#include "../../database_types.hpp"
 #include "../../opcua_qt/Connection.hpp"
 #include "../../opcua_qt/ConnectionBuilder.hpp"
 #include "../../opcua_qt/Logger.hpp"
@@ -10,13 +13,19 @@
 #include "../../qt_version_check.hpp"
 #include "DataViewer.hpp"
 
+#include <algorithm>
+#include <functional>
+#include <memory>
+#include <optional>
 #include <utility>
 
 #include <open62541pp/Result.h>
 
 #include <QAbstractItemView>
+#include <QAbstractTableModel>
 #include <QByteArrayView>
 #include <QComboBox>
+#include <QDateTime>
 #include <QFormLayout>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -29,6 +38,7 @@
 #include <QLoggingCategory>
 #include <QMetaType>
 #include <QModelIndex>
+#include <QObject>
 #include <QPushButton>
 #include <QSharedPointer>
 #include <QString>
@@ -40,7 +50,6 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
-#include <QtPreprocessorSupport>
 #else
 #include <QtGlobal>
 #endif
@@ -60,12 +69,6 @@ namespace magnesia::activities::dataviewer {
             return frame;
         }
 
-        QWidget* wrap_in_frame(QWidget* widget) {
-            auto* layout = new QVBoxLayout;
-            layout->addWidget(widget);
-            return wrap_in_frame(layout);
-        }
-
         QString to_qstring(opcua_qt::MessageSecurityMode mode) {
             switch (mode) {
                 case opcua_qt::MessageSecurityMode::INVALID:
@@ -79,6 +82,48 @@ namespace magnesia::activities::dataviewer {
             }
             Q_ASSERT(false);
             return {};
+        }
+
+        QString format_security_policy(QString uri) {
+            return uri.remove("http://opcfoundation.org/UA/SecurityPolicy#");
+        }
+
+        bool record_recent_connection(const ConnectionBuilder& builder, std::optional<StorageId> old = std::nullopt) {
+            const auto& server_url = builder.getUrl();
+            if (!server_url.has_value()) {
+                return false;
+            }
+
+            const auto& endpoint = builder.getEndpoint();
+            if (!endpoint.has_value()) {
+                return false;
+            }
+
+            Application::instance().getStorageManager().storeHistoricServerConnection({
+                .server_url                     = *server_url,
+                .endpoint_url                   = endpoint->getEndpointUrl(),
+                .endpoint_security_policy_uri   = endpoint->getSecurityPolicyUri(),
+                .endpoint_message_security_mode = endpoint->getSecurityMode(),
+                .username                       = builder.getUsername(),
+                .password                       = builder.getPassword(),
+                .application_certificate_id     = {}, // TODO: builder->getCertificate()->getCertificate()
+                .trust_list_certificate_ids     = {}, // TODO: builder->getTrustList()
+                .revoked_list_certificate_ids   = {}, // TODO: builder->getRevokedList()
+                .last_layout_id                 = {}, // TODO
+                .last_layout_group              = {}, // TODO
+                .last_layout_domain             = {}, // TODO
+                .last_used                      = QDateTime::currentDateTimeUtc(),
+            });
+
+            if (old.has_value()) {
+                Application::instance().getStorageManager().deleteHistoricServerConnection(*old);
+            }
+
+            return true;
+        }
+
+        void open_dataviewer(Connection* connection, opcua_qt::Logger* logger) {
+            Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer");
         }
     } // namespace
 
@@ -146,9 +191,81 @@ namespace magnesia::activities::dataviewer {
         return layout;
     }
 
-    QWidget* ConfigWidget::buildRecentConnections() {
-        Q_UNUSED(this);
-        return new QLabel("Recent Connections");
+    QLayout* ConfigWidget::buildRecentConnections() {
+        auto* layout = new QVBoxLayout;
+
+        layout->addWidget(new QLabel("<h2>Recent Connections</h2>"));
+
+        auto* table = new QTableView;
+
+        table->horizontalHeader()->setStretchLastSection(true);
+        table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+        table->setSelectionBehavior(QAbstractItemView::SelectRows);
+        table->setSelectionMode(QAbstractItemView::SingleSelection);
+        table->verticalHeader()->setHidden(true);
+
+        auto* model = new detail::HistoricServerConnectionModel(this);
+        table->setModel(model);
+
+        table->setContextMenuPolicy(Qt::ActionsContextMenu);
+        table->addAction("Remove selected", this, [table] {
+            if (!table->selectionModel()->hasSelection()) {
+                return;
+            }
+            auto row = table->selectionModel()->currentIndex().row();
+            table->model()->removeRows(row, 1);
+        });
+
+        connect(table->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
+                [this, model](const QModelIndex& current) {
+                    qCDebug(lcDVConfig) << "Recent connection selection changed to" << current;
+                    auto connection = model->data(current, detail::HistoricServerConnectionModel::ConnectionRole)
+                                          .value<HistoricServerConnection>();
+
+                    m_address->setText(connection.server_url.toString());
+                    m_username->setText(connection.username.value_or(""));
+                    m_password->setText(connection.password.value_or(""));
+                    // TODO: m_certificate->setCurrentIndex(???);
+                });
+
+        connect(table, &QTableView::activated, this, [this, model](const QModelIndex& index) {
+            qCDebug(lcDVConfig) << "Recent connection activated" << index;
+            auto historic = model->data(index, detail::HistoricServerConnectionModel::ConnectionRole)
+                                .value<HistoricServerConnection>();
+            auto conid = model->data(index, detail::HistoricServerConnectionModel::ConnectionIdRole).value<StorageId>();
+
+            auto builder = std::make_unique<ConnectionBuilder>();
+            builder->logger(new opcua_qt::Logger);
+            builder->url(historic.server_url);
+            if (historic.username.has_value()) {
+                builder->username(*historic.username);
+            }
+            if (historic.password.has_value()) {
+                builder->password(*historic.password);
+            }
+            // TODO: certificates
+            builder->endpoint(Endpoint{
+                historic.endpoint_url,
+                historic.endpoint_security_policy_uri,
+                historic.endpoint_message_security_mode,
+            });
+
+            auto* connection = builder->build();
+            Q_ASSERT(connection != nullptr);
+            // FIXME: the builder is only destroyed when the dataviewer is closed, as the lambda is destroyed when the
+            // signal connection is destroyed
+            connect(connection, &Connection::connected, this, [connection, conid, builder = std::move(builder)] {
+                record_recent_connection(*builder, conid);
+                open_dataviewer(connection, builder->getLogger());
+            });
+            connection->connectAndRun();
+        });
+
+        layout->addWidget(table);
+
+        return layout;
     }
 
     void ConfigWidget::reset() {
@@ -165,6 +282,7 @@ namespace magnesia::activities::dataviewer {
                             << "\n  password:" << m_password->text();
 
         auto builder = m_current_connection_builder = QSharedPointer<ConnectionBuilder>{new ConnectionBuilder};
+        m_current_connection_builder->logger(new opcua_qt::Logger);
 
         // TODO: certificate
         builder->url(m_address->text());
@@ -217,13 +335,15 @@ namespace magnesia::activities::dataviewer {
                             << "\n  endpoint:" << index.row();
 
         m_current_connection_builder->endpoint(endpoint);
-        auto* logger = new opcua_qt::Logger;
-        m_current_connection_builder->logger(logger);
+
         auto* connection = m_current_connection_builder->build();
         Q_ASSERT(connection != nullptr);
-        connect(connection, &Connection::connected, this, [this, connection, logger]() {
+        // FIXME: the builder can only destroyed when the dataviewer is closed, as the lambda is destroyed when the
+        // signal connection is destroyed
+        connect(connection, &Connection::connected, this, [this, connection, builder = m_current_connection_builder] {
+            record_recent_connection(*builder);
             reset();
-            Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer");
+            open_dataviewer(connection, builder->getLogger());
         });
         m_connect_button->setEnabled(false);
         connection->connectAndRun();
@@ -249,7 +369,7 @@ namespace magnesia::activities::dataviewer {
                     case 0:
                         return endpoint.getEndpointUrl();
                     case 1:
-                        return endpoint.getSecurityPolicyUri().remove("http://opcfoundation.org/UA/SecurityPolicy#");
+                        return format_security_policy(endpoint.getSecurityPolicyUri());
                     case 2:
                         return to_qstring(endpoint.getSecurityMode());
                     default:
@@ -287,6 +407,118 @@ namespace magnesia::activities::dataviewer {
 
         void EndpointTableModel::clear() {
             setEndpoints({});
+        }
+
+        HistoricServerConnectionModel::HistoricServerConnectionModel(QObject* parent) : QAbstractTableModel(parent) {
+            auto* storage_manager = &Application::instance().getStorageManager();
+            connect(storage_manager, &StorageManager::historicServerConnectionChanged, this,
+                    &HistoricServerConnectionModel::onHistoricServerConnectionChanged);
+
+            reload();
+        }
+
+        int HistoricServerConnectionModel::rowCount(const QModelIndex& /*parent*/) const {
+            return static_cast<int>(m_connections.count());
+        }
+
+        int HistoricServerConnectionModel::columnCount(const QModelIndex& /*parent*/) const {
+            return COLUMN_COUNT;
+        }
+
+        QVariant HistoricServerConnectionModel::data(const QModelIndex& index, int role) const {
+            if (!checkIndex(index)) {
+                return {};
+            }
+
+            const auto& connection = m_connections[index.row()];
+
+            if (role == Qt::DisplayRole) {
+                switch (index.column()) {
+                    case EndpointUrlColumn:
+                        return connection.second.endpoint_url;
+                    case EndpointSecurityPolicyColumn:
+                        return format_security_policy(connection.second.endpoint_security_policy_uri);
+                    case EndpointSecurityModeColumn:
+                        return to_qstring(connection.second.endpoint_message_security_mode);
+                    case UsernameColumn:
+                        return connection.second.username.value_or("");
+                    case LastUsedColumn:
+                        return connection.second.last_used.toLocalTime();
+                    default:
+                        Q_ASSERT(false);
+                }
+            }
+
+            if (role == ConnectionRole) {
+                return QVariant::fromValue(connection.second);
+            }
+            if (role == ConnectionIdRole) {
+                return QVariant::fromValue(connection.first);
+            }
+
+            return {};
+        }
+
+        QVariant HistoricServerConnectionModel::headerData(int section, Qt::Orientation orientation, int role) const {
+            if (orientation != Qt::Horizontal || role != Qt::DisplayRole) {
+                return {};
+            }
+
+            switch (section) {
+                case EndpointUrlColumn:
+                    return "Endpoint URL";
+                case EndpointSecurityPolicyColumn:
+                    return "Security Policy URI";
+                case EndpointSecurityModeColumn:
+                    return "Security Mode";
+                case UsernameColumn:
+                    return "Username";
+                case LastUsedColumn:
+                    return "Last Used";
+                default:
+                    Q_ASSERT(false);
+            }
+
+            return {};
+        }
+
+        void HistoricServerConnectionModel::onHistoricServerConnectionChanged(StorageId historic_server_connection_id,
+                                                                              StorageChange type) {
+            if (auto con = std::ranges::find(std::as_const(m_connections), historic_server_connection_id,
+                                             &decltype(m_connections)::value_type::first);
+                type == StorageChange::Deleted && con == m_connections.cend()) {
+                return;
+            }
+
+            reload();
+        }
+
+        void HistoricServerConnectionModel::reload() {
+            auto connections = Application::instance().getStorageManager().getAllHistoricServerConnections();
+            std::ranges::sort(connections, std::ranges::greater{},
+                              [](const auto& con) { return con.second.last_used; });
+
+            beginResetModel();
+            m_connections = std::move(connections);
+            endResetModel();
+        }
+
+        bool HistoricServerConnectionModel::removeRows(int row, int count, const QModelIndex& parent) {
+            if (row < 0 || rowCount() <= row) {
+                return false;
+            }
+            if (count != 1) {
+                return false;
+            }
+
+            auto connection = m_connections.at(row);
+
+            beginRemoveRows(parent, row, row + count - 1);
+            m_connections.remove(row);
+            Application::instance().getStorageManager().deleteHistoricServerConnection(connection.first);
+            endRemoveRows();
+
+            return true;
         }
     } // namespace detail
 } // namespace magnesia::activities::dataviewer

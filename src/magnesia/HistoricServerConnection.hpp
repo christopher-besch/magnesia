@@ -27,9 +27,9 @@ namespace magnesia {
         QList<StorageId>         trust_list_certificate_ids;
         QList<StorageId>         revoked_list_certificate_ids;
 
-        StorageId last_layout_id;
-        QString   last_layout_group;
-        Domain    last_layout_domain;
+        std::optional<StorageId> last_layout_id;
+        std::optional<QString>   last_layout_group;
+        std::optional<Domain>    last_layout_domain;
 
         QDateTime last_used;
     };

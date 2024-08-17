@@ -35,6 +35,23 @@
 
 Q_LOGGING_CATEGORY(lcSqlStorage, "magnesia.storage.sql")
 
+namespace {
+    QVariant bind_optional(auto&& optional) {
+        if (optional.has_value()) {
+            return std::forward<decltype(optional)>(optional).value();
+        }
+        return {};
+    }
+
+    template<typename T>
+    std::optional<T> get_optional(const QSqlQuery& query, const QString& name) {
+        if (query.isNull(name)) {
+            return std::nullopt;
+        }
+        return query.value(name).value<T>();
+    };
+} // namespace
+
 namespace magnesia {
     SQLStorageManager::SQLStorageManager(const QString& db_location, QObject* parent)
         : StorageManager(parent), m_database{QSqlDatabase::addDatabase("QSQLITE")} {
@@ -119,18 +136,12 @@ VALUES (NULL, :server_url, :endpoint_url, :endpoint_security_policy_uri, :endpoi
         query.bindValue(":endpoint_security_policy_uri", historic_server_connection.endpoint_security_policy_uri);
         query.bindValue(":endpoint_message_security_mode",
                         static_cast<qlonglong>(historic_server_connection.endpoint_message_security_mode));
-        if (historic_server_connection.username.has_value()) {
-            query.bindValue(":username", historic_server_connection.username.value());
-        }
-        if (historic_server_connection.password.has_value()) {
-            query.bindValue(":password", historic_server_connection.password.value());
-        }
-        if (historic_server_connection.application_certificate_id.has_value()) {
-            query.bindValue(":certificate_id", historic_server_connection.application_certificate_id.value());
-        }
-        query.bindValue(":layout_id", historic_server_connection.last_layout_id);
-        query.bindValue(":layout_group", historic_server_connection.last_layout_group);
-        query.bindValue(":layout_domain", historic_server_connection.last_layout_domain);
+        query.bindValue(":username", bind_optional(historic_server_connection.username));
+        query.bindValue(":password", bind_optional(historic_server_connection.password));
+        query.bindValue(":certificate_id", bind_optional(historic_server_connection.application_certificate_id));
+        query.bindValue(":layout_id", bind_optional(historic_server_connection.last_layout_id));
+        query.bindValue(":layout_group", bind_optional(historic_server_connection.last_layout_group));
+        query.bindValue(":layout_domain", bind_optional(historic_server_connection.last_layout_domain));
         query.bindValue(":last_used", historic_server_connection.last_used);
         query.exec();
         if (query.lastError().isValid()) {
@@ -1148,9 +1159,9 @@ CREATE TABLE HistoricServerConnection (
     password TEXT,
     certificate_id INT,
 
-    layout_id INT NOT NULL,
-    layout_group TEXT NOT NULL,
-    layout_domain TEXT NOT NULL,
+    layout_id INT,
+    layout_group TEXT,
+    layout_domain TEXT,
 
     last_used TEXT NOT NULL,
     last_updated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1698,18 +1709,14 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
             .endpoint_security_policy_uri = query.value("endpoint_security_policy_uri").toString(),
             .endpoint_message_security_mode =
                 static_cast<opcua_qt::MessageSecurityMode>(query.value("endpoint_message_security_mode").toUInt()),
-            .username =
-                query.value("username").isValid() ? std::optional{query.value("username").toString()} : std::nullopt,
-            .password =
-                query.value("password").isValid() ? std::optional{query.value("password").toString()} : std::nullopt,
-            .application_certificate_id   = query.value("certificate_id").isValid()
-                                                ? std::optional{query.value("certificate_id").toULongLong()}
-                                                : std::nullopt,
+            .username                     = get_optional<QString>(query, "username"),
+            .password                     = get_optional<QString>(query, "password"),
+            .application_certificate_id   = get_optional<qulonglong>(query, "certificate_id"),
             .trust_list_certificate_ids   = getHistoricServerConnectionTrustList(historic_server_connection_id),
             .revoked_list_certificate_ids = getHistoricServerConnectionRevokedList(historic_server_connection_id),
-            .last_layout_id               = query.value("layout_id").toULongLong(),
-            .last_layout_group            = query.value("layout_group").toString(),
-            .last_layout_domain           = query.value("layout_domain").toString(),
+            .last_layout_id               = get_optional<qulonglong>(query, "layout_id"),
+            .last_layout_group            = get_optional<QString>(query, "layout_group"),
+            .last_layout_domain           = get_optional<QString>(query, "layout_domain"),
             .last_used                    = query.value("last_used").toDateTime(),
         };
     }

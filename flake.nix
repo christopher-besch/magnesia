@@ -67,6 +67,8 @@
 
               # spell checking
               codespell
+
+              sqlite-interactive
             ]
             # also C++ static analysis, but platform dependent
             ++ lib.optionals (lib.meta.availableOn stdenv.hostPlatform clazy) [clazy];
