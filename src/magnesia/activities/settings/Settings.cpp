@@ -139,6 +139,7 @@ namespace magnesia::activities::settings {
 
         // activity layout
         auto* layout = new QHBoxLayout;
+        layout->setContentsMargins(4, 4, 4, 4);
         layout->addWidget(m_sidebar_domain_list, 1);
         layout->addWidget(m_scroll_area, 5); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         setLayout(layout);

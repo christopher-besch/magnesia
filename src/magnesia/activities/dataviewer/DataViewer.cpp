@@ -38,7 +38,6 @@ namespace magnesia::activities::dataviewer {
         m_logger->setParent(this);
 
         auto* layout = new QVBoxLayout;
-        // layout->setContentsMargins(2, 2, 2, 2);
         layout->setContentsMargins(4, 4, 4, 4);
 
         auto* address_layout = new QHBoxLayout;
