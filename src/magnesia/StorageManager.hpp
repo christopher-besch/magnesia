@@ -21,6 +21,18 @@ namespace magnesia {
     class SettingsManager;
 
     /**
+     * Indicates the type of change used by the change signals of the StorageManager.
+     */
+    enum class StorageChange {
+        /// A new value was created
+        Created,
+        /// A value was modified
+        Modified,
+        /// A value was deleted
+        Deleted,
+    };
+
+    /**
      * Base class for handling persistent storage.
      */
     class StorageManager : public QObject {
@@ -263,41 +275,47 @@ namespace magnesia {
          * Emitted when an X.509 certificate was set or removed.
          *
          * @param cert_id the id of the certificate that changed
+         * @param type the type of change
          */
-        void certificateChanged(StorageId cert_id);
+        void certificateChanged(StorageId cert_id, StorageChange type);
         /**
          * Emitted when an X.509 key was set or removed.
          *
          * @param key_id the id of the key that changed
+         * @param type the type of change
          */
-        void keyChanged(StorageId key_id);
+        void keyChanged(StorageId key_id, StorageChange type);
         /**
          * Emitted when an X.509 certificate key pair was set or removed.
          *
          * @param cert_id the id of the certificate key pair that changed
+         * @param type the type of change
          */
-        void applicationCertificateChanged(StorageId cert_id);
+        void applicationCertificateChanged(StorageId cert_id, StorageChange type);
         /**
          * Emitted when a Layout was set or removed.
          *
          * @param layout_id The id the Layout is stored under.
          * @param group The LayoutGroup this layout belongs to.
          * @param domain The Domain this layout belongs to.
+         * @param type the type of change
          */
-        void layoutChanged(StorageId layout_id, LayoutGroup group, Domain domain);
+        void layoutChanged(StorageId layout_id, LayoutGroup group, Domain domain, StorageChange type);
         /**
          * Emitted when a HistoricServerConnection was set or removed.
          *
          * @param historic_server_connection_id The id the HistoricServerConnection is stored under.
+         * @param type the type of change
          */
-        void historicServerConnectionChanged(StorageId historic_server_connection_id);
+        void historicServerConnectionChanged(StorageId historic_server_connection_id, StorageChange type);
         /**
          * Emitted when a key-value pair was set or removed.
          *
          * @param key the key of the key-value pair that changed.
          * @param domain The Domain the key-value pair belongs to.
+         * @param type the type of change
          */
-        void kvChanged(QString key, Domain domain);
+        void kvChanged(QString key, Domain domain, StorageChange type);
         // setting changed signals are sent by the SettingsManager
 
       private:
