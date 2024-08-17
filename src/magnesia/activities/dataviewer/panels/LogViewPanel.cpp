@@ -50,7 +50,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
                                        QVariant::fromValue(opcua_qt::LogLevel::FATAL));
 
         // Horizontal layout for buttons and combo box
-        auto* button_layout = new QHBoxLayout();
+        auto* button_layout = new QHBoxLayout;
         button_layout->addWidget(m_clear_log_button);
         button_layout->addWidget(m_save_log_button);
         button_layout->addWidget(m_log_level_combo_box);
