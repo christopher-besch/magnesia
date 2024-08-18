@@ -4,7 +4,7 @@ FAILED=0
 STEP_MESSAGES=
 
 fail() {
-    FAILED=1
+    FAILED=$((FAILED + 1))
     STEP_MESSAGES="${STEP_MESSAGES}  Step \"$1\" failed with code $2
 "
 }
@@ -83,7 +83,7 @@ main() {
     if [ $FAILED -eq 0 ]; then
         printf "\nSUMMARY: All jobs succesfull\n"
     else
-        printf "\nSUMMARY:\n%s" "$STEP_MESSAGES"
+        printf "\nSUMMARY (%d %s failed):\n%s" $FAILED "job$([ $FAILED -ne 1 ] && printf s)" "$STEP_MESSAGES"
     fi
     return $FAILED
 }
