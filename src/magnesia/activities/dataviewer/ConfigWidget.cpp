@@ -212,13 +212,14 @@ namespace magnesia::activities::dataviewer {
         table->setModel(model);
 
         table->setContextMenuPolicy(Qt::ActionsContextMenu);
-        table->addAction("Remove selected", this, [table] {
+        auto* remove = table->addAction("Remove selected", Qt::Key_Delete, this, [table] {
             if (!table->selectionModel()->hasSelection()) {
                 return;
             }
             auto row = table->selectionModel()->currentIndex().row();
-            table->model()->removeRows(row, 1);
+            table->model()->removeRow(row);
         });
+        remove->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 
         connect(table->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
                 [this, model](const QModelIndex& current) {
