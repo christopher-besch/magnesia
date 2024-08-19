@@ -14,7 +14,7 @@
 #include "DataViewer.hpp"
 
 #include <algorithm>
-#include <functional>
+#include <iterator>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -415,12 +415,16 @@ namespace magnesia::activities::dataviewer {
             setEndpoints({});
         }
 
-        HistoricServerConnectionModel::HistoricServerConnectionModel(QObject* parent) : QAbstractTableModel(parent) {
+        HistoricServerConnectionModel::HistoricServerConnectionModel(QObject* parent)
+            : QAbstractTableModel(parent),
+              m_connections(Application::instance().getStorageManager().getAllHistoricServerConnections()) {
             auto* storage_manager = &Application::instance().getStorageManager();
             connect(storage_manager, &StorageManager::historicServerConnectionChanged, this,
                     &HistoricServerConnectionModel::onHistoricServerConnectionChanged);
 
-            reload();
+            // NOLINTNEXTLINE(misc-include-cleaner): greater is provided by <functional>
+            std::ranges::sort(m_connections, std::ranges::greater{},
+                              [](const auto& con) { return con.second.last_used; });
         }
 
         int HistoricServerConnectionModel::rowCount(const QModelIndex& /*parent*/) const {
@@ -506,25 +510,47 @@ namespace magnesia::activities::dataviewer {
             return true;
         }
 
-        void HistoricServerConnectionModel::onHistoricServerConnectionChanged(StorageId historic_server_connection_id,
-                                                                              StorageChange type) {
-            if (auto con = std::ranges::find(std::as_const(m_connections), historic_server_connection_id,
-                                             &decltype(m_connections)::value_type::first);
-                type == StorageChange::Deleted && con == m_connections.cend()) {
-                return;
-            }
+        void HistoricServerConnectionModel::addConnection(StorageId connection_id) {
+            auto connection = Application::instance().getStorageManager().getHistoricServerConnection(connection_id);
+            Q_ASSERT(connection.has_value());
 
-            reload();
+            auto iter =
+                // NOLINTNEXTLINE(misc-include-cleaner): lower_bound is provided by <algorithm>, greater by <functional>
+                std::ranges::lower_bound(std::as_const(m_connections), connection->last_used, std::ranges::greater{},
+                                         [](const auto& con) { return con.second.last_used; });
+            auto row = static_cast<int>(std::distance(m_connections.cbegin(), iter));
+
+            beginInsertRows({}, row, row);
+            m_connections.emplace(iter, connection_id, *std::move(connection));
+            endInsertRows();
         }
 
-        void HistoricServerConnectionModel::reload() {
-            auto connections = Application::instance().getStorageManager().getAllHistoricServerConnections();
-            std::ranges::sort(connections, std::ranges::greater{},
-                              [](const auto& con) { return con.second.last_used; });
+        int HistoricServerConnectionModel::rowIndex(StorageId connection_id) const {
+            auto iter = std::ranges::find(std::as_const(m_connections), connection_id,
+                                          &decltype(m_connections)::value_type::first);
+            if (iter == m_connections.cend()) {
+                return -1;
+            }
 
-            beginResetModel();
-            m_connections = std::move(connections);
-            endResetModel();
+            return static_cast<int>(std::distance(m_connections.cbegin(), iter));
+        }
+
+        void HistoricServerConnectionModel::onHistoricServerConnectionChanged(StorageId     connection_id,
+                                                                              StorageChange type) {
+            switch (type) {
+                case StorageChange::Created:
+                    addConnection(connection_id);
+                    break;
+
+                case StorageChange::Deleted:
+                    removeRow(rowIndex(connection_id));
+                    break;
+
+                case StorageChange::Modified:
+                    // HistoricServerConnections aren't modified
+                    Q_ASSERT(false);
+                    break;
+            }
         }
     } // namespace detail
 } // namespace magnesia::activities::dataviewer
