@@ -488,6 +488,24 @@ namespace magnesia::activities::dataviewer {
             return {};
         }
 
+        bool HistoricServerConnectionModel::removeRows(int row, int count, const QModelIndex& parent) {
+            if (row < 0 || rowCount() <= row) {
+                return false;
+            }
+            if (count != 1) {
+                return false;
+            }
+
+            auto connection = m_connections.at(row);
+
+            beginRemoveRows(parent, row, row + count - 1);
+            m_connections.remove(row);
+            Application::instance().getStorageManager().deleteHistoricServerConnection(connection.first);
+            endRemoveRows();
+
+            return true;
+        }
+
         void HistoricServerConnectionModel::onHistoricServerConnectionChanged(StorageId historic_server_connection_id,
                                                                               StorageChange type) {
             if (auto con = std::ranges::find(std::as_const(m_connections), historic_server_connection_id,
@@ -507,24 +525,6 @@ namespace magnesia::activities::dataviewer {
             beginResetModel();
             m_connections = std::move(connections);
             endResetModel();
-        }
-
-        bool HistoricServerConnectionModel::removeRows(int row, int count, const QModelIndex& parent) {
-            if (row < 0 || rowCount() <= row) {
-                return false;
-            }
-            if (count != 1) {
-                return false;
-            }
-
-            auto connection = m_connections.at(row);
-
-            beginRemoveRows(parent, row, row + count - 1);
-            m_connections.remove(row);
-            Application::instance().getStorageManager().deleteHistoricServerConnection(connection.first);
-            endRemoveRows();
-
-            return true;
         }
     } // namespace detail
 } // namespace magnesia::activities::dataviewer
