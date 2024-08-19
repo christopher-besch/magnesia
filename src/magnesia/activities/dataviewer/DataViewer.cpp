@@ -2,12 +2,16 @@
 
 #include "../../Activity.hpp"
 #include "../../Application.hpp"
+#include "../../Layout.hpp"
 #include "../../StorageManager.hpp"
 #include "../../database_types.hpp"
 #include "../../opcua_qt/Connection.hpp"
 #include "../../opcua_qt/Logger.hpp"
+#include "../../qt_version_check.hpp"
 #include "layout.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <utility>
 
 #include <QAbstractItemModel>
@@ -23,6 +27,12 @@
 #include <QVariant>
 #include <QWidget>
 #include <Qt>
+
+#ifdef MAGNESIA_HAS_QT_6_5
+#include <QtAssert>
+#else
+#include <QtGlobal>
+#endif
 
 namespace {
     Q_LOGGING_CATEGORY(lc_data_viewer, "magnesia.dataviewer.configwidget")
@@ -101,24 +111,23 @@ namespace magnesia::activities::dataviewer {
                     m_root_layout->restoreState(state.toJsonDocument());
                 });
 
-        connect(save_button, &QPushButton::clicked, this, [this, layout_selector, save_edit, save_button] {
+        connect(save_button, &QPushButton::clicked, this, [this, layout_selector, model, save_edit, save_button] {
             auto state = m_root_layout->saveState();
             auto name  = save_edit->text();
 
             qCDebug(lc_data_viewer) << "saving layout" << name << "with json_data" << state;
 
-            Application::instance().getStorageManager().storeLayout(
-                {
-                    .name      = name,
-                    .json_data = state,
-                },
-                s_layout_group, s_storage_domain);
+            auto index = model->addLayout({
+                .name      = name,
+                .json_data = state,
+            });
 
             save_edit->clear();
             layout_selector->show();
             save_edit->hide();
             save_button->hide();
             layout_selector->setFocus(Qt::FocusReason::OtherFocusReason);
+            layout_selector->setCurrentIndex(index);
         });
 
         return layout;
@@ -126,11 +135,10 @@ namespace magnesia::activities::dataviewer {
 
     namespace detail {
         LayoutSelectorModel::LayoutSelectorModel(Domain domain, LayoutGroup group, QObject* parent)
-            : QAbstractListModel(parent), m_domain(std::move(domain)), m_group(std::move(group)) {
+            : QAbstractListModel(parent), m_domain(std::move(domain)), m_group(std::move(group)),
+              m_layouts(Application::instance().getStorageManager().getAllLayouts(m_group, m_domain)) {
             auto* storage_manager = &Application::instance().getStorageManager();
-            connect(storage_manager, &StorageManager::layoutChanged, this, &LayoutSelectorModel::reload);
-
-            reload();
+            connect(storage_manager, &StorageManager::layoutChanged, this, &LayoutSelectorModel::onLayoutChanged);
         }
 
         int LayoutSelectorModel::rowCount(const QModelIndex& /*parent*/) const {
@@ -158,13 +166,71 @@ namespace magnesia::activities::dataviewer {
             return {};
         }
 
-        void LayoutSelectorModel::reload() {
-            // TODO: make sure the currently selected layout stays the same
-            auto layouts = Application::instance().getStorageManager().getAllLayouts(m_group, m_domain);
+        bool LayoutSelectorModel::removeRows(int row, int count, const QModelIndex& parent) {
+            if (row < 0 || rowCount() <= row) {
+                return false;
+            }
+            if (count != 1) {
+                return false;
+            }
+            if (row == m_layouts.count()) {
+                return false;
+            }
 
-            beginResetModel();
-            m_layouts = std::move(layouts);
-            endResetModel();
+            auto layout_id = m_layouts.at(row).first;
+
+            beginRemoveRows(parent, row, row);
+            m_layouts.remove(row);
+            Application::instance().getStorageManager().deleteLayout(layout_id, m_group, m_domain);
+            endRemoveRows();
+
+            return true;
+        }
+
+        int LayoutSelectorModel::addLayout(const Layout& layout) {
+            auto layout_id = Application::instance().getStorageManager().storeLayout(layout, m_group, m_domain);
+            return rowIndex(layout_id);
+        }
+
+        void LayoutSelectorModel::addLayout(StorageId layout_id) {
+            auto layout = Application::instance().getStorageManager().getLayout(layout_id, m_group, m_domain);
+            Q_ASSERT(layout.has_value());
+
+            const int row = static_cast<int>(m_layouts.count());
+            beginInsertRows({}, row, row);
+            m_layouts.emplaceBack(layout_id, *layout);
+            endInsertRows();
+        }
+
+        int LayoutSelectorModel::rowIndex(StorageId layout_id) const {
+            auto iter = std::ranges::find(std::as_const(m_layouts), layout_id, &decltype(m_layouts)::value_type::first);
+            if (iter == m_layouts.cend()) {
+                return -1;
+            }
+
+            return static_cast<int>(std::distance(m_layouts.cbegin(), iter));
+        }
+
+        void LayoutSelectorModel::onLayoutChanged(StorageId layout_id, const LayoutGroup& group, const Domain& domain,
+                                                  StorageChange type) {
+            if (group != m_group || domain != m_domain) {
+                return;
+            }
+
+            switch (type) {
+                case StorageChange::Created: {
+                    addLayout(layout_id);
+                    break;
+                }
+                case StorageChange::Deleted:
+                    removeRow(rowIndex(layout_id));
+                    break;
+
+                case StorageChange::Modified:
+                    // Layouts aren't modified
+                    Q_ASSERT(false);
+                    break;
+            }
         }
     } // namespace detail
 } // namespace magnesia::activities::dataviewer
