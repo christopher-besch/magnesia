@@ -110,9 +110,9 @@ namespace magnesia::activities::dataviewer {
                 .endpoint_message_security_mode = endpoint->getSecurityMode(),
                 .username                       = builder.getUsername(),
                 .password                       = builder.getPassword(),
-                .application_certificate_id     = {}, // TODO: builder->getCertificate()->getCertificate()
-                .trust_list_certificate_ids     = {}, // TODO: builder->getTrustList()
-                .revoked_list_certificate_ids   = {}, // TODO: builder->getRevokedList()
+                .application_certificate_id     = builder.getCertificate(),
+                .trust_list_certificate_ids     = builder.getTrustList(),
+                .revoked_list_certificate_ids   = builder.getRevokedList(),
                 .last_layout_id                 = {}, // TODO
                 .last_layout_group              = {}, // TODO
                 .last_layout_domain             = {}, // TODO
@@ -153,8 +153,9 @@ namespace magnesia::activities::dataviewer {
             layout->addRow("Address", m_address);
         }
         {
-            m_certificate = new QComboBox;
-            m_certificate->setModel(new detail::CertificateModel(this));
+            m_certificate       = new QComboBox;
+            m_certificate_model = new detail::CertificateModel(this);
+            m_certificate->setModel(m_certificate_model);
             layout->addRow("Certificate", m_certificate);
         }
         {
@@ -236,7 +237,10 @@ namespace magnesia::activities::dataviewer {
                     m_address->setText(connection.server_url.toString());
                     m_username->setText(connection.username.value_or(""));
                     m_password->setText(connection.password.value_or(""));
-                    // TODO: m_certificate->setCurrentIndex(???);
+                    if (connection.application_certificate_id.has_value()) {
+                        m_certificate->setCurrentIndex(
+                            m_certificate_model->rowIndex(*connection.application_certificate_id));
+                    }
                 });
 
         connect(table, &QTableView::activated, this, [this, model](const QModelIndex& index) {
@@ -246,20 +250,25 @@ namespace magnesia::activities::dataviewer {
             auto conid = model->data(index, detail::HistoricServerConnectionModel::ConnectionIdRole).value<StorageId>();
 
             auto builder = std::make_unique<ConnectionBuilder>();
-            builder->logger(new opcua_qt::Logger);
-            builder->url(historic.server_url);
+            (*builder)
+                .logger(new opcua_qt::Logger)
+                .url(historic.server_url)
+                .trustList(historic.trust_list_certificate_ids)
+                .revokedList(historic.revoked_list_certificate_ids)
+                .endpoint(Endpoint{
+                    historic.endpoint_url,
+                    historic.endpoint_security_policy_uri,
+                    historic.endpoint_message_security_mode,
+                });
+            if (historic.application_certificate_id.has_value()) {
+                builder->certificate(*historic.application_certificate_id);
+            }
             if (historic.username.has_value()) {
                 builder->username(*historic.username);
             }
             if (historic.password.has_value()) {
                 builder->password(*historic.password);
             }
-            // TODO: certificates
-            builder->endpoint(Endpoint{
-                historic.endpoint_url,
-                historic.endpoint_security_policy_uri,
-                historic.endpoint_message_security_mode,
-            });
 
             auto* connection = builder->build();
             Q_ASSERT(connection != nullptr);

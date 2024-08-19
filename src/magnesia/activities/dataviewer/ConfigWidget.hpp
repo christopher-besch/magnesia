@@ -29,6 +29,7 @@
 namespace magnesia::activities::dataviewer {
     namespace detail {
         class EndpointTableModel;
+        class CertificateModel;
     } // namespace detail
 
     /**
@@ -56,10 +57,11 @@ namespace magnesia::activities::dataviewer {
         QSharedPointer<opcua_qt::ConnectionBuilder> m_current_connection_builder;
 
         // quick connect
-        QLineEdit* m_address{nullptr};
-        QComboBox* m_certificate{nullptr};
-        QLineEdit* m_username{nullptr};
-        QLineEdit* m_password{nullptr};
+        QLineEdit*                m_address{nullptr};
+        detail::CertificateModel* m_certificate_model{nullptr};
+        QComboBox*                m_certificate{nullptr};
+        QLineEdit*                m_username{nullptr};
+        QLineEdit*                m_password{nullptr};
 
         detail::EndpointTableModel* m_endpoint_selector_model{nullptr};
         QTableView*                 m_endpoint_selector{nullptr};
@@ -99,9 +101,10 @@ namespace magnesia::activities::dataviewer {
 
             bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
-          private:
-            void              addCertificate(StorageId cert_id);
             [[nodiscard]] int rowIndex(StorageId cert_id) const;
+
+          private:
+            void addCertificate(StorageId cert_id);
 
           private slots:
             void onApplicationCertificateChanged(StorageId cert_id, StorageChange type);
