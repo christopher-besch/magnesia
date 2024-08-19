@@ -11,8 +11,8 @@ namespace magnesia::activities::settings {
     SettingsUrlHandler::SettingsUrlHandler(Settings* activity) : URLHandler(activity), m_activity(activity) {}
 
     bool SettingsUrlHandler::handleURL(const QUrl& url) {
-        auto query = QUrlQuery{url};
-        auto path  = url.path();
+        const QUrlQuery query{url};
+        auto            path = url.path();
         if (path == "focus-domain") {
             m_activity->focusDomain(query.queryItemValue("domain"));
         } else if (path == "focus-setting") {

@@ -27,7 +27,6 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         : Panel(dataviewer, Panels::log_view, parent), m_current_log_level(magnesia::opcua_qt::LogLevel::DEBUG),
           m_log_view_model(new LogViewModel(this)), m_table_view(new QTableView(this)),
           m_log_level_combo_box(new QComboBox(this)) {
-
         m_table_view->setModel(m_log_view_model);
         m_table_view->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_table_view->horizontalHeader()->setStretchLastSection(true);
@@ -51,7 +50,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
                                        QVariant::fromValue(opcua_qt::LogLevel::FATAL));
 
         // Horizontal layout for buttons and combo box
-        auto* button_layout = new QHBoxLayout();
+        auto* button_layout = new QHBoxLayout;
         button_layout->addWidget(m_clear_log_button);
         button_layout->addWidget(m_save_log_button);
         button_layout->addWidget(m_log_level_combo_box);

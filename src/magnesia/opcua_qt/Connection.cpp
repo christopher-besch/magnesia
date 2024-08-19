@@ -10,7 +10,10 @@
 #include "abstraction/Subscription.hpp"
 #include "abstraction/node/Node.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <optional>
+#include <string_view>
 #include <utility>
 
 #include <open62541pp/AccessControl.h>
@@ -38,16 +41,23 @@ namespace magnesia::opcua_qt {
                                               const QList<QSslCertificate>&                trust_list,
                                               const QList<QSslCertificate>&                revocation_list) {
         if (certificate.has_value()) {
-            auto user_certificate      = opcua::ByteString(certificate.value().getCertificate().toDer().toStdString());
-            auto private_key           = opcua::ByteString(certificate.value().getPrivateKey().toPem().toStdString());
-            auto trust_list_bytestring = QList<opcua::ByteString>();
-            for (const auto& cert : trust_list) {
-                trust_list_bytestring.emplace_back(opcua::ByteString(cert.toDer().toStdString()));
-            }
-            auto revocation_list_bytestring = QList<opcua::ByteString>();
-            for (const auto& cert : revocation_list) {
-                revocation_list_bytestring.emplace_back(opcua::ByteString(cert.toDer().toStdString()));
-            }
+            const auto              cert_der = certificate->getCertificate().toDer();
+            const opcua::ByteString user_certificate(std::string_view{cert_der.begin(), cert_der.end()});
+
+            const auto              key_pem = certificate->getPrivateKey().toPem();
+            const opcua::ByteString private_key(std::string_view{key_pem.begin(), key_pem.end()});
+
+            const auto cert_to_bytestring = [](const QSslCertificate& cert) {
+                const auto der = cert.toDer();
+                return opcua::ByteString(std::string_view{der.begin(), der.end()});
+            };
+
+            QList<opcua::ByteString> trust_list_bytestring;
+            std::ranges::transform(trust_list, std::back_inserter(trust_list_bytestring), cert_to_bytestring);
+
+            QList<opcua::ByteString> revocation_list_bytestring;
+            std::ranges::transform(revocation_list, std::back_inserter(revocation_list_bytestring), cert_to_bytestring);
+
             return {user_certificate, private_key, trust_list_bytestring, revocation_list_bytestring};
         }
         return opcua::Client();
@@ -77,7 +87,6 @@ namespace magnesia::opcua_qt {
     void Connection::connectSynchronouslyAndRun() {
         const QMutexLocker locker(&m_connect_mutex);
 
-        Q_ASSERT(!m_client.isConnected());
         Q_ASSERT(!m_client.isRunning());
         m_client.setSecurityMode(static_cast<opcua::MessageSecurityMode>(m_server_endpoint.getSecurityMode()));
         if (m_login.has_value()) {

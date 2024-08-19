@@ -23,7 +23,7 @@
 
 namespace magnesia::activities::about {
     About::About(QWidget* parent) : Activity(parent) {
-        auto* layout = new QVBoxLayout();
+        auto* layout = new QVBoxLayout;
         layout->setAlignment(Qt::AlignCenter);
         layout->setContentsMargins(4, 4, 4, 4);
 
@@ -61,7 +61,7 @@ namespace magnesia::activities::about {
             layout->addWidget(license_header);
         }
         {
-            auto* license_text_edit = new QPlainTextEdit();
+            auto* license_text_edit = new QPlainTextEdit;
 
             license_text_edit->setReadOnly(true);
             license_text_edit->setLineWrapMode(QPlainTextEdit::NoWrap);

@@ -232,11 +232,11 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
 
             case opcua_qt::abstraction::AttributeId::ACCESS_LEVEL:
             case opcua_qt::abstraction::AttributeId::USER_ACCESS_LEVEL:
-                return 8; // NOLINT: cppcoreguidelines-avoid-magic-numbers
+                return 8; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
             case opcua_qt::abstraction::AttributeId::WRITE_MASK:
             case opcua_qt::abstraction::AttributeId::USER_WRITE_MASK:
-                return 26; // NOLINT: cppcoreguidelines-avoid-magic-numbers
+                return 26; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
             case opcua_qt::abstraction::AttributeId::ARRAY_DIMENSIONS:
                 if (!m_node.array_dimensions.has_value()) {
@@ -263,7 +263,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         return 2;
     }
 
-    // NOLINTNEXTLINE readability-function-cognitive-complexity
+    // NOLINTNEXTLINE(readability-function-cognitive-complexity)
     QVariant AttributeViewModel::data(const QModelIndex& index, int role) const {
         if (!index.isValid() || role != Qt::DisplayRole) {
             return {};
@@ -436,17 +436,19 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
 
     constexpr uint32_t AttributeViewModel::itemId(uint32_t attribute, uint8_t sub_item) noexcept {
         uint32_t sub_item_byte = sub_item;
-        sub_item_byte          = sub_item_byte << 8; // NOLINT: cppcoreguidelines-avoid-magic-numbers
+        sub_item_byte = sub_item_byte << 8; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
         return attribute | sub_item_byte;
     }
 
     constexpr opcua_qt::abstraction::AttributeId AttributeViewModel::attributeId(uint32_t item_id) noexcept {
-        return static_cast<AttributeId>(item_id & 0xFF); // NOLINT: cppcoreguidelines-avoid-magic-numbers
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        return static_cast<AttributeId>(item_id & 0xFFU);
     }
 
     constexpr uint8_t AttributeViewModel::subId(uint32_t item_id) noexcept {
-        return static_cast<uint8_t>(item_id >> 8); // NOLINT: cppcoreguidelines-avoid-magic-numbers
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        return static_cast<uint8_t>(item_id >> 8);
     }
 
 } // namespace magnesia::activities::dataviewer::panels::attribute_view_panel

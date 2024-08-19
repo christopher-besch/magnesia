@@ -6,15 +6,20 @@ Checks:
   - -android-*
   - -fuchsia-*
   - -google-*
+  - -linuxkernel-*
   - -llvmlibc-*
   - -bugprone-easily-swappable-parameters
-  - -modernize-use-trailing-return-type
-  - -readability-redundant-access-specifiers
   # This is not a useful warning with qt
   - -cppcoreguidelines-owning-memory
+  - -modernize-use-trailing-return-type
+  - -readability-redundant-access-specifiers
 
 FormatStyle: file
 CheckOptions:
+  bugprone-assert-side-effect.AssertMacros: assert,Q_ASSERT
+  bugprone-assert-side-effect.CheckFunctionCalls: true
+  bugprone-assert-side-effect.IgnoredFunctions: QMetaType::fromType
+
   hicpp-signed-bitwise.IgnorePositiveIntegerLiterals: true
 
   readability-identifier-naming.NamespaceCase: lower_case

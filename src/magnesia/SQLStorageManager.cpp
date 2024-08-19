@@ -55,7 +55,6 @@ namespace {
 namespace magnesia {
     SQLStorageManager::SQLStorageManager(const QString& db_location, QObject* parent)
         : StorageManager(parent), m_database{QSqlDatabase::addDatabase("QSQLITE")} {
-
         qCInfo(lcSqlStorage) << "using database" << db_location;
         m_database.setDatabaseName(db_location);
 
@@ -165,7 +164,7 @@ INSERT INTO Layout VALUES (NULL, :layout_group, :domain, :name, :json_data, CURR
         query.bindValue(":layout_group", group);
         query.bindValue(":domain", domain);
         query.bindValue(":name", layout.name);
-        query.bindValue(":json_data", layout.json_data.toJson());
+        query.bindValue(":json_data", layout.json_data.toJson(QJsonDocument::Compact));
         query.exec();
         if (query.lastError().isValid()) {
             warnQuery("database Layout storing failed.", query);
@@ -1530,8 +1529,9 @@ FROM TupleDeleteMonitor;
             warnQuery("retrieving TupleDeleteMonitor from database failed.", query);
             terminate();
         }
-        // Moving this below the switch might clear unhandled tuples if one of the slots connected to the signals
-        // emitted in the switch (directly or indirectly) causes the deletion of another tuple.
+        // Moving this below the loop might emit duplicate signals if one of the slots connected to the signals
+        // emitted in the loop (directly or indirectly) causes the deletion of another tuple, resulting in a nested call
+        // to handleDeleteMonitor() reading and handling the previous, yet to be cleared tuples again.
         clearDeleteMonitor();
         while (query.next()) {
             switch (static_cast<DBRelation>(query.value("relation").toUInt())) {

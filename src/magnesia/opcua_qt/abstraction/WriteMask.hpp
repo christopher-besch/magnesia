@@ -44,7 +44,6 @@ namespace magnesia::opcua_qt::abstraction {
 
     inline QString write_mask_to_string(WriteMask write_mask) {
         switch (write_mask) {
-
             case WriteMask::NONE:
                 return "None";
             case WriteMask::ACCESS_LEVEL:

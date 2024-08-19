@@ -58,7 +58,7 @@ namespace magnesia::opcua_qt::abstraction {
         return MonitoredItem(m_subscription.subscribeEvent(
             node_id.handle(), opcua::EventFilter(),
             [&, node_id](uint32_t /*subId*/, uint32_t /*monId*/, opcua::Span<const opcua::Variant> event_fields) {
-                auto* items = new QList<Variant>();
+                auto* items = new QList<Variant>;
                 items->reserve(static_cast<qsizetype>(event_fields.size()));
 
                 for (const auto& item : event_fields) {

@@ -16,7 +16,6 @@
 namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
 
     class AttributeViewPanel : public Panel {
-
       public:
         explicit AttributeViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
 

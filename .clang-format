@@ -41,6 +41,7 @@ IndentCaseLabels: true
 IndentWidth:     4
 InsertBraces:    false # required by clang-tidy but disabled due to correctness warning in docs.
 InsertNewlineAtEOF: true
+KeepEmptyLinesAtTheStartOfBlocks: false
 LineEnding:      LF
 NamespaceIndentation: All
 PointerAlignment: Left

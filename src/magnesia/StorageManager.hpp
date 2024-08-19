@@ -17,9 +17,6 @@
 #include <qtmetamacros.h>
 
 namespace magnesia {
-    // properly defined in SettingsManager.hpp
-    class SettingsManager;
-
     /**
      * Indicates the type of change used by the change signals of the StorageManager.
      */
@@ -322,7 +319,7 @@ namespace magnesia {
         /**
          * only the SettingsManager may use these
          */
-        friend SettingsManager;
+        friend class SettingsManager;
         /**
          * The SettingsManager needs to ensure that the type of a setting doesn't change.
          * Otherwise you could have two settings with the same name and domain for different types.
