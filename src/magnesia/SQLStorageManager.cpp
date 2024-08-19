@@ -33,7 +33,9 @@
 #include <QtGlobal>
 #endif
 
-Q_LOGGING_CATEGORY(lcSqlStorage, "magnesia.storage.sql")
+namespace {
+    Q_LOGGING_CATEGORY(lc_sql_storage, "magnesia.storage.sql")
+} // namespace
 
 namespace {
     QVariant bind_optional(auto&& optional) {
@@ -55,14 +57,14 @@ namespace {
 namespace magnesia {
     SQLStorageManager::SQLStorageManager(const QString& db_location, QObject* parent)
         : StorageManager(parent), m_database{QSqlDatabase::addDatabase("QSQLITE")} {
-        qCInfo(lcSqlStorage) << "using database" << db_location;
+        qCInfo(lc_sql_storage) << "using database" << db_location;
         m_database.setDatabaseName(db_location);
 
         if (!m_database.open()) {
-            qCCritical(lcSqlStorage) << "Error: connection with database failed";
+            qCCritical(lc_sql_storage) << "Error: connection with database failed";
             terminate();
         }
-        qCInfo(lcSqlStorage) << "Database: connection ok";
+        qCInfo(lc_sql_storage) << "Database: connection ok";
 
         // SQLite currently has foreign key support disabled by default. It has to be enabled per database connection:
         // https://www.sqlite.org/foreignkeys.html#fk_enable
@@ -357,7 +359,7 @@ WHERE ApplicationCertificate.certificate_id = Certificate.id
             auto certs =
                 QSslCertificate::fromData(query.value("Certificate.pem").toByteArray(), QSsl::EncodingFormat::Pem);
             if (certs.size() != 1) {
-                qCCritical(lcSqlStorage)
+                qCCritical(lc_sql_storage)
                     << "application certificate's certificate pem data contains more than one certificate";
                 terminate();
             }
@@ -1480,7 +1482,7 @@ END;
         while (migration_version < migrations.size()) {
             const QSqlQuery query{migrations[migration_version], m_database};
             if (query.lastError().isValid()) {
-                qCCritical(lcSqlStorage) << migration_version << "failed";
+                qCCritical(lc_sql_storage) << migration_version << "failed";
                 warnQuery("database migration failed", query);
                 terminate();
             }
@@ -1494,10 +1496,10 @@ END;
                 terminate();
             }
 
-            qCInfo(lcSqlStorage) << "Database: migration" << migration_version << "ok";
+            qCInfo(lc_sql_storage) << "Database: migration" << migration_version << "ok";
             migration_version = next_migration_version;
         }
-        qCInfo(lcSqlStorage) << "Database: migration complete";
+        qCInfo(lc_sql_storage) << "Database: migration complete";
 
         // See: https://www.sqlite.org/pragma.html#pragma_integrity_check
         QSqlQuery integrity_check_query{R"sql(PRAGMA integrity_check;)sql", m_database};
@@ -1506,7 +1508,7 @@ END;
             warnQuery("database integrity check failed.", integrity_check_query);
             terminate();
         }
-        qCInfo(lcSqlStorage) << "Database: integrity check successful";
+        qCInfo(lc_sql_storage) << "Database: integrity check successful";
     }
 
     StorageId SQLStorageManager::getLastRowId() {
@@ -1536,34 +1538,35 @@ FROM TupleDeleteMonitor;
         while (query.next()) {
             switch (static_cast<DBRelation>(query.value("relation").toUInt())) {
                 case DBRelation::Certificate:
-                    qCDebug(lcSqlStorage) << "Certificate deleted";
+                    qCDebug(lc_sql_storage) << "Certificate deleted";
                     Q_EMIT certificateChanged(query.value("id").toULongLong(), StorageChange::Deleted);
                     continue;
                 case DBRelation::Key:
-                    qCDebug(lcSqlStorage) << "Key deleted";
+                    qCDebug(lc_sql_storage) << "Key deleted";
                     Q_EMIT keyChanged(query.value("id").toULongLong(), StorageChange::Deleted);
                     continue;
                 case DBRelation::ApplicationCertificate:
-                    qCDebug(lcSqlStorage) << "ApplicationCertificate deleted";
+                    qCDebug(lc_sql_storage) << "ApplicationCertificate deleted";
                     Q_EMIT applicationCertificateChanged(query.value("id").toULongLong(), StorageChange::Deleted);
                     continue;
                 case DBRelation::HistoricServerConnection:
-                    qCDebug(lcSqlStorage) << "HistoricServerConnection deleted";
+                    qCDebug(lc_sql_storage) << "HistoricServerConnection deleted";
                     Q_EMIT historicServerConnectionChanged(query.value("id").toULongLong(), StorageChange::Deleted);
                     continue;
                 case DBRelation::Layout:
-                    qCDebug(lcSqlStorage) << "Layout deleted";
+                    qCDebug(lc_sql_storage) << "Layout deleted";
                     Q_EMIT layoutChanged(query.value("id").toULongLong(), query.value("layout_group").toString(),
                                          query.value("domain").toString(), StorageChange::Deleted);
                     continue;
                 case DBRelation::KeyValue:
-                    qCDebug(lcSqlStorage) << "KeyValue deleted";
+                    qCDebug(lc_sql_storage) << "KeyValue deleted";
                     Q_EMIT kvChanged(query.value("key").toString(), query.value("domain").toString(),
                                      StorageChange::Deleted);
                     continue;
                 case DBRelation::Setting:
-                    qCDebug(lcSqlStorage) << "Setting deleted";
-                    Q_EMIT settingDeleted({query.value("name").toString(), query.value("domain").toString()});
+                    qCDebug(lc_sql_storage) << "Setting deleted";
+                    Q_EMIT settingDeleted(
+                        {.name = query.value("name").toString(), .domain = query.value("domain").toString()});
                     continue;
                 case DBRelation::HistoricServerConnectionTrustList:
                 case DBRelation::HistoricServerConnectionRevokedList:
@@ -1579,7 +1582,7 @@ FROM TupleDeleteMonitor;
                     // these should never appear
                     break;
             };
-            qCCritical(lcSqlStorage) << "Invalid deletion type";
+            qCCritical(lc_sql_storage) << "Invalid deletion type";
             terminate();
         }
     }
@@ -1596,8 +1599,8 @@ DELETE FROM TupleDeleteMonitor;
     }
 
     void SQLStorageManager::warnQuery(const QString& message, const QSqlQuery& query) {
-        qCWarning(lcSqlStorage) << "Error:" << message << "\nQuery:" << query.executedQuery()
-                                << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
+        qCWarning(lc_sql_storage) << "Error:" << message << "\nQuery:" << query.executedQuery()
+                                  << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
     }
 
     QList<StorageId>

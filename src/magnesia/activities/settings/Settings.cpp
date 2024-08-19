@@ -38,7 +38,9 @@
 #include <QtGlobal>
 #endif
 
-Q_LOGGING_CATEGORY(lcSettings, "magnesia.settings")
+namespace {
+    Q_LOGGING_CATEGORY(lc_settings, "magnesia.settings")
+} // namespace
 
 namespace magnesia::activities::settings {
     // TODO: combine with implementation in dataviewer
@@ -87,7 +89,7 @@ namespace magnesia::activities::settings {
         connect(m_sidebar_domain_list, &QListWidget::itemClicked, this, [this] {
             const int current_selected = m_sidebar_domain_list->currentRow();
             const int count            = m_sidebar_domain_list->count();
-            qCDebug(lcSettings) << "changing to" << current_selected;
+            qCDebug(lc_settings) << "changing to" << current_selected;
             // The last and penultimate items are links to certificates and keys, not a setting domain.
             // When a new special section is added, this needs to be adjusted.
             switch (count - current_selected) {
@@ -243,7 +245,7 @@ namespace magnesia::activities::settings {
             for (const auto& setting : Application::instance().getSettingsManager().getSettingDefinitions(domain)) {
                 auto* setting_widget = createSettingWidget(setting.get(), domain);
                 domain_layout->addWidget(setting_widget);
-                m_setting_widgets[{domain, setting->getName()}] = setting_widget;
+                m_setting_widgets[{.name = setting->getName(), .domain = domain}] = setting_widget;
             }
         }
         // these need to go last
@@ -305,21 +307,21 @@ namespace magnesia::activities::settings {
 
     bool Settings::focusDomain(const Domain& domain) {
         if (m_domain_widgets.contains(domain)) {
-            qCDebug(lcSettings) << "focus domain:" << domain;
+            qCDebug(lc_settings) << "focus domain:" << domain;
             m_scroll_area->ensureWidgetVisible(m_domain_widgets[domain]);
             return true;
         }
-        qCWarning(lcSettings) << "can't focus domain:" << domain;
+        qCWarning(lc_settings) << "can't focus domain:" << domain;
         return false;
     }
 
     bool Settings::focusSetting(const SettingKey& key) {
         if (m_setting_widgets.contains(key)) {
             m_scroll_area->ensureWidgetVisible(m_setting_widgets[key]);
-            qCDebug(lcSettings) << "focus setting:" << key.domain << key.name;
+            qCDebug(lc_settings) << "focus setting:" << key.domain << key.name;
             return true;
         }
-        qCWarning(lcSettings) << "can't focus setting:" << key.domain << key.name;
+        qCWarning(lc_settings) << "can't focus setting:" << key.domain << key.name;
         return false;
     }
 
@@ -370,14 +372,14 @@ namespace magnesia::activities::settings {
         if (const auto* specific_setting = dynamic_cast<const LayoutSetting*>(setting); specific_setting != nullptr) {
             return createSettingWidget(specific_setting, domain);
         }
-        qCCritical(lcSettings) << "failed to create widget for unknown Setting type";
+        qCCritical(lc_settings) << "failed to create widget for unknown Setting type";
         terminate();
     }
 
     QWidget* Settings::createSettingWidget(const BooleanSetting* setting, const Domain& domain) {
         auto* right_layout = new QVBoxLayout;
 
-        const SettingKey key{setting->getName(), domain};
+        const SettingKey key{.name = setting->getName(), .domain = domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getBoolSetting(key);
         Q_ASSERT(cur_setting_value.has_value());
 
@@ -404,7 +406,7 @@ namespace magnesia::activities::settings {
     QWidget* Settings::createSettingWidget(const StringSetting* setting, const Domain& domain) {
         auto* right_layout = new QVBoxLayout;
 
-        const SettingKey key{setting->getName(), domain};
+        const SettingKey key{.name = setting->getName(), .domain = domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getStringSetting(key);
         Q_ASSERT(cur_setting_value.has_value());
 
@@ -421,7 +423,7 @@ namespace magnesia::activities::settings {
     QWidget* Settings::createSettingWidget(const IntSetting* setting, const Domain& domain) {
         auto* right_layout = new QVBoxLayout;
 
-        const SettingKey key{setting->getName(), domain};
+        const SettingKey key{.name = setting->getName(), .domain = domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getIntSetting(key);
         Q_ASSERT(cur_setting_value.has_value());
 
@@ -442,7 +444,7 @@ namespace magnesia::activities::settings {
     QWidget* Settings::createSettingWidget(const DoubleSetting* setting, const Domain& domain) {
         auto* right_layout = new QVBoxLayout;
 
-        const SettingKey key{setting->getName(), domain};
+        const SettingKey key{.name = setting->getName(), .domain = domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getDoubleSetting(key);
         Q_ASSERT(cur_setting_value.has_value());
 
@@ -463,7 +465,7 @@ namespace magnesia::activities::settings {
     QWidget* Settings::createSettingWidget(const EnumSetting* setting, const Domain& domain) {
         auto* right_layout = new QVBoxLayout;
 
-        const SettingKey key{setting->getName(), domain};
+        const SettingKey key{.name = setting->getName(), .domain = domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getEnumSetting(key);
         Q_ASSERT(cur_setting_value.has_value());
 
@@ -484,7 +486,7 @@ namespace magnesia::activities::settings {
     QWidget* Settings::createSettingWidget(const HistoricServerConnectionSetting* setting, const Domain& domain) {
         auto* right_layout = new QVBoxLayout;
 
-        const SettingKey key{setting->getName(), domain};
+        const SettingKey key{.name = setting->getName(), .domain = domain};
         const auto       cur_setting_value =
             Application::instance().getSettingsManager().getHistoricServerConnectionSettingId(key);
         const auto server_cons = Application::instance().getStorageManager().getAllHistoricServerConnections();
@@ -515,7 +517,7 @@ namespace magnesia::activities::settings {
     QWidget* Settings::createSettingWidget(const CertificateSetting* setting, const Domain& domain) {
         auto* right_layout = new QVBoxLayout;
 
-        const SettingKey key{setting->getName(), domain};
+        const SettingKey key{.name = setting->getName(), .domain = domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getCertificateSettingId(key);
         const auto       certs             = Application::instance().getStorageManager().getAllCertificates();
 
@@ -544,7 +546,7 @@ namespace magnesia::activities::settings {
     QWidget* Settings::createSettingWidget(const KeySetting* setting, const Domain& domain) {
         auto* right_layout = new QVBoxLayout;
 
-        const SettingKey key{setting->getName(), domain};
+        const SettingKey key{.name = setting->getName(), .domain = domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getKeySettingId(key);
         const auto       keys              = Application::instance().getStorageManager().getAllKeys();
 
@@ -576,7 +578,7 @@ namespace magnesia::activities::settings {
     QWidget* Settings::createSettingWidget(const ApplicationCertificateSetting* setting, const Domain& domain) {
         auto* right_layout = new QVBoxLayout;
 
-        const SettingKey key{setting->getName(), domain};
+        const SettingKey key{.name = setting->getName(), .domain = domain};
         const auto       cur_setting_value =
             Application::instance().getSettingsManager().getApplicationCertificateSettingId(key);
         const auto certs = Application::instance().getStorageManager().getAllApplicationCertificates();
@@ -606,7 +608,7 @@ namespace magnesia::activities::settings {
     QWidget* Settings::createSettingWidget(const LayoutSetting* setting, const Domain& domain) {
         auto* right_layout = new QVBoxLayout;
 
-        const SettingKey key{setting->getName(), domain};
+        const SettingKey key{.name = setting->getName(), .domain = domain};
         const auto       cur_setting_value = Application::instance().getSettingsManager().getLayoutSettingId(key);
         const auto layouts = Application::instance().getStorageManager().getAllLayouts(setting->getGroup(), domain);
 

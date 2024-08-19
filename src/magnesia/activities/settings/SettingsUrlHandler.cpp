@@ -16,7 +16,7 @@ namespace magnesia::activities::settings {
         if (path == "focus-domain") {
             m_activity->focusDomain(query.queryItemValue("domain"));
         } else if (path == "focus-setting") {
-            m_activity->focusSetting({query.queryItemValue("name"), query.queryItemValue("domain")});
+            m_activity->focusSetting({.name = query.queryItemValue("name"), .domain = query.queryItemValue("domain")});
         } else if (path == "focus") {
             Application::instance().focusActivity(m_activity);
         } else {

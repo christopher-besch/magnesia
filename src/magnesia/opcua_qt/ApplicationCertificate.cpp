@@ -24,13 +24,16 @@
 #include <QtGlobal>
 #endif
 
-namespace magnesia::opcua_qt {
+namespace {
     opcua::Span<opcua::String> to_span(const QList<QString>& list) {
         auto view =
             list | std::views::transform([](const QString& input) { return opcua::String(input.toStdString()); });
         auto vector = std::vector<opcua::String>{view.begin(), view.end()};
         return opcua::Span<opcua::String>{vector};
     }
+} // namespace
+
+namespace magnesia::opcua_qt {
 
     ApplicationCertificate::ApplicationCertificate(const QList<QString>& subject,
                                                    const QList<QString>& subject_alt_name, std::size_t key_size_bits) {

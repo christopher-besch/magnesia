@@ -36,7 +36,9 @@
 #include <QtGlobal>
 #endif
 
-Q_LOGGING_CATEGORY(lcLayout, "magnesia.dataviewer.layout")
+namespace {
+    Q_LOGGING_CATEGORY(lc_layout, "magnesia.dataviewer.layout")
+} // namespace
 
 namespace magnesia::activities::dataviewer::layout {
     PanelWrapper::PanelWrapper(DataViewer* dataviewer, class Panel* panel, QWidget* parent)
@@ -112,11 +114,11 @@ namespace magnesia::activities::dataviewer::layout {
 
         connect(close_action, &QAction::triggered, this, &QWidget::deleteLater);
         connect(split_hor_action, &QAction::triggered, this, [this]() {
-            qCDebug(lcLayout) << "Split Horizontally";
+            qCDebug(lc_layout) << "Split Horizontally";
             Q_EMIT requestedSplit(this, Qt::Horizontal);
         });
         connect(split_ver_action, &QAction::triggered, this, [this]() {
-            qCDebug(lcLayout) << "Split Vertically";
+            qCDebug(lc_layout) << "Split Vertically";
             Q_EMIT requestedSplit(this, Qt::Vertical);
         });
 
@@ -143,8 +145,8 @@ namespace magnesia::activities::dataviewer::layout {
                     deleteLater();
                 }
             } else if (remaining_widgets == 1 && m_parent_layout != nullptr) {
-                qCDebug(lcLayout) << "Merging with parent layout. this:" << this
-                                  << "parent:" << static_cast<void*>(m_parent_layout);
+                qCDebug(lc_layout) << "Merging with parent layout. this:" << this
+                                   << "parent:" << static_cast<void*>(m_parent_layout);
                 auto* widget = this->widget(0);
                 if (auto* panel_wrapper = qobject_cast<PanelWrapper*>(widget); panel_wrapper != nullptr) {
                     auto* panel = panel_wrapper->unwrap();
@@ -165,22 +167,22 @@ namespace magnesia::activities::dataviewer::layout {
     }
 
     PanelLayout::~PanelLayout() {
-        qCDebug(lcLayout) << "Destructed PanelLayout" << this;
+        qCDebug(lc_layout) << "Destructed PanelLayout" << this;
     }
 
     void PanelLayout::addWidget(class Panel* panel) {
-        qCDebug(lcLayout) << "Adding QWidget" << panel;
+        qCDebug(lc_layout) << "Adding QWidget" << panel;
         addWidget(wrapPanel(panel));
     }
 
     void PanelLayout::addWidget(PanelWrapper* wrapper) {
-        qCDebug(lcLayout) << "Adding PanelWrapper" << wrapper;
+        qCDebug(lc_layout) << "Adding PanelWrapper" << wrapper;
         Q_ASSERT(wrapper != nullptr);
         QSplitter::addWidget(wrapper);
     }
 
     void PanelLayout::insertWidget(int index, class Panel* panel) {
-        qCDebug(lcLayout) << "Inserting widget" << panel << "at index" << index;
+        qCDebug(lc_layout) << "Inserting widget" << panel << "at index" << index;
         QSplitter::insertWidget(index, wrapPanel(panel));
     };
 
@@ -192,7 +194,7 @@ namespace magnesia::activities::dataviewer::layout {
 
     void PanelLayout::split(PanelWrapper* wrapper, Qt::Orientation orientation) {
         Q_ASSERT(wrapper != nullptr);
-        qCDebug(lcLayout) << "splitting widget" << wrapper;
+        qCDebug(lc_layout) << "splitting widget" << wrapper;
 
         auto index = indexOf(wrapper);
         Q_ASSERT(index != -1);
@@ -243,15 +245,15 @@ namespace magnesia::activities::dataviewer::layout {
     }
 
     bool PanelLayout::restoreState(const QJsonDocument& state) {
-        qCDebug(lcLayout) << state;
+        qCDebug(lc_layout) << state;
 
         if (!state.isObject()) {
-            qCDebug(lcLayout) << "restoreState: layout state must be an object";
+            qCDebug(lc_layout) << "restoreState: layout state must be an object";
             return false;
         }
         auto object = state.object();
         if (object["type"] != "layout") {
-            qCDebug(lcLayout) << "restoreState: root object must represent a layout, got:" << object["type"];
+            qCDebug(lc_layout) << "restoreState: root object must represent a layout, got:" << object["type"];
             return false;
         }
 
@@ -270,7 +272,7 @@ namespace magnesia::activities::dataviewer::layout {
 
         const auto& children = layout["children"];
         if (!children.isArray()) {
-            qCDebug(lcLayout) << "restoreLayout: children needs to be an array, got:" << children.type();
+            qCDebug(lc_layout) << "restoreLayout: children needs to be an array, got:" << children.type();
             return false;
         }
         for (auto* child : this->children()) {
@@ -278,38 +280,38 @@ namespace magnesia::activities::dataviewer::layout {
         }
         for (const auto& child : children.toArray()) {
             if (!child.isObject()) {
-                qCDebug(lcLayout) << "restoreLayout: child needs to be an object, got:" << child.type();
+                qCDebug(lc_layout) << "restoreLayout: child needs to be an object, got:" << child.type();
                 return false;
             }
             const auto& object     = child.toObject();
             const auto& child_type = object["type"];
             if (!child_type.isString()) {
-                qCDebug(lcLayout) << "restoreLayout: child type needs to be a string, got:" << child_type.type();
+                qCDebug(lc_layout) << "restoreLayout: child type needs to be a string, got:" << child_type.type();
                 return false;
             }
             if (auto type = child_type.toString(); type == "layout") {
                 auto* child_layout = new PanelLayout(m_dataviewer, {}, this);
                 if (!child_layout->restoreLayout(object)) {
-                    qCDebug(lcLayout) << "restoreLayout: failed to restore child layout";
+                    qCDebug(lc_layout) << "restoreLayout: failed to restore child layout";
                     return false;
                 }
                 QSplitter::addWidget(child_layout);
             } else if (type == "panel") {
                 if (!restorePanel(object)) {
-                    qCDebug(lcLayout) << "restoreLayout: failed to restore child panel";
+                    qCDebug(lc_layout) << "restoreLayout: failed to restore child panel";
                     return false;
                 }
             } else if (type == "empty") {
                 addWidget();
             } else {
-                qCDebug(lcLayout) << "restoreLayout: Unknown type" << type;
+                qCDebug(lc_layout) << "restoreLayout: Unknown type" << type;
                 return false;
             }
         }
 
         const auto& splitter_state = layout["splitter_state"];
         if (!splitter_state.isString()) {
-            qCDebug(lcLayout) << "restoreLayout: splitter_state needs to be a string, got:" << splitter_state.type();
+            qCDebug(lc_layout) << "restoreLayout: splitter_state needs to be a string, got:" << splitter_state.type();
             return false;
         }
         // TODO: figure out why this doesn't always restore layout exactly
@@ -323,7 +325,7 @@ namespace magnesia::activities::dataviewer::layout {
 
         const auto& panel_id = panel_data["id"];
         if (!panel_id.isString()) {
-            qCDebug(lcLayout) << "restorePanel: id needs to be a string, got:" << panel_id.type();
+            qCDebug(lc_layout) << "restorePanel: id needs to be a string, got:" << panel_id.type();
             return false;
         }
         const auto& pid = panel_id.toString();
@@ -335,18 +337,18 @@ namespace magnesia::activities::dataviewer::layout {
 
             auto* panel = std::invoke(metadata.create, m_dataviewer);
             if (panel == nullptr) {
-                qCDebug(lcLayout) << "restorePanel: Failed creating a panel for id" << pid
-                                  << "Adding empty panel instead.";
+                qCDebug(lc_layout) << "restorePanel: Failed creating a panel for id" << pid
+                                   << "Adding empty panel instead.";
                 addWidget();
                 return true;
             }
 
             if (!panel_data["data"].isObject()) {
-                qCDebug(lcLayout) << "restorePanel: data needs to be an object, got:" << panel_data["data"].type();
+                qCDebug(lc_layout) << "restorePanel: data needs to be an object, got:" << panel_data["data"].type();
                 return false;
             }
             if (!panel->restoreState(panel_data["data"].toObject())) {
-                qCDebug(lcLayout) << "restorePanel: failed to restore panel data";
+                qCDebug(lc_layout) << "restorePanel: failed to restore panel data";
                 return false;
             }
 
@@ -354,7 +356,7 @@ namespace magnesia::activities::dataviewer::layout {
             return true;
         }
 
-        qCDebug(lcLayout) << "restorePanel: Unknown panel id" << pid << "Adding empty panel instead.";
+        qCDebug(lc_layout) << "restorePanel: Unknown panel id" << pid << "Adding empty panel instead.";
         addWidget();
 
         return true;

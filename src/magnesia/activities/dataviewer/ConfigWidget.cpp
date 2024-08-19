@@ -54,7 +54,9 @@
 #include <QtGlobal>
 #endif
 
-Q_LOGGING_CATEGORY(lcDVConfig, "magnesia.dataviewer.configwidget")
+namespace {
+    Q_LOGGING_CATEGORY(lc_dv_config, "magnesia.dataviewer.configwidget")
+} // namespace
 
 using magnesia::opcua_qt::Connection;
 using magnesia::opcua_qt::ConnectionBuilder;
@@ -220,7 +222,7 @@ namespace magnesia::activities::dataviewer {
 
         connect(table->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
                 [this, model](const QModelIndex& current) {
-                    qCDebug(lcDVConfig) << "Recent connection selection changed to" << current;
+                    qCDebug(lc_dv_config) << "Recent connection selection changed to" << current;
                     auto connection = model->data(current, detail::HistoricServerConnectionModel::ConnectionRole)
                                           .value<HistoricServerConnection>();
 
@@ -231,7 +233,7 @@ namespace magnesia::activities::dataviewer {
                 });
 
         connect(table, &QTableView::activated, this, [this, model](const QModelIndex& index) {
-            qCDebug(lcDVConfig) << "Recent connection activated" << index;
+            qCDebug(lc_dv_config) << "Recent connection activated" << index;
             auto historic = model->data(index, detail::HistoricServerConnectionModel::ConnectionRole)
                                 .value<HistoricServerConnection>();
             auto conid = model->data(index, detail::HistoricServerConnectionModel::ConnectionIdRole).value<StorageId>();
@@ -275,11 +277,11 @@ namespace magnesia::activities::dataviewer {
     }
 
     void ConfigWidget::onFindEndpoints() {
-        qCDebug(lcDVConfig) << "finding endpoints for:"                           //
-                            << "\n  address:" << m_address->text()                //
-                            << "\n  certificate:" << m_certificate->currentData() //
-                            << "\n  username:" << m_username->text()              //
-                            << "\n  password:" << m_password->text();
+        qCDebug(lc_dv_config) << "finding endpoints for:"                           //
+                              << "\n  address:" << m_address->text()                //
+                              << "\n  certificate:" << m_certificate->currentData() //
+                              << "\n  username:" << m_username->text()              //
+                              << "\n  password:" << m_password->text();
 
         auto builder = m_current_connection_builder = QSharedPointer<ConnectionBuilder>{new ConnectionBuilder};
         m_current_connection_builder->logger(new opcua_qt::Logger);
@@ -308,16 +310,16 @@ namespace magnesia::activities::dataviewer {
     void ConfigWidget::onEndpointsFound(const opcua::Result<QList<Endpoint>>& result) {
         if (result.hasValue()) {
             const auto& endpoints = result.value();
-            qCDebug(lcDVConfig) << "endpoints:";
+            qCDebug(lc_dv_config) << "endpoints:";
             for (const auto& endpoint : endpoints) {
-                qCDebug(lcDVConfig) << "  endpoint:" << endpoint.getEndpointUrl()
-                                    << "security:" << endpoint.getSecurityPolicyUri()
-                                    << "mode:" << to_qstring(endpoint.getSecurityMode());
+                qCDebug(lc_dv_config) << "  endpoint:" << endpoint.getEndpointUrl()
+                                      << "security:" << endpoint.getSecurityPolicyUri()
+                                      << "mode:" << to_qstring(endpoint.getSecurityMode());
             }
 
             m_endpoint_selector_model->setEndpoints(endpoints);
         } else {
-            qCWarning(lcDVConfig) << "Failed to find endpoints:" << QUtf8StringView{result.code().name()};
+            qCWarning(lc_dv_config) << "Failed to find endpoints:" << QUtf8StringView{result.code().name()};
             // TODO: display warning message to the user
         }
     }
@@ -327,12 +329,12 @@ namespace magnesia::activities::dataviewer {
         auto endpoint_selection = m_endpoint_selector->model()->data(index, Qt::UserRole);
         Q_ASSERT(endpoint_selection.userType() == QMetaType::fromType<Endpoint>().id());
         auto endpoint = *static_cast<Endpoint*>(endpoint_selection.data());
-        qCDebug(lcDVConfig) << "connecting to:"                                   //
-                            << "\n  address:" << m_address->text()                //
-                            << "\n  certificate:" << m_certificate->currentData() //
-                            << "\n  username:" << m_username->text()              //
-                            << "\n  password:" << m_password->text()              //
-                            << "\n  endpoint:" << index.row();
+        qCDebug(lc_dv_config) << "connecting to:"                                   //
+                              << "\n  address:" << m_address->text()                //
+                              << "\n  certificate:" << m_certificate->currentData() //
+                              << "\n  username:" << m_username->text()              //
+                              << "\n  password:" << m_password->text()              //
+                              << "\n  endpoint:" << index.row();
 
         m_current_connection_builder->endpoint(endpoint);
 

@@ -99,7 +99,7 @@ namespace magnesia::opcua_qt {
             const auto endpoint_descriptions = opcua::Client{}.getEndpoints(m_url.value().toString().toStdString());
             QList<Endpoint> endpoints;
             std::ranges::transform(endpoint_descriptions, std::back_inserter(endpoints),
-                                   [](auto endpoint) { return Endpoint{endpoint}; });
+                                   [](auto endpoint) { return Endpoint{std::move(endpoint)}; });
             return endpoints;
         } catch (const opcua::BadStatus& status) {
             return opcua::BadResult(status.code());

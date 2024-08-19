@@ -51,8 +51,8 @@
               ninja
 
               # C++ static analysis/formatting
-              llvmPackages_18.clang-tools
-              llvmPackages_18.clang
+              llvmPackages_19.clang-tools
+              llvmPackages_19.clang
               cppcheck
               include-what-you-use
 

@@ -13,7 +13,9 @@
 #include <QWidget>
 #include <Qt>
 
-Q_LOGGING_CATEGORY(lcAddActivity, "magnesia.addactivity")
+namespace {
+    Q_LOGGING_CATEGORY(lc_add_activity, "magnesia.addactivity")
+} // namespace
 
 namespace magnesia::activities::add_activity {
     AddActivity::AddActivity(QWidget* parent) : Activity{parent} {
@@ -24,7 +26,7 @@ namespace magnesia::activities::add_activity {
 
         for (const auto& activity : Application::getActivityMetadata()) {
             if (activity.create_config_widget != nullptr) {
-                qCInfo(lcAddActivity) << "adding activity" << activity.name;
+                qCInfo(lc_add_activity) << "adding activity" << activity.name;
                 activity_list->addItem(activity.name.toString());
                 config_widget_stack->addWidget(std::invoke(activity.create_config_widget));
             }
