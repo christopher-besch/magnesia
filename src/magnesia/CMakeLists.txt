@@ -4,6 +4,8 @@ set(SOURCES
     activities/about/About.cpp
     activities/activities.cpp
     activities/add_activity/AddActivity.cpp
+    activities/certificate/Certificate.cpp
+    activities/certificate/CertificateURLHandler.cpp
     activities/dataviewer/ConfigWidget.cpp
     activities/dataviewer/DataViewer.cpp
     activities/dataviewer/dataviewer_fwd.cpp

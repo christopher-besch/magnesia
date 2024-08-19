@@ -20,7 +20,6 @@
 #include <QLayout>
 #include <QLineEdit>
 #include <QListWidget>
-#include <QListWidgetItem>
 #include <QLoggingCategory>
 #include <QObject>
 #include <QPushButton>
@@ -33,7 +32,6 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
-#include <QtLogging>
 #else
 #include <QtGlobal>
 #endif
@@ -133,10 +131,8 @@ namespace magnesia::activities::settings {
 
         // create ApplicationCertificate (in main scroll area)
         auto* create_app_cert = new QPushButton{"Create New Application Certificate"};
-        connect(create_app_cert, &QPushButton::clicked, this, []() {
-            // TODO: use correct url when the certificate activity is implemented
-            Application::instance().getRouter().route({""});
-        });
+        connect(create_app_cert, &QPushButton::clicked, this,
+                []() { Application::instance().getRouter().route({"certificate:create"}); });
         scroll_area_layout->addWidget(create_app_cert);
 
         // activity layout
@@ -265,9 +261,8 @@ namespace magnesia::activities::settings {
 
             auto* view_button = new QPushButton{"View"};
             layout->addWidget(view_button);
-            connect(view_button, &QPushButton::clicked, view_button, [/*cert_id*/]() {
-                // TODO: use correct url when the certificate activity is implemented
-                Application::instance().getRouter().route({""});
+            connect(view_button, &QPushButton::clicked, view_button, [cert_id]() {
+                Application::instance().getRouter().route("certificate:view?storage-id=" + QString::number(cert_id));
             });
 
             auto* delete_button = new QPushButton{"Delete"};
