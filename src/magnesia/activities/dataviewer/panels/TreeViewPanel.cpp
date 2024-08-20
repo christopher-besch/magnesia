@@ -42,6 +42,11 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         connect(this, &TreeViewPanel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
         connect(m_tree_view, &QTreeView::doubleClicked, this, [&](QModelIndex index) {
             auto* node = TreeViewModel::getNode(index);
+
+            if (node == nullptr) {
+                return;
+            }
+
             Q_EMIT nodeSelected(node->getNodeId(), Panels::node);
         });
     }
