@@ -64,7 +64,6 @@ namespace magnesia::activities::dataviewer {
         layout->addLayout(address_layout);
 
         layout->addWidget(m_root_layout, Qt::AlignCenter);
-        m_root_layout->addWidget();
 
         setLayout(layout);
     }
@@ -81,11 +80,7 @@ namespace magnesia::activities::dataviewer {
         auto* layout = new QHBoxLayout;
 
         auto* layout_selector = new QComboBox;
-        layout_selector->setPlaceholderText("Select Layout");
-        auto* model = new detail::LayoutSelectorModel(s_storage_domain, s_layout_group, layout_selector);
-        layout_selector->setModel(model);
-        layout_selector->setCurrentIndex(-1);
-        layout->addWidget(layout_selector);
+        auto* model           = new detail::LayoutSelectorModel(s_storage_domain, s_layout_group, layout_selector);
 
         auto* save_edit = new QLineEdit;
         save_edit->hide();
@@ -129,6 +124,9 @@ namespace magnesia::activities::dataviewer {
             layout_selector->setFocus(Qt::FocusReason::OtherFocusReason);
             layout_selector->setCurrentIndex(index);
         });
+
+        layout_selector->setModel(model);
+        layout->addWidget(layout_selector);
 
         return layout;
     }
