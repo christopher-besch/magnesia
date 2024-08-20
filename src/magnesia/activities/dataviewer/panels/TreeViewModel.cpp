@@ -21,7 +21,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     }
 
     QModelIndex TreeViewModel::index(int row, int column, const QModelIndex& parent) const {
-        if (m_root_node == nullptr || row < 0 || column < 0) {
+        if (m_root_node == nullptr || !checkIndex(parent)) {
             return {};
         }
 
@@ -39,7 +39,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     }
 
     QModelIndex TreeViewModel::parent(const QModelIndex& index) const {
-        if (!index.isValid()) {
+        if (!checkIndex(index, CheckIndexOption::IndexIsValid | CheckIndexOption::DoNotUseParent)) {
             return {};
         }
 
@@ -61,7 +61,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     }
 
     int TreeViewModel::rowCount(const QModelIndex& parent) const {
-        if (parent.column() > 0) {
+        if (!checkIndex(parent)) {
             return 0;
         }
 
@@ -78,7 +78,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     }
 
     QVariant TreeViewModel::data(const QModelIndex& index, int role) const {
-        if (!index.isValid() || role != Qt::DisplayRole) {
+        if (!checkIndex(index, CheckIndexOption::IndexIsValid) || role != Qt::DisplayRole) {
             return {};
         }
 
