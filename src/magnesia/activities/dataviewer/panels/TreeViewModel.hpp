@@ -27,8 +27,6 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
         void setRootNode(opcua_qt::abstraction::Node* root);
 
-        [[nodiscard]] static magnesia::opcua_qt::abstraction::Node* nodeForIndex(const QModelIndex& index);
-
         [[nodiscard]] bool canFetchMore(const QModelIndex& parent) const override;
 
         [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
