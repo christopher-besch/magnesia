@@ -222,6 +222,9 @@ namespace magnesia::activities::dataviewer {
 
         connect(table->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
                 [this, model](const QModelIndex& current) {
+                    if (!model->checkIndex(current, QAbstractItemModel::CheckIndexOption::IndexIsValid)) {
+                        return;
+                    }
                     qCDebug(lc_dv_config) << "Recent connection selection changed to" << current;
                     auto connection = model->data(current, detail::HistoricServerConnectionModel::ConnectionRole)
                                           .value<HistoricServerConnection>();
