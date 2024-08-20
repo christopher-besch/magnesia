@@ -139,7 +139,6 @@ namespace magnesia {
         void setGenericSetting(const SettingKey& key);
 
         void handleDeleteMonitor();
-        void clearDeleteMonitor();
 
         static void warnQuery(const QString& message, const QSqlQuery& query);
 

@@ -1523,18 +1523,14 @@ END;
     // NOLINTNEXTLINE(readability-function-cognitive-complexity)
     void SQLStorageManager::handleDeleteMonitor() {
         QSqlQuery query{R"sql(
-SELECT relation, id, key, layout_group, name, domain
-FROM TupleDeleteMonitor;
+DELETE FROM TupleDeleteMonitor
+RETURNING relation, id, key, layout_group, name, domain;
 )sql",
                         m_database};
         if (query.lastError().isValid()) {
             warnQuery("retrieving TupleDeleteMonitor from database failed.", query);
             terminate();
         }
-        // Moving this below the loop might emit duplicate signals if one of the slots connected to the signals
-        // emitted in the loop (directly or indirectly) causes the deletion of another tuple, resulting in a nested call
-        // to handleDeleteMonitor() reading and handling the previous, yet to be cleared tuples again.
-        clearDeleteMonitor();
         while (query.next()) {
             switch (static_cast<DBRelation>(query.value("relation").toUInt())) {
                 case DBRelation::Certificate:
@@ -1583,17 +1579,6 @@ FROM TupleDeleteMonitor;
                     break;
             };
             qCCritical(lc_sql_storage) << "Invalid deletion type";
-            terminate();
-        }
-    }
-
-    void SQLStorageManager::clearDeleteMonitor() {
-        const QSqlQuery query{R"sql(
-DELETE FROM TupleDeleteMonitor;
-)sql",
-                              m_database};
-        if (query.lastError().isValid()) {
-            warnQuery("clearing TupleDeleteMonitor from database failed.", query);
             terminate();
         }
     }
