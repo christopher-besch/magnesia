@@ -37,28 +37,22 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
         setLayout(layout);
 
-        connect(m_tree_view->selectionModel(), &QItemSelectionModel::currentChanged, this,
-                &TreeViewPanel::onCurrentNodeChanged);
         connect(this, &TreeViewPanel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
-        connect(m_tree_view, &QTreeView::doubleClicked, this, [&](QModelIndex index) {
-            auto* node = TreeViewModel::getNode(index);
 
-            if (node == nullptr) {
-                return;
-            }
+        connect(m_tree_view, &QTreeView::clicked, this,
+                [&](QModelIndex index) { indexSelected(index, Panels::attribute | Panels::reference_view); });
 
-            Q_EMIT nodeSelected(node->getNodeId(), Panels::node);
-        });
+        connect(m_tree_view, &QTreeView::doubleClicked, this,
+                [&](QModelIndex index) { indexSelected(index, Panels::node); });
     }
 
-    void TreeViewPanel::onCurrentNodeChanged(const QModelIndex& current, const QModelIndex& /*previous*/) {
-        auto* node = TreeViewModel::getNode(current);
-
+    void TreeViewPanel::indexSelected(QModelIndex index, panels::Panels recipients) {
+        auto* node = TreeViewModel::getNode(index);
         if (node == nullptr) {
             return;
         }
 
-        Q_EMIT nodeSelected(node->getNodeId(), Panels::attribute | Panels::reference_view);
+        Q_EMIT nodeSelected(node->getNodeId(), recipients);
     }
 
     const PanelMetadata& TreeViewPanel::metadata() const noexcept {
