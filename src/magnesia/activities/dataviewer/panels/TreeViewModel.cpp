@@ -14,12 +14,6 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
     TreeViewModel::TreeViewModel(QObject* parent) : QAbstractItemModel(parent) {}
 
-    void TreeViewModel::setRootNode(Node* root) {
-        beginResetModel();
-        m_root_node = root;
-        endResetModel();
-    }
-
     QModelIndex TreeViewModel::index(int row, int column, const QModelIndex& parent) const {
         if (m_root_node == nullptr || !checkIndex(parent)) {
             return {};
@@ -94,22 +88,6 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         return {};
     }
 
-    int TreeViewModel::getChildIndexOf(Node* parent, Node* child) {
-        auto children = parent->getChildren();
-
-        for (int i = 0; i < children.size(); i++) {
-            if (children.value(i) == child) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    Node* TreeViewModel::getNode(const QModelIndex& index) {
-        return static_cast<Node*>(index.internalPointer());
-    }
-
     bool TreeViewModel::canFetchMore(const QModelIndex& parent) const {
         const auto* node = getNode(parent);
         if (node == nullptr) {
@@ -132,4 +110,27 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         }
         return children_count.value() != 0;
     }
+
+    void TreeViewModel::setRootNode(Node* root) {
+        beginResetModel();
+        m_root_node = root;
+        endResetModel();
+    }
+
+    Node* TreeViewModel::getNode(const QModelIndex& index) {
+        return static_cast<Node*>(index.internalPointer());
+    }
+
+    int TreeViewModel::getChildIndexOf(Node* parent, Node* child) {
+        auto children = parent->getChildren();
+
+        for (int i = 0; i < children.size(); i++) {
+            if (children.value(i) == child) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
 } // namespace magnesia::activities::dataviewer::panels::treeview_panel

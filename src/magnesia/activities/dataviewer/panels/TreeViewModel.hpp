@@ -21,17 +21,13 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         [[nodiscard]] int         rowCount(const QModelIndex& parent = QModelIndex()) const override;
         [[nodiscard]] int         columnCount(const QModelIndex& parent = QModelIndex()) const override;
         [[nodiscard]] QVariant    data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-
-        [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation,
-                                          int role = Qt::DisplayRole) const override;
-
-        void setRootNode(opcua_qt::abstraction::Node* root);
-
-        [[nodiscard]] bool canFetchMore(const QModelIndex& parent) const override;
-
-        [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
+        [[nodiscard]] QVariant    headerData(int section, Qt::Orientation orientation,
+                                             int role = Qt::DisplayRole) const override;
+        [[nodiscard]] bool        canFetchMore(const QModelIndex& parent) const override;
+        [[nodiscard]] bool        hasChildren(const QModelIndex& parent) const override;
 
         [[nodiscard]] static opcua_qt::abstraction::Node* getNode(const QModelIndex& index);
+        void                                              setRootNode(opcua_qt::abstraction::Node* root);
 
       private:
         [[nodiscard]] static int getChildIndexOf(opcua_qt::abstraction::Node* parent,
