@@ -41,13 +41,13 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
                 &TreeViewPanel::onCurrentNodeChanged);
         connect(this, &TreeViewPanel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
         connect(m_tree_view, &QTreeView::doubleClicked, this, [&](QModelIndex index) {
-            auto* node = static_cast<opcua_qt::abstraction::Node*>(index.internalPointer());
+            auto* node = TreeViewModel::getNode(index);
             Q_EMIT nodeSelected(node->getNodeId(), Panels::node);
         });
     }
 
     void TreeViewPanel::onCurrentNodeChanged(const QModelIndex& current, const QModelIndex& /*previous*/) {
-        auto* node = static_cast<opcua_qt::abstraction::Node*>(current.internalPointer());
+        auto* node = TreeViewModel::getNode(current);
 
         if (node == nullptr) {
             return;

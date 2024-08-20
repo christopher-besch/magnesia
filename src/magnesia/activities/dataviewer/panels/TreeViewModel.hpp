@@ -33,11 +33,11 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
         [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
 
+        [[nodiscard]] static opcua_qt::abstraction::Node* getNode(const QModelIndex& index);
+
       private:
         [[nodiscard]] static int getChildIndexOf(opcua_qt::abstraction::Node* parent,
                                                  opcua_qt::abstraction::Node* child);
-
-        [[nodiscard]] static opcua_qt::abstraction::Node* getNode(const QModelIndex& index);
 
       private:
         opcua_qt::abstraction::Node* m_root_node{nullptr};
