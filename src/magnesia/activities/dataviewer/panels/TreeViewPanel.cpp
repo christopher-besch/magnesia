@@ -28,6 +28,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         m_model->setRootNode(root_node);
         m_tree_view->setModel(m_model);
         m_tree_view->setFrameShape(QFrame::Shape::NoFrame);
+        m_tree_view->setExpandsOnDoubleClick(false);
 
         auto* layout = new QHBoxLayout;
         layout->addWidget(m_tree_view);
@@ -39,6 +40,10 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         connect(m_tree_view->selectionModel(), &QItemSelectionModel::currentChanged, this,
                 &TreeViewPanel::onCurrentNodeChanged);
         connect(this, &TreeViewPanel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
+        connect(m_tree_view, &QTreeView::doubleClicked, this, [&](QModelIndex index) {
+            auto* node = static_cast<opcua_qt::abstraction::Node*>(index.internalPointer());
+            Q_EMIT nodeSelected(node->getNodeId(), Panels::node);
+        });
     }
 
     void TreeViewPanel::onCurrentNodeChanged(const QModelIndex& current, const QModelIndex& /*previous*/) {
