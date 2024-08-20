@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../database_types.hpp"
 #include "ApplicationCertificate.hpp"
 #include "Connection.hpp"
 #include "Logger.hpp"
@@ -82,7 +83,7 @@ namespace magnesia::opcua_qt {
          *
          * @param certificate a Certificate containing a private Key.
          */
-        ConnectionBuilder& certificate(const ApplicationCertificate& certificate) noexcept;
+        ConnectionBuilder& certificate(const StorageId& certificate) noexcept;
         /**
          * @brief Sets the trust list of certificates.
          * Only effective if a client certificate is selected.
@@ -91,7 +92,7 @@ namespace magnesia::opcua_qt {
          *
          * @param trust_list
          */
-        ConnectionBuilder& trustList(const QList<QSslCertificate>& trust_list) noexcept;
+        ConnectionBuilder& trustList(const QList<StorageId>& trust_list) noexcept;
         /**
          * @brief Sets the revoked certificate list.
          * Only effective if a client certificate is selected.
@@ -100,7 +101,7 @@ namespace magnesia::opcua_qt {
          *
          * @param revoked_list
          */
-        ConnectionBuilder& revokedList(const QList<QSslCertificate>& revoked_list) noexcept;
+        ConnectionBuilder& revokedList(const QList<StorageId>& revoked_list) noexcept;
 
         /**
          * @brief creates a connection from this builder by consuming the builder
@@ -128,14 +129,14 @@ namespace magnesia::opcua_qt {
          */
         void findEndpoints();
 
-        [[nodiscard]] const std::optional<QUrl>&                   getUrl() const;
-        [[nodiscard]] const std::optional<Endpoint>&               getEndpoint() const;
-        [[nodiscard]] Logger*                                      getLogger() const;
-        [[nodiscard]] const std::optional<QString>&                getUsername() const;
-        [[nodiscard]] const std::optional<QString>&                getPassword() const;
-        [[nodiscard]] const std::optional<ApplicationCertificate>& getCertificate() const;
-        [[nodiscard]] const QList<QSslCertificate>&                getTrustList() const;
-        [[nodiscard]] const QList<QSslCertificate>&                getRevokedList() const;
+        [[nodiscard]] const std::optional<QUrl>&      getUrl() const;
+        [[nodiscard]] const std::optional<Endpoint>&  getEndpoint() const;
+        [[nodiscard]] Logger*                         getLogger() const;
+        [[nodiscard]] const std::optional<QString>&   getUsername() const;
+        [[nodiscard]] const std::optional<QString>&   getPassword() const;
+        [[nodiscard]] const std::optional<StorageId>& getCertificate() const;
+        [[nodiscard]] const QList<StorageId>&         getTrustList() const;
+        [[nodiscard]] const QList<StorageId>&         getRevokedList() const;
 
       signals:
         /**
@@ -147,14 +148,14 @@ namespace magnesia::opcua_qt {
         opcua::Result<QList<Endpoint>> findEndopintsSynchronously();
 
       private:
-        std::optional<QUrl>                   m_url;
-        std::optional<Endpoint>               m_endpoint;
-        Logger*                               m_logger{nullptr};
-        std::optional<QString>                m_username;
-        std::optional<QString>                m_password;
-        std::optional<ApplicationCertificate> m_certificate;
-        QList<QSslCertificate>                m_trust_list;
-        QList<QSslCertificate>                m_revoked_list;
+        std::optional<QUrl>      m_url;
+        std::optional<Endpoint>  m_endpoint;
+        Logger*                  m_logger{nullptr};
+        std::optional<QString>   m_username;
+        std::optional<QString>   m_password;
+        std::optional<StorageId> m_certificate;
+        QList<StorageId>         m_trust_list;
+        QList<StorageId>         m_revoked_list;
         // this mutex protects m_url and m_endpoints
         QMutex m_get_endpoint_mutex;
     };

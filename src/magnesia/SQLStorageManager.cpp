@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <tuple>
 #include <utility>
 
 #include <QJsonDocument>
@@ -1523,50 +1524,56 @@ END;
     // NOLINTNEXTLINE(readability-function-cognitive-complexity)
     void SQLStorageManager::handleDeleteMonitor() {
         QSqlQuery query{R"sql(
-SELECT relation, id, key, layout_group, name, domain
-FROM TupleDeleteMonitor;
+DELETE FROM TupleDeleteMonitor
+RETURNING relation, id, key, layout_group, name, domain;
 )sql",
                         m_database};
         if (query.lastError().isValid()) {
             warnQuery("retrieving TupleDeleteMonitor from database failed.", query);
             terminate();
         }
-        // Moving this below the loop might emit duplicate signals if one of the slots connected to the signals
-        // emitted in the loop (directly or indirectly) causes the deletion of another tuple, resulting in a nested call
-        // to handleDeleteMonitor() reading and handling the previous, yet to be cleared tuples again.
-        clearDeleteMonitor();
+
+        // Qt doesn't guarantee multiple parallel queries working in parallel. This poses a problem when the slots
+        // connected to the ...Changed signals call other functions on the SqlStorageManager that do a query on the
+        // database, breaking the loop over the query results. Loading all entries eagerly fixes this by not relying on
+        // the query after signaling the first changes.
+        QList<std::tuple<DBRelation, unsigned long long, QString, QString, QString, QString>> deleted_tuples;
         while (query.next()) {
-            switch (static_cast<DBRelation>(query.value("relation").toUInt())) {
+            deleted_tuples.emplaceBack(static_cast<DBRelation>(query.value("relation").toUInt()),
+                                       query.value("id").toULongLong(), query.value("key").toString(),
+                                       query.value("layout_group").toString(), query.value("name").toString(),
+                                       query.value("domain").toString());
+        }
+
+        for (const auto& [relation, id, key, layout_group, name, domain] : deleted_tuples) {
+            switch (relation) {
                 case DBRelation::Certificate:
                     qCDebug(lc_sql_storage) << "Certificate deleted";
-                    Q_EMIT certificateChanged(query.value("id").toULongLong(), StorageChange::Deleted);
+                    Q_EMIT certificateChanged(id, StorageChange::Deleted);
                     continue;
                 case DBRelation::Key:
                     qCDebug(lc_sql_storage) << "Key deleted";
-                    Q_EMIT keyChanged(query.value("id").toULongLong(), StorageChange::Deleted);
+                    Q_EMIT keyChanged(id, StorageChange::Deleted);
                     continue;
                 case DBRelation::ApplicationCertificate:
                     qCDebug(lc_sql_storage) << "ApplicationCertificate deleted";
-                    Q_EMIT applicationCertificateChanged(query.value("id").toULongLong(), StorageChange::Deleted);
+                    Q_EMIT applicationCertificateChanged(id, StorageChange::Deleted);
                     continue;
                 case DBRelation::HistoricServerConnection:
                     qCDebug(lc_sql_storage) << "HistoricServerConnection deleted";
-                    Q_EMIT historicServerConnectionChanged(query.value("id").toULongLong(), StorageChange::Deleted);
+                    Q_EMIT historicServerConnectionChanged(id, StorageChange::Deleted);
                     continue;
                 case DBRelation::Layout:
                     qCDebug(lc_sql_storage) << "Layout deleted";
-                    Q_EMIT layoutChanged(query.value("id").toULongLong(), query.value("layout_group").toString(),
-                                         query.value("domain").toString(), StorageChange::Deleted);
+                    Q_EMIT layoutChanged(id, layout_group, domain, StorageChange::Deleted);
                     continue;
                 case DBRelation::KeyValue:
                     qCDebug(lc_sql_storage) << "KeyValue deleted";
-                    Q_EMIT kvChanged(query.value("key").toString(), query.value("domain").toString(),
-                                     StorageChange::Deleted);
+                    Q_EMIT kvChanged(key, domain, StorageChange::Deleted);
                     continue;
                 case DBRelation::Setting:
                     qCDebug(lc_sql_storage) << "Setting deleted";
-                    Q_EMIT settingDeleted(
-                        {.name = query.value("name").toString(), .domain = query.value("domain").toString()});
+                    Q_EMIT settingDeleted({.name = name, .domain = domain});
                     continue;
                 case DBRelation::HistoricServerConnectionTrustList:
                 case DBRelation::HistoricServerConnectionRevokedList:
@@ -1583,17 +1590,6 @@ FROM TupleDeleteMonitor;
                     break;
             };
             qCCritical(lc_sql_storage) << "Invalid deletion type";
-            terminate();
-        }
-    }
-
-    void SQLStorageManager::clearDeleteMonitor() {
-        const QSqlQuery query{R"sql(
-DELETE FROM TupleDeleteMonitor;
-)sql",
-                              m_database};
-        if (query.lastError().isValid()) {
-            warnQuery("clearing TupleDeleteMonitor from database failed.", query);
             terminate();
         }
     }

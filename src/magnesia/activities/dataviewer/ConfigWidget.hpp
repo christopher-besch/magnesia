@@ -1,9 +1,10 @@
 #pragma once
 
-#include "../..//database_types.hpp"
 #include "../../ConfigWidget.hpp"
 #include "../../HistoricServerConnection.hpp"
 #include "../../StorageManager.hpp"
+#include "../../database_types.hpp"
+#include "../../opcua_qt/ApplicationCertificate.hpp"
 #include "../../opcua_qt/ConnectionBuilder.hpp"
 #include "../../opcua_qt/abstraction/Endpoint.hpp"
 
@@ -12,6 +13,7 @@
 
 #include <open62541pp/Result.h>
 
+#include <QAbstractListModel>
 #include <QAbstractTableModel>
 #include <QComboBox>
 #include <QLineEdit>
@@ -27,6 +29,7 @@
 namespace magnesia::activities::dataviewer {
     namespace detail {
         class EndpointTableModel;
+        class CertificateModel;
     } // namespace detail
 
     /**
@@ -54,10 +57,11 @@ namespace magnesia::activities::dataviewer {
         QSharedPointer<opcua_qt::ConnectionBuilder> m_current_connection_builder;
 
         // quick connect
-        QLineEdit* m_address{nullptr};
-        QComboBox* m_certificate{nullptr};
-        QLineEdit* m_username{nullptr};
-        QLineEdit* m_password{nullptr};
+        QLineEdit*                m_address{nullptr};
+        detail::CertificateModel* m_certificate_model{nullptr};
+        QComboBox*                m_certificate{nullptr};
+        QLineEdit*                m_username{nullptr};
+        QLineEdit*                m_password{nullptr};
 
         detail::EndpointTableModel* m_endpoint_selector_model{nullptr};
         QTableView*                 m_endpoint_selector{nullptr};
@@ -84,6 +88,29 @@ namespace magnesia::activities::dataviewer {
 
           private:
             QList<opcua_qt::Endpoint> m_endpoints;
+        };
+
+        class CertificateModel : public QAbstractListModel {
+            Q_OBJECT
+
+          public:
+            explicit CertificateModel(QObject* parent = nullptr);
+
+            [[nodiscard]] int      rowCount(const QModelIndex& parent = QModelIndex()) const override;
+            [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+
+            bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
+            [[nodiscard]] int rowIndex(StorageId cert_id) const;
+
+          private:
+            void addCertificate(StorageId cert_id);
+
+          private slots:
+            void onApplicationCertificateChanged(StorageId cert_id, StorageChange type);
+
+          private:
+            QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>> m_certificates;
         };
 
         class HistoricServerConnectionModel : public QAbstractTableModel {

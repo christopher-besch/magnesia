@@ -22,6 +22,7 @@
 #include <open62541pp/Result.h>
 
 #include <QAbstractItemView>
+#include <QAbstractListModel>
 #include <QAbstractTableModel>
 #include <QByteArrayView>
 #include <QComboBox>
@@ -41,6 +42,7 @@
 #include <QObject>
 #include <QPushButton>
 #include <QSharedPointer>
+#include <QSslCertificate>
 #include <QString>
 #include <QTableView>
 #include <QVBoxLayout>
@@ -108,9 +110,9 @@ namespace magnesia::activities::dataviewer {
                 .endpoint_message_security_mode = endpoint->getSecurityMode(),
                 .username                       = builder.getUsername(),
                 .password                       = builder.getPassword(),
-                .application_certificate_id     = {}, // TODO: builder->getCertificate()->getCertificate()
-                .trust_list_certificate_ids     = {}, // TODO: builder->getTrustList()
-                .revoked_list_certificate_ids   = {}, // TODO: builder->getRevokedList()
+                .application_certificate_id     = builder.getCertificate(),
+                .trust_list_certificate_ids     = builder.getTrustList(),
+                .revoked_list_certificate_ids   = builder.getRevokedList(),
                 .last_layout_id                 = {}, // TODO
                 .last_layout_group              = {}, // TODO
                 .last_layout_domain             = {}, // TODO
@@ -151,7 +153,9 @@ namespace magnesia::activities::dataviewer {
             layout->addRow("Address", m_address);
         }
         {
-            m_certificate = new QComboBox;
+            m_certificate       = new QComboBox;
+            m_certificate_model = new detail::CertificateModel(this);
+            m_certificate->setModel(m_certificate_model);
             layout->addRow("Certificate", m_certificate);
         }
         {
@@ -233,7 +237,10 @@ namespace magnesia::activities::dataviewer {
                     m_address->setText(connection.server_url.toString());
                     m_username->setText(connection.username.value_or(""));
                     m_password->setText(connection.password.value_or(""));
-                    // TODO: m_certificate->setCurrentIndex(???);
+                    if (connection.application_certificate_id.has_value()) {
+                        m_certificate->setCurrentIndex(
+                            m_certificate_model->rowIndex(*connection.application_certificate_id));
+                    }
                 });
 
         connect(table, &QTableView::activated, this, [this, model](const QModelIndex& index) {
@@ -243,20 +250,25 @@ namespace magnesia::activities::dataviewer {
             auto conid = model->data(index, detail::HistoricServerConnectionModel::ConnectionIdRole).value<StorageId>();
 
             auto builder = std::make_unique<ConnectionBuilder>();
-            builder->logger(new opcua_qt::Logger);
-            builder->url(historic.server_url);
+            (*builder)
+                .logger(new opcua_qt::Logger)
+                .url(historic.server_url)
+                .trustList(historic.trust_list_certificate_ids)
+                .revokedList(historic.revoked_list_certificate_ids)
+                .endpoint(Endpoint{
+                    historic.endpoint_url,
+                    historic.endpoint_security_policy_uri,
+                    historic.endpoint_message_security_mode,
+                });
+            if (historic.application_certificate_id.has_value()) {
+                builder->certificate(*historic.application_certificate_id);
+            }
             if (historic.username.has_value()) {
                 builder->username(*historic.username);
             }
             if (historic.password.has_value()) {
                 builder->password(*historic.password);
             }
-            // TODO: certificates
-            builder->endpoint(Endpoint{
-                historic.endpoint_url,
-                historic.endpoint_security_policy_uri,
-                historic.endpoint_message_security_mode,
-            });
 
             auto* connection = builder->build();
             Q_ASSERT(connection != nullptr);
@@ -290,7 +302,6 @@ namespace magnesia::activities::dataviewer {
         auto builder = m_current_connection_builder = QSharedPointer<ConnectionBuilder>{new ConnectionBuilder};
         m_current_connection_builder->logger(new opcua_qt::Logger);
 
-        // TODO: certificate
         builder->url(m_address->text());
         if (auto username = m_username->text(); !username.isEmpty()) {
             builder->username(m_username->text());
@@ -341,6 +352,9 @@ namespace magnesia::activities::dataviewer {
                               << "\n  endpoint:" << index.row();
 
         m_current_connection_builder->endpoint(endpoint);
+        if (auto cert = m_certificate->currentData(); cert.isValid()) {
+            m_current_connection_builder->certificate(cert.value<StorageId>());
+        }
 
         auto* connection = m_current_connection_builder->build();
         Q_ASSERT(connection != nullptr);
@@ -413,6 +427,92 @@ namespace magnesia::activities::dataviewer {
 
         void EndpointTableModel::clear() {
             setEndpoints({});
+        }
+
+        CertificateModel::CertificateModel(QObject* parent)
+            : QAbstractListModel(parent),
+              m_certificates(Application::instance().getStorageManager().getAllApplicationCertificates()) {
+            auto* storage_manager = &Application::instance().getStorageManager();
+            connect(storage_manager, &StorageManager::applicationCertificateChanged, this,
+                    &CertificateModel::onApplicationCertificateChanged);
+        }
+
+        int CertificateModel::rowCount(const QModelIndex& /*parent*/) const {
+            return static_cast<int>(m_certificates.count());
+        }
+
+        QVariant CertificateModel::data(const QModelIndex& index, int role) const {
+            if (!checkIndex(index)) {
+                return {};
+            }
+
+            if (role == Qt::DisplayRole) {
+                auto info =
+                    m_certificates[index.row()].second.getCertificate().subjectInfo(QSslCertificate::CommonName);
+                // TODO: what to do with the other info?
+                return info.front();
+            }
+
+            if (role == Qt::UserRole) {
+                return QVariant::fromValue(m_certificates[index.row()].first);
+            }
+
+            return {};
+        }
+
+        bool CertificateModel::removeRows(int row, int count, const QModelIndex& parent) {
+            if (row < 0 || rowCount() <= row) {
+                return false;
+            }
+            if (count != 1) {
+                return false;
+            }
+
+            auto cert = m_certificates.at(row);
+
+            beginRemoveRows(parent, row, row + count - 1);
+            m_certificates.remove(row);
+            Application::instance().getStorageManager().deleteHistoricServerConnection(cert.first);
+            endRemoveRows();
+
+            return true;
+        }
+
+        void CertificateModel::addCertificate(StorageId cert_id) {
+            auto cert = Application::instance().getStorageManager().getApplicationCertificate(cert_id);
+            Q_ASSERT(cert.has_value());
+
+            const int row = static_cast<int>(m_certificates.count());
+            beginInsertRows({}, row, row);
+            m_certificates.emplaceBack(cert_id, *cert);
+            endInsertRows();
+        }
+
+        int CertificateModel::rowIndex(StorageId cert_id) const {
+            auto iter =
+                std::ranges::find(std::as_const(m_certificates), cert_id, &decltype(m_certificates)::value_type::first);
+            if (iter == m_certificates.cend()) {
+                return -1;
+            }
+
+            return static_cast<int>(std::distance(m_certificates.cbegin(), iter));
+        }
+
+        void CertificateModel::onApplicationCertificateChanged(StorageId cert_id, StorageChange type) {
+            switch (type) {
+                case StorageChange::Created:
+                    addCertificate(cert_id);
+                    break;
+
+                case StorageChange::Deleted:
+                    removeRow(rowIndex(cert_id));
+                    break;
+
+                case StorageChange::Modified:
+                    // ApplicationCertificates aren't modified
+                    Q_ASSERT(false);
+                    break;
+            }
         }
 
         HistoricServerConnectionModel::HistoricServerConnectionModel(QObject* parent)
