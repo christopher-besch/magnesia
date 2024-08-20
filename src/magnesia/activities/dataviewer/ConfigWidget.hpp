@@ -108,9 +108,12 @@ namespace magnesia::activities::dataviewer {
                 ConnectionIdRole,
             };
 
+          private:
+            void              addConnection(StorageId connection_id);
+            [[nodiscard]] int rowIndex(StorageId connection_id) const;
+
           private slots:
-            void onHistoricServerConnectionChanged(StorageId historic_server_connection_id, StorageChange type);
-            void reload();
+            void onHistoricServerConnectionChanged(StorageId connection_id, StorageChange type);
 
           private:
             enum {
