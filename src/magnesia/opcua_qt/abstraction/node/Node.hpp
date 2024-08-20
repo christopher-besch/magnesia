@@ -338,6 +338,11 @@ namespace magnesia::opcua_qt::abstraction {
 
         [[nodiscard]] bool operator==(const Node& other) const;
 
+        /**
+         * Returns the children count that is cached in this node. Returns nullopt if nothing is cached.
+         */
+        [[nodiscard]] std::optional<qsizetype> childrenCountCached() const;
+
       protected:
         explicit Node(opcua::Node<opcua::Client> node, QObject* parent);
 

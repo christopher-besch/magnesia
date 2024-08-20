@@ -20,11 +20,11 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
         [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
 
+      private:
+        void indexSelected(QModelIndex index, panels::Panels recipients);
+
       signals:
         void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients);
-
-      private slots:
-        void onCurrentNodeChanged(const QModelIndex& current, const QModelIndex& previous);
 
       private:
         QTreeView*     m_tree_view;

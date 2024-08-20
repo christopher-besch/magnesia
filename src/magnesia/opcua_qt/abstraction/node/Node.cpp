@@ -259,6 +259,13 @@ namespace magnesia::opcua_qt::abstraction {
         }
     }
 
+    std::optional<qsizetype> Node::childrenCountCached() const {
+        if (m_cache_children.has_value()) {
+            return m_cache_children->size();
+        }
+        return std::nullopt;
+    }
+
     bool Node::operator==(const Node& other) const {
         return m_node == other.m_node;
     }
