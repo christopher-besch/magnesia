@@ -12,7 +12,7 @@
 namespace magnesia::activities::dataviewer::panels::treeview_panel {
     using opcua_qt::abstraction::Node;
 
-    TreeViewModel::TreeViewModel(QObject* parent) : QAbstractItemModel(parent), m_root_node(nullptr) {}
+    TreeViewModel::TreeViewModel(QObject* parent) : QAbstractItemModel(parent) {}
 
     void TreeViewModel::setRootNode(Node* root) {
         beginResetModel();

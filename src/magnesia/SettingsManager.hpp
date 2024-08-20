@@ -337,7 +337,7 @@ namespace magnesia {
          * @return nullptr when the value is not valid, return the setting definition otherwise.
          */
         template<typename SettingsType, typename ValueType>
-        [[nodiscard]] SettingsType* validate(const SettingKey& key, ValueType value) const;
+        [[nodiscard]] SettingsType* validate(const SettingKey& key, const ValueType& value) const;
 
         /**
          * Helper to implement set[...]Setting functions.

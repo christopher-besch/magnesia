@@ -21,12 +21,15 @@
  * @param type the type to generate the operator for
  * @param op the operator to define
  */
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define MAGNESIA_BIN_OPERATOR(type, op)                                     \
+    /* NOLINTNEXTLINE(bugprone-macro-parentheses) */                        \
     inline constexpr type operator op(type lhs, type rhs) {                 \
         /* NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange) */  \
         return static_cast<type>(qToUnderlying(lhs) op qToUnderlying(rhs)); \
     }                                                                       \
                                                                             \
+    /* NOLINTNEXTLINE(bugprone-macro-parentheses) */                        \
     inline constexpr type operator op##=(type& lhs, type rhs) {             \
         return lhs = lhs op rhs;                                            \
     }

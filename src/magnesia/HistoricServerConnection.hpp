@@ -19,7 +19,7 @@ namespace magnesia {
 
         QUrl                          endpoint_url;
         QString                       endpoint_security_policy_uri;
-        opcua_qt::MessageSecurityMode endpoint_message_security_mode;
+        opcua_qt::MessageSecurityMode endpoint_message_security_mode{};
 
         std::optional<QString>   username;
         std::optional<QString>   password;
