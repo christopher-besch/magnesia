@@ -64,7 +64,6 @@ namespace magnesia::activities::dataviewer {
         layout->addLayout(address_layout);
 
         layout->addWidget(m_root_layout, Qt::AlignCenter);
-        m_root_layout->addWidget();
 
         setLayout(layout);
     }
@@ -81,11 +80,7 @@ namespace magnesia::activities::dataviewer {
         auto* layout = new QHBoxLayout;
 
         auto* layout_selector = new QComboBox;
-        layout_selector->setPlaceholderText("Select Layout");
-        auto* model = new detail::LayoutSelectorModel(s_storage_domain, s_layout_group, layout_selector);
-        layout_selector->setModel(model);
-        layout_selector->setCurrentIndex(-1);
-        layout->addWidget(layout_selector);
+        auto* model           = new detail::LayoutSelectorModel(s_storage_domain, s_layout_group, layout_selector);
 
         auto* save_edit = new QLineEdit;
         save_edit->hide();
@@ -130,19 +125,41 @@ namespace magnesia::activities::dataviewer {
             layout_selector->setCurrentIndex(index);
         });
 
+        layout_selector->setModel(model);
+        layout->addWidget(layout_selector);
+
         return layout;
     }
 
     namespace detail {
         LayoutSelectorModel::LayoutSelectorModel(Domain domain, LayoutGroup group, QObject* parent)
             : QAbstractListModel(parent), m_domain(std::move(domain)), m_group(std::move(group)),
-              m_layouts(Application::instance().getStorageManager().getAllLayouts(m_group, m_domain)) {
+              m_layouts(Application::instance().getStorageManager().getAllLayouts(m_group, m_domain)),
+              m_virtual_layouts{
+                  {
+                   .name      = "Default",
+                   .json_data = QJsonDocument::fromJson(R"json(
+                       {"children":[
+                         {"children":[{"children":[
+                           {"data":{},"id":"treeview","type":"panel"},
+                           {"data":{},"id":"nodeview","type":"panel"},
+                           {"children":[
+                               {"data":{},"id":"attributeview","type":"panel"},
+                               {"data":{},"id":"referenceview","type":"panel"}
+                             ],"splitter_state":"AAAA/wAAAAEAAAACAAAANgAAADYA/////wEAAAACAA==","type":"layout"}
+                           ],"splitter_state":"AAAA/wAAAAEAAAADAAABAgAAASQAAAEkAP////8BAAAAAQA=","type":"layout"},
+                           {"data":{},"id":"logview","type":"panel"}
+                         ],"splitter_state":"AAAA/wAAAAEAAAACAAAA5AAAADYA/////wEAAAACAA==","type":"layout"}
+                       ],"splitter_state":"AAAA/wAAAAEAAAABAAABJAD/////AQAAAAEA","type":"layout"}
+                   )json"),
+                   }
+        } {
             auto* storage_manager = &Application::instance().getStorageManager();
             connect(storage_manager, &StorageManager::layoutChanged, this, &LayoutSelectorModel::onLayoutChanged);
         }
 
         int LayoutSelectorModel::rowCount(const QModelIndex& /*parent*/) const {
-            return static_cast<int>(m_layouts.count()) + 1;
+            return static_cast<int>(m_virtual_layouts.count() + m_layouts.count() + 1);
         }
 
         QVariant LayoutSelectorModel::data(const QModelIndex& index, int role) const {
@@ -151,15 +168,26 @@ namespace magnesia::activities::dataviewer {
             }
 
             if (role == Qt::DisplayRole) {
-                if (index.row() == m_layouts.count()) {
-                    return "<Save Layout>";
+                if (index.row() < m_virtual_layouts.count()) {
+                    return m_virtual_layouts.at(index.row()).name;
                 }
 
-                return m_layouts[index.row()].second.name;
+                if (index.row() < m_virtual_layouts.count() + m_layouts.count()) {
+                    return m_layouts.at(index.row() - m_virtual_layouts.count()).second.name;
+                }
+
+                if (index.row() == rowCount() - 1) {
+                    return "<Save Layout>";
+                }
             }
+
             if (role == Qt::UserRole) {
-                if (index.row() < m_layouts.count()) {
-                    return m_layouts[index.row()].second.json_data;
+                if (index.row() < m_virtual_layouts.count()) {
+                    return m_virtual_layouts[index.row()].json_data;
+                }
+
+                if (index.row() < m_virtual_layouts.count() + m_layouts.count()) {
+                    return m_layouts[index.row() - m_virtual_layouts.count()].second.json_data;
                 }
             }
 
@@ -208,7 +236,7 @@ namespace magnesia::activities::dataviewer {
                 return -1;
             }
 
-            return static_cast<int>(std::distance(m_layouts.cbegin(), iter));
+            return static_cast<int>(m_virtual_layouts.count() + std::distance(m_layouts.cbegin(), iter));
         }
 
         void LayoutSelectorModel::onLayoutChanged(StorageId layout_id, const LayoutGroup& group, const Domain& domain,
