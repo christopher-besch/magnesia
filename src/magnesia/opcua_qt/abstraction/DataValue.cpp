@@ -9,6 +9,7 @@
 #include <open62541pp/types/DataValue.h>
 
 #include <QDateTime>
+#include <QString>
 
 namespace magnesia::opcua_qt::abstraction {
     DataValue::DataValue(opcua::DataValue data_value) : m_data_value(std::move(data_value)) {}
@@ -39,6 +40,10 @@ namespace magnesia::opcua_qt::abstraction {
 
     Variant DataValue::getValue() const noexcept {
         return Variant(m_data_value.getValue());
+    }
+
+    QString DataValue::getDataTypeName() const noexcept {
+        return {m_data_value.getValue().getDataType()->typeName};
     }
 
     void DataValue::setValue(Variant const& value) {

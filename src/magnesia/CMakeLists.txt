@@ -18,6 +18,8 @@ set(SOURCES
     activities/dataviewer/panels/AttributeViewPanel.cpp
     activities/dataviewer/panels/LogViewModel.cpp
     activities/dataviewer/panels/LogViewPanel.cpp
+    activities/dataviewer/panels/NodeViewModel.cpp
+    activities/dataviewer/panels/NodeViewPanel.cpp
     activities/dataviewer/panels/ReferenceViewModel.cpp
     activities/dataviewer/panels/ReferenceViewPanel.cpp
     activities/dataviewer/panels/TreeViewModel.cpp

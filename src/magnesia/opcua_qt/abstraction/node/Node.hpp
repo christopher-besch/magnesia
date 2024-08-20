@@ -341,10 +341,19 @@ namespace magnesia::opcua_qt::abstraction {
       protected:
         explicit Node(opcua::Node<opcua::Client> node, QObject* parent);
 
+        const std::optional<LocalizedText>& setCacheDisplayName(std::optional<LocalizedText> display_name);
+        const std::optional<DataValue>&     setCacheDataValue(std::optional<DataValue> data_value);
+
+        [[nodiscard]] const std::optional<DataValue>& getCacheDataValue();
+
       private:
+        // Subscription updates the cache directly to reduce network round-trips
+        friend class Subscription;
+
         opcua::Node<opcua::Client>   m_node;
         std::optional<Node*>         m_cache_parent;
         std::optional<QList<Node*>>  m_cache_children;
         std::optional<LocalizedText> m_cache_display_name;
+        std::optional<DataValue>     m_cache_data_value;
     };
 } // namespace magnesia::opcua_qt::abstraction

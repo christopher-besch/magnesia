@@ -262,4 +262,16 @@ namespace magnesia::opcua_qt::abstraction {
     bool Node::operator==(const Node& other) const {
         return m_node == other.m_node;
     }
+
+    const std::optional<LocalizedText>& Node::setCacheDisplayName(std::optional<LocalizedText> display_name) {
+        return m_cache_display_name = std::move(display_name);
+    }
+
+    const std::optional<DataValue>& Node::setCacheDataValue(std::optional<DataValue> data_value) {
+        return m_cache_data_value = std::move(data_value);
+    }
+
+    const std::optional<DataValue>& Node::getCacheDataValue() {
+        return m_cache_data_value;
+    }
 } // namespace magnesia::opcua_qt::abstraction
