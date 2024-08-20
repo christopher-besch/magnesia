@@ -87,6 +87,7 @@ namespace magnesia::activities::dataviewer {
             Domain                              m_domain;
             LayoutGroup                         m_group;
             QList<std::pair<StorageId, Layout>> m_layouts;
+            QList<Layout>                       m_virtual_layouts;
         };
     } // namespace detail
 } // namespace magnesia::activities::dataviewer
