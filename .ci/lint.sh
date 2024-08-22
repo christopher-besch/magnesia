@@ -66,11 +66,16 @@ run_qt_headers() {
         | xargs -0 grep -nE '#include <q.*\.h>' | grep -vF '#include <qtmetamacros.h>' && fail "qt_headers" $?; true
 }
 
+run_shellcheck() {
+    find . -name '*.sh' -print0 | xargs -0 shellcheck || fail shellcheck $?
+}
+
 fast() {
     run_cmake_format
     run_clang_format
     run_codespell
     run_qt_headers
+    run_shellcheck
 }
 
 slow() {
