@@ -63,11 +63,22 @@ run_codespell() {
 
 run_qt_headers() {
     find src -name '*.[ch]pp' -print0 \
-        | xargs -0 grep -nE '#include <q.*\.h>' | grep -vF '#include <qtmetamacros.h>' && fail "qt_headers" $?; true
+        | xargs -0 grep -nE '#include <q.*\.h>' | grep -vF '#include <qtmetamacros.h>' && fail "qt_headers" $?
+    true
 }
 
 run_shellcheck() {
     find . -name '*.sh' -print0 | xargs -0 shellcheck || fail shellcheck $?
+}
+
+run_shfmt() {
+    find . -name '*.sh' -print0 | xargs -0 shfmt \
+        --indent 4 \
+        --space-redirects \
+        --case-indent \
+        --binary-next-line \
+        --diff \
+        || fail shfmt $?
 }
 
 fast() {
@@ -76,6 +87,7 @@ fast() {
     run_codespell
     run_qt_headers
     run_shellcheck
+    run_shfmt
 }
 
 slow() {

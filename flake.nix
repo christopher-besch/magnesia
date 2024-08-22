@@ -70,6 +70,7 @@
 
               # shell
               shellcheck
+              shfmt
 
               sqlite-interactive
               parallel
