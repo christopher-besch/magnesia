@@ -88,7 +88,7 @@ if(MAGNESIA_BUILD_DOCS)
     find_package(Doxygen REQUIRED)
 endif()
 
-target_compile_definitions(magnesia_project_options INTERFACE QT_NO_EMIT)
+target_compile_definitions(magnesia_project_options INTERFACE QT_NO_EMIT QT_NO_CONTEXTLESS_CONNECT)
 
 add_library(magnesia_resources STATIC)
 add_library(magnesia::resources ALIAS magnesia_resources)
