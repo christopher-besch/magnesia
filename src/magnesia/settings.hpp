@@ -35,21 +35,21 @@ namespace magnesia {
          *
          * @return QString containing the name of the setting.
          */
-        [[nodiscard]] QString getName() const;
+        [[nodiscard]] const QString& getName() const;
 
         /**
          * Retrieves the human readable name of the setting,
          *
          * @return QString containing the human readable name of the setting.
          */
-        [[nodiscard]] QString getHumanReadableName() const;
+        [[nodiscard]] const QString& getHumanReadableName() const;
 
         /**
          * Retrieves the description of the setting.
          *
          * @return QString containing the description of the setting.
          */
-        [[nodiscard]] QString getDescription() const;
+        [[nodiscard]] const QString& getDescription() const;
 
       protected:
         /**
@@ -121,7 +121,7 @@ namespace magnesia {
         /**
          *  @return the default value.
          */
-        [[nodiscard]] QString getDefault() const;
+        [[nodiscard]] const QString& getDefault() const;
 
         /**
          *  @return true iff value fulfills the requirements for string settings.
@@ -237,7 +237,7 @@ namespace magnesia {
         /**
          *  @return the value.
          */
-        [[nodiscard]] EnumSettingValue getDefault() const;
+        [[nodiscard]] const EnumSettingValue& getDefault() const;
 
         /**
          *  @return the possible value.
@@ -374,7 +374,7 @@ namespace magnesia {
         /**
          *  @return the value.
          */
-        [[nodiscard]] LayoutGroup getGroup() const;
+        [[nodiscard]] const LayoutGroup& getGroup() const;
 
         // The default is nullopt.
         // Therefore, no getDefault function is needed.

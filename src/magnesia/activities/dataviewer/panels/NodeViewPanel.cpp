@@ -56,7 +56,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
     }
 
     void NodeViewPanel::onCurrentNodeChanged(const QModelIndex& current) {
-        auto* node = m_model->getNode(current);
+        const auto* node = m_model->getNode(current);
         if (node == nullptr) {
             return;
         }

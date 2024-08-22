@@ -63,7 +63,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         return {};
     }
 
-    void LogViewModel::setLogLines(std::vector<opcua_qt::LogEntry>& log_lines) {
+    void LogViewModel::setLogLines(const std::vector<opcua_qt::LogEntry>& log_lines) {
         beginResetModel();
         m_log_lines = log_lines;
         endResetModel();
@@ -105,7 +105,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         return true;
     }
 
-    std::vector<opcua_qt::LogEntry> LogViewModel::getLogLines() const {
+    const std::vector<opcua_qt::LogEntry>& LogViewModel::getLogLines() const {
         return m_log_lines;
     }
 } // namespace magnesia::activities::dataviewer::panels::log_view_panel

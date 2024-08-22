@@ -35,7 +35,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
          *
          * @param log_lines Log lines of the node.
          */
-        void setLogLines(std::vector<opcua_qt::LogEntry>& log_lines);
+        void setLogLines(const std::vector<opcua_qt::LogEntry>& log_lines);
 
         /**
          * Saves the log to a file.
@@ -50,7 +50,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
          *
          * @return List containing the log entries of the node.
          */
-        [[nodiscard]] std::vector<opcua_qt::LogEntry> getLogLines() const;
+        [[nodiscard]] const std::vector<opcua_qt::LogEntry>& getLogLines() const;
 
       public slots:
 

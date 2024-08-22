@@ -52,6 +52,8 @@ namespace magnesia {
         if (auto dynamic_handlers = m_dynamic_handlers.find(scheme); dynamic_handlers != m_dynamic_handlers.end()) {
             // Remove destroyed handlers. QPointer becomes null when it's object is destroyed.
             std::erase_if(dynamic_handlers->second, [](const auto& pointer) { return pointer.isNull(); });
+            // cppcheck-suppress useStlAlgorithm ; std::[ranges::]any_of doesn't guarantee iteration order, but
+            // URLHandler::handleURL has side effects, so order is important.
             for (const auto& handler : dynamic_handlers->second) {
                 auto res = handler->handleURL(url);
                 if (res) {

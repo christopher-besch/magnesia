@@ -48,7 +48,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     }
 
     void TreeViewPanel::indexSelected(QModelIndex index, panels::PanelTypes recipients) {
-        auto* node = TreeViewModel::getNode(index);
+        const auto* node = TreeViewModel::getNode(index);
         if (node == nullptr) {
             return;
         }

@@ -50,7 +50,7 @@ namespace magnesia::opcua_qt {
          *
          * @return a QString
          */
-        [[nodiscard]] QString getMessage() const noexcept;
+        [[nodiscard]] const QString& getMessage() const noexcept;
 
       private:
         QString     m_message;
