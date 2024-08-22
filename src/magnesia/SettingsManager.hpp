@@ -8,10 +8,10 @@
 #include "settings.hpp"
 
 #include <cstdint>
+#include <map>
 #include <optional>
 
 #include <QList>
-#include <QMap>
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
@@ -365,7 +365,7 @@ namespace magnesia {
       private:
         // TODO: maybe use a QList for the Domain too, that would allow the application developer to define the domain
         // order
-        QMap<Domain, QList<QSharedPointer<Setting>>> m_settings;
-        QPointer<StorageManager>                     m_storage_manager;
+        std::map<Domain, QList<QSharedPointer<Setting>>> m_settings;
+        QPointer<StorageManager>                         m_storage_manager;
     };
 } // namespace magnesia

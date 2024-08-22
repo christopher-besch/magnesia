@@ -5,11 +5,14 @@
 #include "StorageManager.hpp"
 #include "database_types.hpp"
 #include "opcua_qt/ApplicationCertificate.hpp"
+#include "qt_version_check.hpp"
 #include "settings.hpp"
 #include "terminate.hpp"
 
+#include <algorithm>
 #include <cstdint>
 #include <functional>
+#include <iterator>
 #include <optional>
 #include <utility>
 
@@ -20,6 +23,12 @@
 #include <QSslCertificate>
 #include <QSslKey>
 #include <qtmetamacros.h>
+
+#ifdef MAGNESIA_HAS_QT_6_5
+#include <QtTypes>
+#else
+#include <QtGlobal>
+#endif
 
 namespace magnesia {
     SettingsManager::SettingsManager(QPointer<StorageManager> storage_manager, QObject* parent)
@@ -33,7 +42,7 @@ namespace magnesia {
 
     void SettingsManager::defineSettingDomain(const Domain& domain, const QList<QSharedPointer<Setting>>& settings) {
         if (settings.isEmpty()) {
-            m_settings.remove(domain);
+            m_settings.erase(domain);
         } else {
             m_settings[domain] = settings;
         }
@@ -209,12 +218,18 @@ namespace magnesia {
     }
 
     QList<Domain> SettingsManager::getAllDomains() const {
-        return m_settings.keys();
+        QList<Domain> domains;
+        domains.reserve(static_cast<qsizetype>(m_settings.size()));
+        std::ranges::transform(m_settings, std::back_inserter(domains),
+                               [](const auto& setting) { return setting.first; });
+        return domains;
     }
 
     QList<QSharedPointer<Setting>> SettingsManager::getSettingDefinitions(const Domain& domain) const {
-        // This returns an empty list if domain not defined.
-        return m_settings[domain];
+        if (auto iter = m_settings.find(domain); iter != m_settings.end()) {
+            return iter->second;
+        }
+        return {};
     }
 
     std::optional<QSharedPointer<Setting>> SettingsManager::findSettingDefinition(const SettingKey& key) const {

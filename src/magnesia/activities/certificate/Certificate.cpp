@@ -79,7 +79,7 @@ namespace magnesia::activities::certificate {
         auto* subject_form = new QFormLayout;
         subject_box->setLayout(subject_form);
 
-        for (const QString& property_name : m_available_subjects.keys()) {
+        for (const auto& [property_name, _] : m_available_subjects) {
             const CertificateProperty property{
                 .name     = new QLabel{property_name},
                 .lineedit = new QLineEdit,
@@ -191,10 +191,10 @@ namespace magnesia::activities::certificate {
             if (lineedit->text().isEmpty()) {
                 continue;
             }
-            if (auto type = m_available_subjects.constFind(name->text()); type != m_available_subjects.cend()) {
-                subject.append(*type + lineedit->text());
+            if (auto type = m_available_subjects.find(name->text()); type != m_available_subjects.cend()) {
+                subject.append(type->second + lineedit->text());
 
-                if (*type == "CN=") {
+                if (type->second == "CN=") {
                     common_name = true;
                 }
             }

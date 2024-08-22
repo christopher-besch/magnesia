@@ -10,6 +10,7 @@
 #include "SettingsUrlHandler.hpp"
 
 #include <functional>
+#include <ranges>
 
 #include <QAbstractItemView>
 #include <QComboBox>
@@ -217,7 +218,8 @@ namespace magnesia::activities::settings {
     void Settings::reCreateSettings() {
         // delete old settings UI
         m_sidebar_domain_list->clear();
-        qDeleteAll(m_domain_widgets);
+        // TODO: use smart pointers instead
+        qDeleteAll(m_domain_widgets | std::views::transform([](const auto& pair) { return pair.second; }));
         m_domain_widgets.clear();
         // All setting widgets are children of domains, which are deleted above.
         m_setting_widgets.clear();

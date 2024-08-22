@@ -6,13 +6,13 @@
 #include "../../database_types.hpp"
 #include "CertificateURLHandler.hpp"
 
+#include <map>
 #include <optional>
 
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QList>
-#include <QMap>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QString>
@@ -52,7 +52,7 @@ namespace magnesia::activities::certificate {
         void saveCertificate();
 
       private:
-        QMap<QString, QString>     m_available_subjects;
+        std::map<QString, QString> m_available_subjects;
         QList<CertificateProperty> m_certificate_properties;
         QComboBox*                 m_cert_size{nullptr};
         QLabel*                    m_status_label{nullptr};
