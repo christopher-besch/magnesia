@@ -9,6 +9,7 @@
 #include "settings.hpp"
 #include "terminate.hpp"
 
+#include <algorithm>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -231,10 +232,9 @@ namespace magnesia {
 
     std::optional<std::shared_ptr<Setting>> SettingsManager::findSettingDefinition(const SettingKey& key) const {
         auto settings_in_domain = getSettingDefinitions(key.domain);
-        for (const auto& setting : settings_in_domain) {
-            if (setting->getName() == key.name) {
-                return setting;
-            }
+        if (auto iter = std::ranges::find(settings_in_domain, key.name, &Setting::getName);
+            iter != settings_in_domain.end()) {
+            return *iter;
         }
         return std::nullopt;
     }

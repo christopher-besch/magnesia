@@ -3,6 +3,7 @@
 #include "LogEntry.hpp"
 #include "abstraction/LogLevel.hpp"
 
+#include <ranges>
 #include <set>
 #include <string_view>
 #include <vector>
@@ -21,13 +22,9 @@ namespace magnesia::opcua_qt {
     }
 
     std::vector<LogEntry> Logger::getLogForLevel(const std::set<LogLevel>& levels) const noexcept {
-        std::vector<LogEntry> output;
-        for (const LogEntry& log : m_log_entries) {
-            if (levels.contains(log.getLevel())) {
-                output.push_back(log);
-            }
-        }
-        return output;
+        auto filtered_entries = std::views::filter(
+            m_log_entries, [&levels](const LogEntry& entry) { return levels.contains(entry.getLevel()); });
+        return {filtered_entries.begin(), filtered_entries.end()};
     }
 
     opcua::Logger Logger::getOPCUALogger() noexcept {
