@@ -9,17 +9,18 @@
 #include "LogViewModel.hpp"
 
 #include <ranges>
-#include <vector>
 
-#include <QBoxLayout>
+#include <QAbstractItemView>
 #include <QComboBox>
 #include <QFileDialog>
 #include <QFrame>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QString>
 #include <QTableView>
+#include <QVBoxLayout>
 #include <QVariant>
 #include <QWidget>
 

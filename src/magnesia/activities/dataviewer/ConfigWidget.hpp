@@ -18,11 +18,13 @@
 #include <QAbstractListModel>
 #include <QAbstractTableModel>
 #include <QComboBox>
+#include <QLayout>
 #include <QLineEdit>
 #include <QModelIndex>
 #include <QObject>
 #include <QPushButton>
 #include <QTableView>
+#include <QVariant>
 #include <QWidget>
 #include <Qt>
 #include <qtmetamacros.h>
