@@ -3,10 +3,9 @@
 #include "../../qt_version_check.hpp"
 #include "NodeId.hpp"
 
-#include <algorithm>
 #include <cstdint>
-#include <iterator>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <utility>
 #include <vector>
@@ -54,22 +53,15 @@ namespace magnesia::opcua_qt::abstraction {
             return std::nullopt;
         }
 
-        auto           span = m_variant.getArray<T>();
-        std::vector<T> list{std::move_iterator{span.begin()}, std::move_iterator{span.end()}};
-
-        return list;
+        auto span = m_variant.getArray<T>();
+        return {span.begin(), span.end()};
     }
 
     template<typename T>
     std::vector<QVariant> Variant::getQVariantArray() const {
         auto span = m_variant.getArray<T>();
-
-        std::vector<QVariant> list;
-        list.reserve(span.size());
-        std::ranges::transform(span, std::back_inserter(list),
-                               [](const auto& val) { return QVariant::fromValue(val); });
-
-        return list;
+        auto res  = std::views::transform(span, [](const auto& val) { return QVariant::fromValue(val); });
+        return {res.begin(), res.end()};
     }
 
     NodeId Variant::getDataType() const noexcept {
@@ -150,35 +142,23 @@ namespace magnesia::opcua_qt::abstraction {
 
                 case UA_DATATYPEKIND_STRING: {
                     auto span = m_variant.getArray<opcua::String>();
-
-                    std::vector<QVariant> list;
-                    list.reserve(span.size());
-                    std::ranges::transform(span, std::back_inserter(list),
-                                           [](const opcua::String& string) { return QLatin1StringView{string.get()}; });
-
-                    return QVariant::fromValue(std::move(list));
+                    auto res  = std::views::transform(
+                        span, [](const opcua::String& string) { return QLatin1StringView{string.get()}; });
+                    return QVariant::fromValue(std::vector<QVariant>{res.begin(), res.end()});
                 }
                 case UA_DATATYPEKIND_DATETIME: {
                     auto span = m_variant.getArray<opcua::DateTime>();
-
-                    std::vector<QVariant> list;
-                    list.reserve(span.size());
-                    std::ranges::transform(span, std::back_inserter(list), [](const opcua::DateTime& val) {
+                    auto res  = std::views::transform(span, [](const opcua::DateTime& val) {
                         return QDateTime::fromSecsSinceEpoch(val.toUnixTime());
                     });
-
-                    return QVariant::fromValue(std::move(list));
+                    return QVariant::fromValue(std::vector<QVariant>{res.begin(), res.end()});
                 }
                 case UA_DATATYPEKIND_GUID:
                     return QVariant::fromValue(getQVariantArray<opcua::Guid>());
                 case UA_DATATYPEKIND_STATUSCODE: {
                     auto span = m_variant.getArray<UA_StatusCode>();
-
-                    std::vector<QVariant> list;
-                    list.reserve(span.size());
-                    std::ranges::transform(span, std::back_inserter(list), UA_StatusCode_name);
-
-                    return QVariant::fromValue(std::move(list));
+                    auto res  = std::views::transform(span, UA_StatusCode_name);
+                    return QVariant::fromValue(std::vector<QVariant>{res.begin(), res.end()});
                 }
                 default:
                     return QVariant::fromValue(QString("<array(size: %1, type kind: %2)>")

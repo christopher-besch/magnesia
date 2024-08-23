@@ -13,9 +13,9 @@ namespace magnesia::opcua_qt::abstraction {
 
     std::vector<std::pair<EventNotifier, bool>> EventNotifierBitmask::getFlags() const {
         return {
-            {getFlagPair(EventNotifier::SUBSCRIBE_TO_EVENTS)},
-            {getFlagPair(EventNotifier::HISTORY_READ)},
-            {getFlagPair(EventNotifier::HISTORY_WRITE)},
+            getFlagPair(EventNotifier::SUBSCRIBE_TO_EVENTS),
+            getFlagPair(EventNotifier::HISTORY_READ),
+            getFlagPair(EventNotifier::HISTORY_WRITE),
         };
     }
 

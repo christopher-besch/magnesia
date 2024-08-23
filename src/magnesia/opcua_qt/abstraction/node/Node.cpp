@@ -114,13 +114,8 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::vector<ReferenceDescription> Node::getReferences() {
-        std::vector<ReferenceDescription> references;
-
-        for (const auto& reference : m_node.browseReferences()) {
-            references.emplace_back(reference);
-        }
-
-        return references;
+        auto references = m_node.browseReferences();
+        return {references.begin(), references.end()};
     }
 
     std::optional<LocalizedText> Node::getInverseName() {

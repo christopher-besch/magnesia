@@ -11,7 +11,6 @@
 #include "node/Node.hpp"
 
 #include <cstdint>
-#include <iterator>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -52,9 +51,8 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::vector<MonitoredItem> Subscription::getMonitoredItems() noexcept {
-        auto                       vector = m_subscription.getMonitoredItems();
-        std::vector<MonitoredItem> items{std::move_iterator{vector.begin()}, std::move_iterator{vector.end()}};
-        return items;
+        auto vector = m_subscription.getMonitoredItems();
+        return {vector.begin(), vector.end()};
     }
 
     MonitoredItem Subscription::subscribeDataChanged(Node* node, AttributeId attribute_id) {
@@ -76,12 +74,7 @@ namespace magnesia::opcua_qt::abstraction {
         return MonitoredItem(m_subscription.subscribeEvent(
             node->getNodeId().handle(), opcua::EventFilter(),
             [&, node](uint32_t /*subId*/, uint32_t /*monId*/, opcua::Span<const opcua::Variant> event_fields) {
-                auto items = std::make_shared<std::vector<Variant>>();
-                items->reserve(event_fields.size());
-
-                for (const auto& item : event_fields) {
-                    items->emplace_back(item);
-                }
+                auto items = std::make_shared<std::vector<Variant>>(event_fields.begin(), event_fields.end());
                 Q_EMIT eventTriggered(node, std::move(items));
             }));
     }

@@ -48,9 +48,7 @@ namespace magnesia::opcua_qt::abstraction {
 
     std::optional<std::vector<quint32>> VariableNode::getArrayDimensions() {
         try {
-            auto                 vector = handle().readArrayDimensions();
-            std::vector<quint32> list{vector.begin(), vector.end()};
-            return list;
+            return handle().readArrayDimensions();
         } catch (opcua::BadStatus&) {
             return std::nullopt;
         }
