@@ -419,11 +419,11 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
     QVariant AttributeViewModel::headerData(int section, Qt::Orientation orientation, int role) const {
         if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
             if (section == 0) {
-                return QString("Attribute");
+                return "Attribute";
             }
 
             if (section == 1) {
-                return QString("Value");
+                return "Value";
             }
         }
         return {};

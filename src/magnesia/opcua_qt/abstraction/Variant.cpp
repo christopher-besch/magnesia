@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <optional>
 #include <ranges>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -76,19 +75,19 @@ namespace magnesia::opcua_qt::abstraction {
         if (isScalar()) {
             switch (m_variant.getDataType()->typeKind) {
                 case UA_DATATYPEKIND_BOOLEAN:
-                    return {m_variant.getScalar<bool>()};
+                    return m_variant.getScalar<bool>();
                 case UA_DATATYPEKIND_SBYTE:
-                    return {m_variant.getScalar<int8_t>()};
+                    return m_variant.getScalar<int8_t>();
                 case UA_DATATYPEKIND_BYTE:
-                    return {m_variant.getScalar<uint8_t>()};
+                    return m_variant.getScalar<uint8_t>();
                 case UA_DATATYPEKIND_INT16:
-                    return {m_variant.getScalar<int16_t>()};
+                    return m_variant.getScalar<int16_t>();
                 case UA_DATATYPEKIND_UINT16:
-                    return {m_variant.getScalar<uint16_t>()};
+                    return m_variant.getScalar<uint16_t>();
                 case UA_DATATYPEKIND_INT32:
-                    return {m_variant.getScalar<int32_t>()};
+                    return m_variant.getScalar<int32_t>();
                 case UA_DATATYPEKIND_UINT32:
-                    return {m_variant.getScalar<uint32_t>()};
+                    return m_variant.getScalar<uint32_t>();
                 case UA_DATATYPEKIND_INT64:
                     return QVariant::fromValue(m_variant.getScalar<int64_t>());
                 case UA_DATATYPEKIND_UINT64:
@@ -98,19 +97,16 @@ namespace magnesia::opcua_qt::abstraction {
                 case UA_DATATYPEKIND_DOUBLE:
                     return QVariant::fromValue(m_variant.getScalar<double>());
                 case UA_DATATYPEKIND_STRING:
-                    return QVariant::fromValue(
-                        QString::fromStdString(std::string(m_variant.getScalar<opcua::String>())));
+                    return QString{QLatin1StringView{m_variant.getScalar<opcua::String>().get()}};
                 case UA_DATATYPEKIND_DATETIME:
-                    return QVariant::fromValue(
-                        QDateTime::fromSecsSinceEpoch(m_variant.getScalar<opcua::DateTime>().toUnixTime()));
+                    return QDateTime::fromSecsSinceEpoch(m_variant.getScalar<opcua::DateTime>().toUnixTime());
                 case UA_DATATYPEKIND_GUID:
                     return QVariant::fromValue(m_variant.getScalar<opcua::Guid>());
                 case UA_DATATYPEKIND_STATUSCODE: {
-                    return QVariant::fromValue(std::string(UA_StatusCode_name(m_variant.getScalar<UA_StatusCode>())));
+                    return UA_StatusCode_name(m_variant.getScalar<UA_StatusCode>());
                 }
                 default:
-                    return QVariant::fromValue(
-                        QString("<scalar unknown type kind: %1>").arg(m_variant.getDataType()->typeKind));
+                    return QString{"<scalar unknown type kind: %1>"}.arg(m_variant.getDataType()->typeKind);
                     // TODO: Add data as hex
             }
         }
@@ -161,8 +157,8 @@ namespace magnesia::opcua_qt::abstraction {
                     return QVariant::fromValue(std::vector<QVariant>{res.begin(), res.end()});
                 }
                 default:
-                    return QVariant::fromValue(QString("<array(size: %1, type kind: %2)>")
-                                                   .arg(m_variant.getArrayLength(), m_variant.getDataType()->typeKind));
+                    return QString{"<array(size: %1, type kind: %2)>"}.arg(m_variant.getArrayLength(),
+                                                                           m_variant.getDataType()->typeKind);
             }
         }
 
