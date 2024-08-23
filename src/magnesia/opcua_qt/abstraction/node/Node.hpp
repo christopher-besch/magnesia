@@ -225,7 +225,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @param name the new inverse name
          */
-        virtual void setInverseName(LocalizedText& name);
+        virtual void setInverseName(const LocalizedText& name);
 
         /**
          * Set if this type is abstract.
@@ -257,7 +257,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @param value the new data value
          */
-        virtual void setDataValue(DataValue& value);
+        virtual void setDataValue(const DataValue& value);
 
         /**
          * Set the value.
@@ -265,7 +265,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @param value the variant to set
          */
-        virtual void setDataValue(Variant& value);
+        virtual void setDataValue(const Variant& value);
 
         /**
          * Set the data type.
@@ -273,7 +273,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @param data_type the new data type
          */
-        virtual void setDataType(NodeId& data_type);
+        virtual void setDataType(const NodeId& data_type);
 
         /**
          * Set the value rank.
@@ -289,7 +289,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @param dimensions the new array dimensions
          */
-        virtual void setArrayDimensions(std::vector<quint32>& dimensions);
+        virtual void setArrayDimensions(const std::vector<quint32>& dimensions);
 
         /**
          * Set the access level.
@@ -322,7 +322,7 @@ namespace magnesia::opcua_qt::abstraction {
          * @param method_id what method to call
          * @param args arguments for the method
          */
-        virtual std::vector<Variant> callMethod(NodeId& method_id, std::vector<Variant>& args);
+        virtual std::vector<Variant> callMethod(const NodeId& method_id, const std::vector<Variant>& args);
 
         /**
          * Create a Node from a opcua Node. The returned node will be a subclass of Node, according to its node class.

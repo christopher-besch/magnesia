@@ -32,7 +32,7 @@ namespace magnesia::opcua_qt::abstraction {
         return handle().readSymmetric();
     }
 
-    void ReferenceTypeNode::setInverseName(LocalizedText& name) {
+    void ReferenceTypeNode::setInverseName(const LocalizedText& name) {
         handle().writeInverseName(name.handle());
     }
 

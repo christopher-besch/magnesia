@@ -40,11 +40,11 @@ namespace magnesia::opcua_qt::abstraction {
         [[nodiscard]] std::optional<std::vector<quint32>> getArrayDimensions() override;
         [[nodiscard]] std::optional<bool>                 isAbstract() override;
 
-        void setDataValue(DataValue& value) override;
-        void setDataValue(Variant& value) override;
-        void setDataType(NodeId& data_type) override;
+        void setDataValue(const DataValue& value) override;
+        void setDataValue(const Variant& value) override;
+        void setDataType(const NodeId& data_type) override;
         void setValueRank(ValueRank rank) override;
-        void setArrayDimensions(std::vector<quint32>& dimensions) override;
+        void setArrayDimensions(const std::vector<quint32>& dimensions) override;
         void setAbstract(bool abstract) override;
     };
 } // namespace magnesia::opcua_qt::abstraction

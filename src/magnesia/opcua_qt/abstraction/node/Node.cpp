@@ -194,7 +194,7 @@ namespace magnesia::opcua_qt::abstraction {
         m_node.writeUserWriteMask(mask.handle());
     }
 
-    void Node::setInverseName(LocalizedText& /*name*/) {}
+    void Node::setInverseName(const LocalizedText& /*name*/) {}
 
     void Node::setAbstract(bool /*abstract*/) {}
 
@@ -202,15 +202,15 @@ namespace magnesia::opcua_qt::abstraction {
 
     void Node::setEventNotifierType(EventNotifierBitmask /*type*/) {}
 
-    void Node::setDataValue(DataValue& /*value*/) {}
+    void Node::setDataValue(const DataValue& /*value*/) {}
 
-    void Node::setDataType(NodeId& /*data_type*/) {}
+    void Node::setDataType(const NodeId& /*data_type*/) {}
 
-    void Node::setDataValue(Variant& /*value*/) {}
+    void Node::setDataValue(const Variant& /*value*/) {}
 
     void Node::setValueRank(ValueRank /*rank*/) {}
 
-    void Node::setArrayDimensions(std::vector<quint32>& /*dimensions*/) {}
+    void Node::setArrayDimensions(const std::vector<quint32>& /*dimensions*/) {}
 
     void Node::setAccessLevel(AccessLevelBitmask /*mask*/) {}
 
@@ -218,7 +218,7 @@ namespace magnesia::opcua_qt::abstraction {
 
     void Node::setHistorizing(bool /*historizing*/) {}
 
-    std::vector<Variant> Node::callMethod(NodeId& /*method_id*/, std::vector<Variant>& /*args*/) {
+    std::vector<Variant> Node::callMethod(const NodeId& /*method_id*/, const std::vector<Variant>& /*args*/) {
         return {};
     }
 
