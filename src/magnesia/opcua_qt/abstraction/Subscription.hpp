@@ -8,10 +8,11 @@
 #include "Variant.hpp"
 #include "node/Node.hpp"
 
+#include <vector>
+
 #include <open62541pp/Client.h>
 #include <open62541pp/Subscription.h>
 
-#include <QList>
 #include <QObject>
 #include <QSharedPointer>
 #include <qtmetamacros.h>
@@ -59,7 +60,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @see MonitoredItem
          */
-        [[nodiscard]] QList<MonitoredItem> getMonitoredItems() noexcept;
+        [[nodiscard]] std::vector<MonitoredItem> getMonitoredItems() noexcept;
 
         /**
          * Subscribe to an attribute. When it changes value, the valueChanged signal will be emitted.
@@ -83,7 +84,7 @@ namespace magnesia::opcua_qt::abstraction {
 
       signals:
         void valueChanged(Node* node, AttributeId attribute_id, QSharedPointer<DataValue> value);
-        void eventTriggered(Node* node, QSharedPointer<QList<Variant>>);
+        void eventTriggered(Node* node, QSharedPointer<std::vector<Variant>>);
 
       private:
         opcua::Subscription<opcua::Client> m_subscription;

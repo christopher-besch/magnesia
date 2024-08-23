@@ -9,11 +9,11 @@
 #include "abstraction/node/Node.hpp"
 
 #include <optional>
+#include <vector>
 
 #include <open62541pp/AccessControl.h>
 #include <open62541pp/Client.h>
 
-#include <QList>
 #include <QMutex>
 #include <QObject>
 #include <QSslCertificate>
@@ -49,8 +49,9 @@ namespace magnesia::opcua_qt {
          * trust_list and revocation_list have no effect if there is no client certificate.
          */
         Connection(Endpoint endpoint, const std::optional<opcua::Login>& login,
-                   const std::optional<ApplicationCertificate>& certificate, const QList<QSslCertificate>& trust_list,
-                   const QList<QSslCertificate>& revocation_list, Logger* logger, QObject* parent = nullptr);
+                   const std::optional<ApplicationCertificate>& certificate,
+                   const std::vector<QSslCertificate>& trust_list, const std::vector<QSslCertificate>& revocation_list,
+                   Logger* logger, QObject* parent = nullptr);
         /**
          * @brief Connects the underlying OPC UA client and poll for subscription updates asynchronously. The signal
          * connected gets emitted when the connection has been established.
@@ -87,7 +88,7 @@ namespace magnesia::opcua_qt {
          * @return Returns a Subscription pointer
          */
         [[nodiscard]] abstraction::Subscription*
-        createSubscription(abstraction::Node* node, const QList<abstraction::AttributeId>& attribute_ids);
+        createSubscription(abstraction::Node* node, const std::vector<abstraction::AttributeId>& attribute_ids);
         /**
          * @brief Stops polling for updates and disconnects the client
          */
@@ -105,8 +106,8 @@ namespace magnesia::opcua_qt {
 
       private:
         static opcua::Client constructClient(const std::optional<ApplicationCertificate>& certificate,
-                                             const QList<QSslCertificate>&                trust_list,
-                                             const QList<QSslCertificate>&                revocation_list);
+                                             const std::vector<QSslCertificate>&          trust_list,
+                                             const std::vector<QSslCertificate>&          revocation_list);
 
         void connectSynchronouslyAndRun();
 

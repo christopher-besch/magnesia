@@ -7,9 +7,10 @@
 #include "../dataviewer_fwd.hpp"
 #include "../panels/LogViewModel.hpp"
 
+#include <vector>
+
 #include <QComboBox>
 #include <QDebug>
-#include <QList>
 #include <QObject>
 #include <QPushButton>
 #include <QTableView>
@@ -39,8 +40,8 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         QPushButton*       m_save_log_button;
         QComboBox*         m_log_level_combo_box;
 
-        QList<opcua_qt::LogEntry> m_log_lines;
-        QList<opcua_qt::LogEntry> m_filtered_log_lines;
+        std::vector<opcua_qt::LogEntry> m_log_lines;
+        std::vector<opcua_qt::LogEntry> m_filtered_log_lines;
     };
 
     inline constexpr PanelMetadata metadata{

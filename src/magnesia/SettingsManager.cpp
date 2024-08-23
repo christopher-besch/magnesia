@@ -15,8 +15,8 @@
 #include <iterator>
 #include <optional>
 #include <utility>
+#include <vector>
 
-#include <QList>
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
@@ -40,8 +40,9 @@ namespace magnesia {
         connect(m_storage_manager, &StorageManager::settingDeleted, this, &SettingsManager::settingChanged);
     }
 
-    void SettingsManager::defineSettingDomain(const Domain& domain, const QList<QSharedPointer<Setting>>& settings) {
-        if (settings.isEmpty()) {
+    void SettingsManager::defineSettingDomain(const Domain&                               domain,
+                                              const std::vector<QSharedPointer<Setting>>& settings) {
+        if (settings.empty()) {
             m_settings.erase(domain);
         } else {
             m_settings[domain] = settings;
@@ -217,15 +218,15 @@ namespace magnesia {
         return getSetting<LayoutSetting, StorageId>(key, &StorageManager::getLayoutSettingId);
     }
 
-    QList<Domain> SettingsManager::getAllDomains() const {
-        QList<Domain> domains;
-        domains.reserve(static_cast<qsizetype>(m_settings.size()));
+    std::vector<Domain> SettingsManager::getAllDomains() const {
+        std::vector<Domain> domains;
+        domains.reserve(m_settings.size());
         std::ranges::transform(m_settings, std::back_inserter(domains),
                                [](const auto& setting) { return setting.first; });
         return domains;
     }
 
-    QList<QSharedPointer<Setting>> SettingsManager::getSettingDefinitions(const Domain& domain) const {
+    std::vector<QSharedPointer<Setting>> SettingsManager::getSettingDefinitions(const Domain& domain) const {
         if (auto iter = m_settings.find(domain); iter != m_settings.end()) {
             return iter->second;
         }

@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <utility>
+#include <vector>
 
 #include <open62541pp/Result.h>
 
@@ -17,7 +18,6 @@
 #include <QAbstractTableModel>
 #include <QComboBox>
 #include <QLineEdit>
-#include <QList>
 #include <QModelIndex>
 #include <QPushButton>
 #include <QSharedPointer>
@@ -48,7 +48,7 @@ namespace magnesia::activities::dataviewer {
 
       private slots:
         void onFindEndpoints();
-        void onEndpointsFound(const opcua::Result<QList<opcua_qt::Endpoint>>& result);
+        void onEndpointsFound(const opcua::Result<std::vector<opcua_qt::Endpoint>>& result);
         void onConnect();
 
       private:
@@ -83,11 +83,11 @@ namespace magnesia::activities::dataviewer {
                                               int role = Qt::DisplayRole) const override;
 
           public:
-            void setEndpoints(QList<opcua_qt::Endpoint> endpoints);
+            void setEndpoints(std::vector<opcua_qt::Endpoint> endpoints);
             void clear();
 
           private:
-            QList<opcua_qt::Endpoint> m_endpoints;
+            std::vector<opcua_qt::Endpoint> m_endpoints;
         };
 
         class CertificateModel : public QAbstractListModel {
@@ -110,7 +110,7 @@ namespace magnesia::activities::dataviewer {
             void onApplicationCertificateChanged(StorageId cert_id, StorageChange type);
 
           private:
-            QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>> m_certificates;
+            std::vector<std::pair<StorageId, opcua_qt::ApplicationCertificate>> m_certificates;
         };
 
         class HistoricServerConnectionModel : public QAbstractTableModel {
@@ -154,7 +154,7 @@ namespace magnesia::activities::dataviewer {
             };
 
           private:
-            QList<std::pair<StorageId, HistoricServerConnection>> m_connections;
+            std::vector<std::pair<StorageId, HistoricServerConnection>> m_connections;
         };
     } // namespace detail
 } // namespace magnesia::activities::dataviewer

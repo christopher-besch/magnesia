@@ -1,8 +1,8 @@
 #pragma once
 
 #include <map>
+#include <vector>
 
-#include <QList>
 #include <QObject>
 #include <QPointer>
 #include <QString>
@@ -75,8 +75,8 @@ namespace magnesia {
         bool route(const QUrl& url);
 
       private:
-        std::map<QString, QList<QPointer<URLHandler>>> m_dynamic_handlers;
-        std::map<QString, URLHandler*>                 m_static_handlers;
-        URLHandler*                                    m_fallback_handler{};
+        std::map<QString, std::vector<QPointer<URLHandler>>> m_dynamic_handlers;
+        std::map<QString, URLHandler*>                       m_static_handlers;
+        URLHandler*                                          m_fallback_handler{};
     };
 } // namespace magnesia

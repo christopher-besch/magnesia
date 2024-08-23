@@ -14,11 +14,11 @@
 #include "../WriteMaskBitmask.hpp"
 
 #include <optional>
+#include <vector>
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Node.h>
 
-#include <QList>
 #include <QObject>
 #include <qtmetamacros.h>
 
@@ -91,12 +91,12 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the child nodes of this node.
          */
-        [[nodiscard]] QList<Node*> getChildren();
+        [[nodiscard]] std::vector<Node*> getChildren();
 
         /**
          * Get all references to and from this node.
          */
-        [[nodiscard]] QList<ReferenceDescription> getReferences();
+        [[nodiscard]] std::vector<ReferenceDescription> getReferences();
 
         // TODO: RolePermissions, UserRolePermissions, AccessRestrictions
         // These are optional
@@ -153,7 +153,7 @@ namespace magnesia::opcua_qt::abstraction {
          * Get the array dimensions of this variable or variable type if the value is an array.
          * Only applicable to Variable and VariableType.
          */
-        [[nodiscard]] virtual std::optional<QList<quint32>> getArrayDimensions();
+        [[nodiscard]] virtual std::optional<std::vector<quint32>> getArrayDimensions();
 
         /**
          * Get the access level of this variable for all users.
@@ -289,7 +289,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @param dimensions the new array dimensions
          */
-        virtual void setArrayDimensions(QList<quint32>& dimensions);
+        virtual void setArrayDimensions(std::vector<quint32>& dimensions);
 
         /**
          * Set the access level.
@@ -322,7 +322,7 @@ namespace magnesia::opcua_qt::abstraction {
          * @param method_id what method to call
          * @param args arguments for the method
          */
-        virtual QList<Variant> callMethod(NodeId& method_id, QList<Variant>& args);
+        virtual std::vector<Variant> callMethod(NodeId& method_id, std::vector<Variant>& args);
 
         /**
          * Create a Node from a opcua Node. The returned node will be a subclass of Node, according to its node class.
@@ -355,10 +355,10 @@ namespace magnesia::opcua_qt::abstraction {
         // Subscription updates the cache directly to reduce network round-trips
         friend class Subscription;
 
-        opcua::Node<opcua::Client>   m_node;
-        std::optional<Node*>         m_cache_parent;
-        std::optional<QList<Node*>>  m_cache_children;
-        std::optional<LocalizedText> m_cache_display_name;
-        std::optional<DataValue>     m_cache_data_value;
+        opcua::Node<opcua::Client>        m_node;
+        std::optional<Node*>              m_cache_parent;
+        std::optional<std::vector<Node*>> m_cache_children;
+        std::optional<LocalizedText>      m_cache_display_name;
+        std::optional<DataValue>          m_cache_data_value;
     };
 } // namespace magnesia::opcua_qt::abstraction

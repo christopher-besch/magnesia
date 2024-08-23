@@ -9,8 +9,8 @@
 #include <cstdint>
 #include <optional>
 #include <utility>
+#include <vector>
 
-#include <QList>
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -73,14 +73,14 @@ namespace magnesia {
         [[nodiscard]] std::optional<Layout> getLayout(StorageId layout_id, const LayoutGroup& group,
                                                       const Domain& domain) const override;
 
-        [[nodiscard]] QList<std::pair<StorageId, QSslCertificate>> getAllCertificates() const override;
-        [[nodiscard]] QList<std::pair<StorageId, QSslKey>>         getAllKeys() const override;
-        [[nodiscard]] QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>>
+        [[nodiscard]] std::vector<std::pair<StorageId, QSslCertificate>> getAllCertificates() const override;
+        [[nodiscard]] std::vector<std::pair<StorageId, QSslKey>>         getAllKeys() const override;
+        [[nodiscard]] std::vector<std::pair<StorageId, opcua_qt::ApplicationCertificate>>
         getAllApplicationCertificates() const override;
-        [[nodiscard]] QList<std::pair<StorageId, HistoricServerConnection>>
-                                                          getAllHistoricServerConnections() const override;
-        [[nodiscard]] QList<std::pair<StorageId, Layout>> getAllLayouts(const LayoutGroup& group,
-                                                                        const Domain&      domain) const override;
+        [[nodiscard]] std::vector<std::pair<StorageId, HistoricServerConnection>>
+                                                                getAllHistoricServerConnections() const override;
+        [[nodiscard]] std::vector<std::pair<StorageId, Layout>> getAllLayouts(const LayoutGroup& group,
+                                                                              const Domain&      domain) const override;
 
         void deleteCertificate(StorageId cert_id) override;
         void deleteKey(StorageId key_id) override;
@@ -142,16 +142,16 @@ namespace magnesia {
 
         static void warnQuery(const QString& message, const QSqlQuery& query);
 
-        [[nodiscard]] QList<StorageId>
+        [[nodiscard]] std::vector<StorageId>
         getHistoricServerConnectionTrustList(StorageId historic_server_connection_id) const;
-        [[nodiscard]] QList<StorageId>
+        [[nodiscard]] std::vector<StorageId>
              getHistoricServerConnectionRevokedList(StorageId historic_server_connection_id) const;
         void deleteHistoricServerConnectionTrustList(StorageId historic_server_connection_id);
         void deleteHistoricServerConnectionRevokedList(StorageId historic_server_connection_id);
-        void setHistoricServerConnectionTrustList(StorageId               historic_server_connection_id,
-                                                  const QList<StorageId>& certificates);
-        void setHistoricServerConnectionRevokedList(StorageId               historic_server_connection_id,
-                                                    const QList<StorageId>& certificates);
+        void setHistoricServerConnectionTrustList(StorageId                     historic_server_connection_id,
+                                                  const std::vector<StorageId>& certificates);
+        void setHistoricServerConnectionRevokedList(StorageId                     historic_server_connection_id,
+                                                    const std::vector<StorageId>& certificates);
 
         [[nodiscard]] HistoricServerConnection
         queryToHistoricServerConnection(const QSqlQuery& query, StorageId historic_server_connection_id) const;

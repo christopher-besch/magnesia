@@ -8,8 +8,8 @@
 #include "../../settings.hpp"
 
 #include <map>
+#include <vector>
 
-#include <QList>
 #include <QListWidget>
 #include <QScrollArea>
 #include <QVBoxLayout>
@@ -146,8 +146,8 @@ namespace magnesia::activities::settings {
         // only used to focus specific widgets and delete them
         std::map<Domain, QWidget*>     m_domain_widgets;
         std::map<SettingKey, QWidget*> m_setting_widgets;
-        QList<QWidget*>                m_certificate_widgets;
-        QList<QWidget*>                m_key_widgets;
+        std::vector<QWidget*>          m_certificate_widgets;
+        std::vector<QWidget*>          m_key_widgets;
         QWidget*                       m_certificates_widget{nullptr};
         QWidget*                       m_keys_widget{nullptr};
     };

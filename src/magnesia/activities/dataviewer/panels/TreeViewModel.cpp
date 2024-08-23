@@ -2,6 +2,8 @@
 
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
 
+#include <cstddef>
+
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QObject>
@@ -26,7 +28,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         if (parent_node == nullptr) {
             node = m_root_node;
         } else {
-            node = parent_node->getChildren().value(row);
+            node = parent_node->getChildren()[static_cast<std::size_t>(row)];
         }
 
         return node != nullptr ? createIndex(row, column, node) : QModelIndex();
@@ -124,9 +126,9 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     int TreeViewModel::getChildIndexOf(Node* parent, Node* child) {
         auto children = parent->getChildren();
 
-        for (int i = 0; i < children.size(); i++) {
-            if (children.value(i) == child) {
-                return i;
+        for (std::size_t i = 0; i < children.size(); i++) {
+            if (children[i] == child) {
+                return static_cast<int>(i);
             }
         }
 

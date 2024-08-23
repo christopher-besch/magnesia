@@ -9,7 +9,10 @@
 #include "../../../opcua_qt/abstraction/WriteMask.hpp"
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <optional>
 
 #include <QAbstractItemModel>
@@ -71,91 +74,91 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         m_available_attributes.clear();
 
         if (m_node.node_id) {
-            m_available_attributes.append(AttributeId::NODE_ID);
+            m_available_attributes.push_back(AttributeId::NODE_ID);
         }
 
         if (m_node.node_class) {
-            m_available_attributes.append(AttributeId::NODE_CLASS);
+            m_available_attributes.push_back(AttributeId::NODE_CLASS);
         }
 
         if (m_node.browse_name) {
-            m_available_attributes.append(AttributeId::BROWSE_NAME);
+            m_available_attributes.push_back(AttributeId::BROWSE_NAME);
         }
 
         if (m_node.display_name) {
-            m_available_attributes.append(AttributeId::DISPLAY_NAME);
+            m_available_attributes.push_back(AttributeId::DISPLAY_NAME);
         }
 
         if (m_node.description) {
-            m_available_attributes.append(AttributeId::DESCRIPTION);
+            m_available_attributes.push_back(AttributeId::DESCRIPTION);
         }
 
         if (m_node.write_mask) {
-            m_available_attributes.append(AttributeId::WRITE_MASK);
+            m_available_attributes.push_back(AttributeId::WRITE_MASK);
         }
 
         if (m_node.user_write_mask) {
-            m_available_attributes.append(AttributeId::USER_WRITE_MASK);
+            m_available_attributes.push_back(AttributeId::USER_WRITE_MASK);
         }
 
         if (m_node.is_abstract) {
-            m_available_attributes.append(AttributeId::IS_ABSTRACT);
+            m_available_attributes.push_back(AttributeId::IS_ABSTRACT);
         }
 
         if (m_node.is_symmetric) {
-            m_available_attributes.append(AttributeId::SYMMETRIC);
+            m_available_attributes.push_back(AttributeId::SYMMETRIC);
         }
 
         if (m_node.inverse_name) {
-            m_available_attributes.append(AttributeId::INVERSE_NAME);
+            m_available_attributes.push_back(AttributeId::INVERSE_NAME);
         }
 
         if (m_node.contains_no_loops) {
-            m_available_attributes.append(AttributeId::CONTAINS_NO_LOOPS);
+            m_available_attributes.push_back(AttributeId::CONTAINS_NO_LOOPS);
         }
 
         if (m_node.event_notifier) {
-            m_available_attributes.append(AttributeId::EVENT_NOTFIER);
+            m_available_attributes.push_back(AttributeId::EVENT_NOTFIER);
         }
 
         if (m_node.data_value) {
-            m_available_attributes.append(AttributeId::VALUE);
+            m_available_attributes.push_back(AttributeId::VALUE);
         }
 
         if (m_node.data_type) {
-            m_available_attributes.append(AttributeId::DATA_TYPE);
+            m_available_attributes.push_back(AttributeId::DATA_TYPE);
         }
 
         if (m_node.value_rank) {
-            m_available_attributes.append(AttributeId::VALUE_RANK);
+            m_available_attributes.push_back(AttributeId::VALUE_RANK);
         }
 
         if (m_node.array_dimensions) {
-            m_available_attributes.append(AttributeId::ARRAY_DIMENSIONS);
+            m_available_attributes.push_back(AttributeId::ARRAY_DIMENSIONS);
         }
 
         if (m_node.access_level) {
-            m_available_attributes.append(AttributeId::ACCESS_LEVEL);
+            m_available_attributes.push_back(AttributeId::ACCESS_LEVEL);
         }
 
         if (m_node.user_access_level) {
-            m_available_attributes.append(AttributeId::USER_ACCESS_LEVEL);
+            m_available_attributes.push_back(AttributeId::USER_ACCESS_LEVEL);
         }
 
         if (m_node.minimum_sampling_interval) {
-            m_available_attributes.append(AttributeId::MINIMUM_SAMPLING_INTERVAL);
+            m_available_attributes.push_back(AttributeId::MINIMUM_SAMPLING_INTERVAL);
         }
 
         if (m_node.is_historizing) {
-            m_available_attributes.append(AttributeId::HISTORIZING);
+            m_available_attributes.push_back(AttributeId::HISTORIZING);
         }
 
         if (m_node.is_executable) {
-            m_available_attributes.append(AttributeId::EXECUTABLE);
+            m_available_attributes.push_back(AttributeId::EXECUTABLE);
         }
 
         if (m_node.is_user_executable) {
-            m_available_attributes.append(AttributeId::USER_EXECUTABLE);
+            m_available_attributes.push_back(AttributeId::USER_EXECUTABLE);
         }
 
         endResetModel();
@@ -169,10 +172,10 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         uint32_t item_id = 0;
 
         if (!parent.isValid()) {
-            item_id = itemId(m_available_attributes.value(row - 1), 0);
+            item_id = itemId(m_available_attributes[static_cast<std::size_t>(row - 1)], 0);
         } else {
             auto sub_item = static_cast<uint8_t>(row);
-            item_id       = itemId(m_available_attributes.value(parent.row() - 1), sub_item);
+            item_id       = itemId(m_available_attributes[static_cast<std::size_t>(parent.row() - 1)], sub_item);
         }
 
         return createIndex(row, column, item_id);
@@ -189,10 +192,11 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
             return {};
         }
 
-        auto attribute = (attributeId(item_id));
-        auto row       = static_cast<int>(m_available_attributes.indexOf(attribute)) + 1;
+        auto attribute = attributeId(item_id);
+        auto row =
+            std::distance(m_available_attributes.begin(), std::ranges::find(m_available_attributes, attribute)) + 1;
 
-        return createIndex(row, index.column(), static_cast<uint32_t>(attribute));
+        return createIndex(static_cast<int>(row), index.column(), static_cast<uint32_t>(attribute));
     }
 
     int AttributeViewModel::rowCount(const QModelIndex& parent) const {
@@ -204,7 +208,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         auto sub_item     = subId(item_id);
         auto attribute_id = attributeId(item_id);
 
-        if (sub_item != 0 || !m_available_attributes.contains(attribute_id)) {
+        if (sub_item != 0 || std::ranges::find(m_available_attributes, attribute_id) == m_available_attributes.end()) {
             return 0;
         }
 
@@ -333,7 +337,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
                 return title ? "Write Mask" : QVariant();
             }
 
-            auto pair = m_node.write_mask->getFlags().value(sub_item - 1);
+            auto pair = m_node.write_mask->getFlags()[sub_item - 1];
             return title ? write_mask_to_string(pair.first) : QVariant::fromValue(pair.second);
         }
         if (attribute_id == AttributeId::USER_WRITE_MASK && m_node.user_write_mask.has_value()) {
@@ -341,7 +345,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
                 return title ? "User Write Mask" : QVariant();
             }
 
-            auto pair = m_node.user_write_mask->getFlags().value(sub_item - 1);
+            auto pair = m_node.user_write_mask->getFlags()[sub_item - 1];
             return title ? write_mask_to_string(pair.first) : QVariant::fromValue(pair.second);
         }
         if (attribute_id == AttributeId::ACCESS_LEVEL && m_node.access_level.has_value()) {
@@ -349,7 +353,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
                 return title ? "Access Level" : QVariant();
             }
 
-            auto pair = m_node.access_level->getFlags().value(sub_item - 1);
+            auto pair = m_node.access_level->getFlags()[sub_item - 1];
             return title ? access_level_to_string(pair.first) : QVariant::fromValue(pair.second);
         }
         if (attribute_id == AttributeId::USER_ACCESS_LEVEL && m_node.user_access_level.has_value()) {
@@ -357,7 +361,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
                 return title ? "User Access Level" : QVariant();
             }
 
-            auto pair = m_node.user_access_level->getFlags().value(sub_item - 1);
+            auto pair = m_node.user_access_level->getFlags()[sub_item - 1];
             return title ? access_level_to_string(pair.first) : QVariant::fromValue(pair.second);
         }
         if (attribute_id == AttributeId::EVENT_NOTFIER && m_node.event_notifier.has_value()) {
@@ -365,7 +369,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
                 return title ? "Event Notifier" : QVariant();
             }
 
-            auto pair = m_node.event_notifier->getFlags().value(sub_item - 1);
+            auto pair = m_node.event_notifier->getFlags()[sub_item - 1];
             return title ? event_notifier_to_string(pair.first) : QVariant::fromValue(pair.second);
         }
 
@@ -406,7 +410,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
             }
 
             return title ? QString("[%1]").arg(sub_item - 1)
-                         : QVariant::fromValue(m_node.array_dimensions->value(sub_item - 1));
+                         : QVariant::fromValue(m_node.array_dimensions.value()[sub_item - 1]);
         }
 
         return {};

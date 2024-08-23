@@ -3,10 +3,10 @@
 #include "NodeId.hpp"
 
 #include <optional>
+#include <vector>
 
 #include <open62541pp/types/Variant.h>
 
-#include <QList>
 #include <QString>
 #include <QVariant>
 
@@ -35,7 +35,7 @@ namespace magnesia::opcua_qt::abstraction {
          * Get an array value with elements of type T.
          */
         template<typename T>
-        [[nodiscard]] std::optional<QList<T>> getArray() const;
+        [[nodiscard]] std::optional<std::vector<T>> getArray() const;
 
         /**
          * Get a description of the data type.
@@ -66,7 +66,7 @@ namespace magnesia::opcua_qt::abstraction {
 
       private:
         template<typename T>
-        [[nodiscard]] QList<QVariant> getQVariantArray() const;
+        [[nodiscard]] std::vector<QVariant> getQVariantArray() const;
 
       private:
         opcua::Variant m_variant;

@@ -4,10 +4,10 @@
 #include "abstraction/LogLevel.hpp"
 
 #include <string_view>
+#include <vector>
 
 #include <open62541pp/Logger.h>
 
-#include <QList>
 #include <QObject>
 #include <QSet>
 #include <qtmetamacros.h>
@@ -16,15 +16,15 @@ namespace magnesia::opcua_qt {
     Logger::Logger(QObject* parent) : QObject(parent) {}
 
     void Logger::log(LogEntry entry) noexcept {
-        m_log_entries.append(entry);
+        m_log_entries.push_back(entry);
         Q_EMIT logEntryAdded(entry);
     }
 
-    QList<LogEntry> Logger::getLogForLevel(const QSet<LogLevel>& levels) const noexcept {
-        QList<LogEntry> output;
+    std::vector<LogEntry> Logger::getLogForLevel(const QSet<LogLevel>& levels) const noexcept {
+        std::vector<LogEntry> output;
         for (const LogEntry& log : m_log_entries) {
             if (levels.contains(log.getLevel())) {
-                output.append(log);
+                output.push_back(log);
             }
         }
         return output;

@@ -16,9 +16,9 @@
 
 #include <cstdint>
 #include <optional>
+#include <vector>
 
 #include <QAbstractItemModel>
-#include <QList>
 #include <QObject>
 #include <QVariant>
 #include <Qt>
@@ -47,7 +47,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         std::optional<opcua_qt::abstraction::DataValue>            data_value;
         std::optional<opcua_qt::abstraction::Node*>                data_type;
         std::optional<opcua_qt::abstraction::ValueRank>            value_rank;
-        std::optional<QList<quint32>>                              array_dimensions;
+        std::optional<std::vector<quint32>>                        array_dimensions;
         std::optional<opcua_qt::abstraction::AccessLevelBitmask>   access_level;
         std::optional<opcua_qt::abstraction::AccessLevelBitmask>   user_access_level;
         std::optional<double>                                      minimum_sampling_interval;
@@ -84,7 +84,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         [[nodiscard]] static uint32_t                                     itemId(QModelIndex index) noexcept;
 
       private:
-        NodeProxy                                 m_node;
-        QList<opcua_qt::abstraction::AttributeId> m_available_attributes;
+        NodeProxy                                       m_node;
+        std::vector<opcua_qt::abstraction::AttributeId> m_available_attributes;
     };
 } // namespace magnesia::activities::dataviewer::panels::attribute_view_panel

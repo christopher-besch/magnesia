@@ -4,9 +4,9 @@
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
 
 #include <utility>
+#include <vector>
 
 #include <QAbstractTableModel>
-#include <QList>
 #include <QModelIndex>
 #include <QObject>
 #include <QString>
@@ -28,7 +28,7 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
         void                   nodeSelected(opcua_qt::abstraction::Node* node);
 
       private:
-        opcua_qt::Connection*              m_connection;
-        QList<std::pair<QString, QString>> m_references;
+        opcua_qt::Connection*                    m_connection;
+        std::vector<std::pair<QString, QString>> m_references;
     };
 } // namespace magnesia::activities::dataviewer::panels::reference_view_panel

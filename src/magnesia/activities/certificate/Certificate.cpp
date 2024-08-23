@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <vector>
 
 #include <open62541pp/ErrorHandling.h>
 
@@ -15,7 +16,6 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QList>
 #include <QLoggingCategory>
 #include <QPushButton>
 #include <QScrollArea>
@@ -85,7 +85,7 @@ namespace magnesia::activities::certificate {
                 .lineedit = new QLineEdit,
             };
             subject_form->addRow(property.name, property.lineedit);
-            m_certificate_properties.append(property);
+            m_certificate_properties.push_back(property);
         }
         auto* certificate_box = new QGroupBox("Certificate Settings");
         auto* cert_form       = new QFormLayout;
@@ -184,15 +184,15 @@ namespace magnesia::activities::certificate {
         m_create_button->setEnabled(false);
         m_status_label->setText("");
 
-        QList<QString>       subject;
-        const QList<QString> subject_alt_name{"DNS:localhost"};
-        bool                 common_name = false;
+        std::vector<QString>       subject;
+        const std::vector<QString> subject_alt_name{"DNS:localhost"};
+        bool                       common_name = false;
         for (auto [name, lineedit] : m_certificate_properties) {
             if (lineedit->text().isEmpty()) {
                 continue;
             }
             if (auto type = m_available_subjects.find(name->text()); type != m_available_subjects.cend()) {
-                subject.append(type->second + lineedit->text());
+                subject.push_back(type->second + lineedit->text());
 
                 if (type->second == "CN=") {
                     common_name = true;

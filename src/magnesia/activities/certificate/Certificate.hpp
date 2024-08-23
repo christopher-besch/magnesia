@@ -8,11 +8,11 @@
 
 #include <map>
 #include <optional>
+#include <vector>
 
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QList>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QString>
@@ -52,11 +52,11 @@ namespace magnesia::activities::certificate {
         void saveCertificate();
 
       private:
-        std::map<QString, QString> m_available_subjects;
-        QList<CertificateProperty> m_certificate_properties;
-        QComboBox*                 m_cert_size{nullptr};
-        QLabel*                    m_status_label{nullptr};
-        QPushButton*               m_create_button{nullptr};
+        std::map<QString, QString>       m_available_subjects;
+        std::vector<CertificateProperty> m_certificate_properties;
+        QComboBox*                       m_cert_size{nullptr};
+        QLabel*                          m_status_label{nullptr};
+        QPushButton*                     m_create_button{nullptr};
     };
 
     inline constexpr ActivityMetadata metadata{

@@ -9,6 +9,7 @@
 #include "../../terminate.hpp"
 #include "SettingsUrlHandler.hpp"
 
+#include <cstddef>
 #include <functional>
 #include <ranges>
 
@@ -275,7 +276,7 @@ namespace magnesia::activities::settings {
             auto* cert_widget = new QWidget;
             cert_widget->setLayout(layout);
             m_certificate_list->addWidget(cert_widget);
-            m_certificate_widgets.append(cert_widget);
+            m_certificate_widgets.push_back(cert_widget);
         }
     }
 
@@ -298,7 +299,7 @@ namespace magnesia::activities::settings {
             auto* key_widget = new QWidget;
             key_widget->setLayout(layout);
             m_key_list->addWidget(key_widget);
-            m_key_widgets.append(key_widget);
+            m_key_widgets.push_back(key_widget);
         }
     }
 
@@ -324,7 +325,7 @@ namespace magnesia::activities::settings {
 
     void Settings::focusDomain(int index) {
         const auto& domains = Application::instance().getSettingsManager().getAllDomains();
-        focusDomain(domains[index]);
+        focusDomain(domains[static_cast<std::size_t>(index)]);
     }
 
     void Settings::focusCertificates() {

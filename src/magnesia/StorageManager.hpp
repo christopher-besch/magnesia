@@ -8,8 +8,8 @@
 #include <cstdint>
 #include <optional>
 #include <utility>
+#include <vector>
 
-#include <QList>
 #include <QObject>
 #include <QSslCertificate>
 #include <QSslKey>
@@ -147,7 +147,7 @@ namespace magnesia {
          *
          * @return a list of pairs of all certificates and their ids.
          */
-        [[nodiscard]] virtual QList<std::pair<StorageId, QSslCertificate>> getAllCertificates() const = 0;
+        [[nodiscard]] virtual std::vector<std::pair<StorageId, QSslCertificate>> getAllCertificates() const = 0;
         /**
          * Retrieve all X.509 keys from the database.
          *
@@ -157,7 +157,7 @@ namespace magnesia {
          *
          * @return a list of pairs of all keys and their ids.
          */
-        [[nodiscard]] virtual QList<std::pair<StorageId, QSslKey>> getAllKeys() const = 0;
+        [[nodiscard]] virtual std::vector<std::pair<StorageId, QSslKey>> getAllKeys() const = 0;
         /**
          * Retrieve all X.509 certificate key pairs from the database.
          *
@@ -167,7 +167,7 @@ namespace magnesia {
          *
          * @return a list of pairs of all certificate key pairs and their ids.
          */
-        [[nodiscard]] virtual QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>>
+        [[nodiscard]] virtual std::vector<std::pair<StorageId, opcua_qt::ApplicationCertificate>>
         getAllApplicationCertificates() const = 0;
         /**
          * Retrieve all HistoricServerConnections from the database.
@@ -178,7 +178,7 @@ namespace magnesia {
          *
          * @return a list of pairs of all HistoricServerConnections and their ids.
          */
-        [[nodiscard]] virtual QList<std::pair<StorageId, HistoricServerConnection>>
+        [[nodiscard]] virtual std::vector<std::pair<StorageId, HistoricServerConnection>>
         getAllHistoricServerConnections() const = 0;
         /**
          * Retrieve all Layouts from the database for a specified group and domain.
@@ -191,8 +191,8 @@ namespace magnesia {
          * @param domain The Domain the layouts belong to.
          * @return a list of pairs of all Layouts with the specified group and domain and their ids.
          */
-        [[nodiscard]] virtual QList<std::pair<StorageId, Layout>> getAllLayouts(const LayoutGroup& group,
-                                                                                const Domain&      domain) const = 0;
+        [[nodiscard]] virtual std::vector<std::pair<StorageId, Layout>> getAllLayouts(const LayoutGroup& group,
+                                                                                      const Domain& domain) const = 0;
 
         /**
          * Delete the X.509 certificate with the specified id if it exists.

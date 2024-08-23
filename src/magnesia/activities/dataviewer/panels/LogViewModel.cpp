@@ -4,9 +4,11 @@
 #include "../../../opcua_qt/abstraction/LogCategory.hpp"
 #include "../../../opcua_qt/abstraction/LogLevel.hpp"
 
+#include <cstddef>
+#include <vector>
+
 #include <QAbstractTableModel>
 #include <QFile>
-#include <QList>
 #include <QObject>
 #include <QTextStream>
 #include <QVariant>
@@ -28,7 +30,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
             return {};
         }
 
-        const auto& log_line = m_log_lines.at(index.row());
+        const auto& log_line = m_log_lines[static_cast<std::size_t>(index.row())];
         switch (index.column()) {
             case 0:
                 return opcua_qt::log_level_to_string(log_line.getLevel());
@@ -61,7 +63,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         return {};
     }
 
-    void LogViewModel::setLogLines(QList<opcua_qt::LogEntry>& log_lines) {
+    void LogViewModel::setLogLines(std::vector<opcua_qt::LogEntry>& log_lines) {
         beginResetModel();
         m_log_lines = log_lines;
         endResetModel();
@@ -70,7 +72,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
     void LogViewModel::addLogLine(const opcua_qt::LogEntry& entry) {
         auto size = static_cast<int>(m_log_lines.size());
         beginInsertRows({}, size, size);
-        m_log_lines.append(entry);
+        m_log_lines.push_back(entry);
         endInsertRows();
     }
 
@@ -103,7 +105,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         return true;
     }
 
-    QList<opcua_qt::LogEntry> LogViewModel::getLogLines() const {
+    std::vector<opcua_qt::LogEntry> LogViewModel::getLogLines() const {
         return m_log_lines;
     }
 } // namespace magnesia::activities::dataviewer::panels::log_view_panel

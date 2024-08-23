@@ -7,8 +7,9 @@
 #include "../dataviewer_fwd.hpp"
 #include "AttributeViewModel.hpp"
 
+#include <vector>
+
 #include <QLabel>
-#include <QList>
 #include <QTreeView>
 #include <QWidget>
 #include <qtmetamacros.h>
@@ -29,9 +30,9 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         void selectNode(const opcua_qt::abstraction::NodeId& node_id) override;
 
       private:
-        QList<opcua_qt::abstraction::Node> m_nodes;
-        QTreeView*                         m_tree_view;
-        AttributeViewModel*                m_model;
+        std::vector<opcua_qt::abstraction::Node> m_nodes;
+        QTreeView*                               m_tree_view;
+        AttributeViewModel*                      m_model;
     };
 
     inline constexpr PanelMetadata metadata{

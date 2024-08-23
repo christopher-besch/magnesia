@@ -10,8 +10,8 @@
 #include <cstdint>
 #include <map>
 #include <optional>
+#include <vector>
 
-#include <QList>
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
@@ -39,7 +39,7 @@ namespace magnesia {
          * @param domain The Domain to (re)define.
          * @param settings The settings to belong to that Domain.
          */
-        void defineSettingDomain(const Domain& domain, const QList<QSharedPointer<Setting>>& settings);
+        void defineSettingDomain(const Domain& domain, const std::vector<QSharedPointer<Setting>>& settings);
 
         /**
          * Reset a setting to it's default value.
@@ -300,7 +300,7 @@ namespace magnesia {
          *
          * @return the ordered list of domains.
          */
-        [[nodiscard]] QList<Domain> getAllDomains() const;
+        [[nodiscard]] std::vector<Domain> getAllDomains() const;
         /**
          * Get all settings for a domain in the order they're defined in.
          *
@@ -310,7 +310,7 @@ namespace magnesia {
          *
          * @return the ordered list of settings.
          */
-        [[nodiscard]] QList<QSharedPointer<Setting>> getSettingDefinitions(const Domain& domain) const;
+        [[nodiscard]] std::vector<QSharedPointer<Setting>> getSettingDefinitions(const Domain& domain) const;
 
       signals:
         /**
@@ -363,9 +363,9 @@ namespace magnesia {
         [[nodiscard]] std::optional<T> getSetting(const SettingKey& key, auto&& getter) const;
 
       private:
-        // TODO: maybe use a QList for the Domain too, that would allow the application developer to define the domain
-        // order
-        std::map<Domain, QList<QSharedPointer<Setting>>> m_settings;
-        QPointer<StorageManager>                         m_storage_manager;
+        // TODO: maybe use a std::vector for the Domain too, that would allow the application developer to define the
+        // domain order
+        std::map<Domain, std::vector<QSharedPointer<Setting>>> m_settings;
+        QPointer<StorageManager>                               m_storage_manager;
     };
 } // namespace magnesia
