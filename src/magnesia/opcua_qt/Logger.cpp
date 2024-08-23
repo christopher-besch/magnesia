@@ -3,13 +3,13 @@
 #include "LogEntry.hpp"
 #include "abstraction/LogLevel.hpp"
 
+#include <set>
 #include <string_view>
 #include <vector>
 
 #include <open62541pp/Logger.h>
 
 #include <QObject>
-#include <QSet>
 #include <qtmetamacros.h>
 
 namespace magnesia::opcua_qt {
@@ -20,7 +20,7 @@ namespace magnesia::opcua_qt {
         Q_EMIT logEntryAdded(entry);
     }
 
-    std::vector<LogEntry> Logger::getLogForLevel(const QSet<LogLevel>& levels) const noexcept {
+    std::vector<LogEntry> Logger::getLogForLevel(const std::set<LogLevel>& levels) const noexcept {
         std::vector<LogEntry> output;
         for (const LogEntry& log : m_log_entries) {
             if (levels.contains(log.getLevel())) {
