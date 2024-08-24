@@ -42,7 +42,6 @@
 #include <QModelIndex>
 #include <QObject>
 #include <QPushButton>
-#include <QSharedPointer>
 #include <QSslCertificate>
 #include <QString>
 #include <QTableView>
@@ -288,7 +287,7 @@ namespace magnesia::activities::dataviewer {
     }
 
     void ConfigWidget::reset() {
-        m_current_connection_builder = nullptr;
+        m_current_connection_builder.reset();
         m_endpoint_selector_model->clear();
         m_connect_button->setEnabled(false);
     }
@@ -300,25 +299,25 @@ namespace magnesia::activities::dataviewer {
                               << "\n  username:" << m_username->text()              //
                               << "\n  password:" << m_password->text();
 
-        auto builder = m_current_connection_builder = QSharedPointer<ConnectionBuilder>{new ConnectionBuilder};
+        m_current_connection_builder = std::make_shared<ConnectionBuilder>();
         m_current_connection_builder->logger(new opcua_qt::Logger);
 
-        builder->url(m_address->text());
+        m_current_connection_builder->url(m_address->text());
         if (auto username = m_username->text(); !username.isEmpty()) {
-            builder->username(m_username->text());
-            builder->password(m_password->text());
+            m_current_connection_builder->username(m_username->text());
+            m_current_connection_builder->password(m_password->text());
         }
         // FIXME: the connection builder is never destroyed, as there is a cyclical reference between signal connection
         // and lambda
-        connect(builder.get(), &ConnectionBuilder::endpointsFound, this,
-                [this, builder](const opcua::Result<std::vector<Endpoint>>& endpoints) {
+        connect(m_current_connection_builder.get(), &ConnectionBuilder::endpointsFound, this,
+                [this, builder = m_current_connection_builder](const opcua::Result<std::vector<Endpoint>>& endpoints) {
                     if (m_current_connection_builder != builder) {
                         // TODO: cleanup?
                         return;
                     }
                     onEndpointsFound(endpoints);
                 });
-        builder->findEndpoints();
+        m_current_connection_builder->findEndpoints();
 
         m_connect_button->setEnabled(false);
     }

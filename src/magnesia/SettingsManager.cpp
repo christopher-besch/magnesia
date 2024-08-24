@@ -13,13 +13,13 @@
 #include <cstdint>
 #include <functional>
 #include <iterator>
+#include <memory>
 #include <optional>
 #include <utility>
 #include <vector>
 
 #include <QObject>
 #include <QPointer>
-#include <QSharedPointer>
 #include <QSslCertificate>
 #include <QSslKey>
 #include <qtmetamacros.h>
@@ -40,8 +40,8 @@ namespace magnesia {
         connect(m_storage_manager, &StorageManager::settingDeleted, this, &SettingsManager::settingChanged);
     }
 
-    void SettingsManager::defineSettingDomain(const Domain&                               domain,
-                                              const std::vector<QSharedPointer<Setting>>& settings) {
+    void SettingsManager::defineSettingDomain(const Domain&                                domain,
+                                              const std::vector<std::shared_ptr<Setting>>& settings) {
         if (settings.empty()) {
             m_settings.erase(domain);
         } else {
@@ -226,14 +226,14 @@ namespace magnesia {
         return domains;
     }
 
-    std::vector<QSharedPointer<Setting>> SettingsManager::getSettingDefinitions(const Domain& domain) const {
+    std::vector<std::shared_ptr<Setting>> SettingsManager::getSettingDefinitions(const Domain& domain) const {
         if (auto iter = m_settings.find(domain); iter != m_settings.end()) {
             return iter->second;
         }
         return {};
     }
 
-    std::optional<QSharedPointer<Setting>> SettingsManager::findSettingDefinition(const SettingKey& key) const {
+    std::optional<std::shared_ptr<Setting>> SettingsManager::findSettingDefinition(const SettingKey& key) const {
         auto settings_in_domain = getSettingDefinitions(key.domain);
         for (const auto& setting : settings_in_domain) {
             if (setting->getName() == key.name) {

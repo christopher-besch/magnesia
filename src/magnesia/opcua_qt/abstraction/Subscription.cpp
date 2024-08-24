@@ -12,6 +12,7 @@
 
 #include <cstdint>
 #include <iterator>
+#include <memory>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -27,7 +28,6 @@
 #include <open62541pp/types/Variant.h>
 
 #include <QLoggingCategory>
-#include <QSharedPointer>
 #include <qtmetamacros.h>
 
 #ifdef MAGNESIA_HAS_QT_6_5
@@ -68,7 +68,7 @@ namespace magnesia::opcua_qt::abstraction {
                     node->setCacheDataValue(DataValue(value));
                 }
 
-                Q_EMIT valueChanged(node, attribute_id, QSharedPointer<DataValue>{new DataValue(value)});
+                Q_EMIT valueChanged(node, attribute_id, std::make_shared<DataValue>(value));
             }));
     }
 
@@ -76,13 +76,13 @@ namespace magnesia::opcua_qt::abstraction {
         return MonitoredItem(m_subscription.subscribeEvent(
             node->getNodeId().handle(), opcua::EventFilter(),
             [&, node](uint32_t /*subId*/, uint32_t /*monId*/, opcua::Span<const opcua::Variant> event_fields) {
-                auto* items = new std::vector<Variant>();
+                auto items = std::make_shared<std::vector<Variant>>();
                 items->reserve(event_fields.size());
 
                 for (const auto& item : event_fields) {
                     items->emplace_back(item);
                 }
-                Q_EMIT eventTriggered(node, QSharedPointer<std::vector<Variant>>{items});
+                Q_EMIT eventTriggered(node, std::move(items));
             }));
     }
 

@@ -12,6 +12,7 @@
 #include "terminate.hpp"
 
 #include <functional>
+#include <memory>
 #include <span>
 
 #include <QCoreApplication>
@@ -88,10 +89,10 @@ namespace magnesia {
         s_instance = this;
 
         m_settings_manager->defineSettingDomain(
-            "general", {QSharedPointer<magnesia::IntSetting>{new magnesia::IntSetting{
+            "general", {std::make_shared<magnesia::IntSetting>(
                            "opcua_poll_intervall", "OPC UA Polling Interval",
                            // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-                           "in milliseconds; reload the application to apply", 500, 10, 30000}}});
+                           "in milliseconds; reload the application to apply", 500, 10, 30000)});
 
         m_tab_widget->setTabsClosable(true);
         m_tab_widget->setDocumentMode(true);

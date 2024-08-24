@@ -9,12 +9,12 @@
 
 #include <cstdint>
 #include <map>
+#include <memory>
 #include <optional>
 #include <vector>
 
 #include <QObject>
 #include <QPointer>
-#include <QSharedPointer>
 #include <QSslCertificate>
 #include <QSslKey>
 #include <qtmetamacros.h>
@@ -39,7 +39,7 @@ namespace magnesia {
          * @param domain The Domain to (re)define.
          * @param settings The settings to belong to that Domain.
          */
-        void defineSettingDomain(const Domain& domain, const std::vector<QSharedPointer<Setting>>& settings);
+        void defineSettingDomain(const Domain& domain, const std::vector<std::shared_ptr<Setting>>& settings);
 
         /**
          * Reset a setting to it's default value.
@@ -310,7 +310,7 @@ namespace magnesia {
          *
          * @return the ordered list of settings.
          */
-        [[nodiscard]] std::vector<QSharedPointer<Setting>> getSettingDefinitions(const Domain& domain) const;
+        [[nodiscard]] std::vector<std::shared_ptr<Setting>> getSettingDefinitions(const Domain& domain) const;
 
       signals:
         /**
@@ -327,7 +327,7 @@ namespace magnesia {
         void settingDomainDefined(Domain domain);
 
       private:
-        [[nodiscard]] std::optional<QSharedPointer<Setting>> findSettingDefinition(const SettingKey& key) const;
+        [[nodiscard]] std::optional<std::shared_ptr<Setting>> findSettingDefinition(const SettingKey& key) const;
 
         /**
          * Check if a value can be used for a specific setting.
@@ -365,7 +365,7 @@ namespace magnesia {
       private:
         // TODO: maybe use a std::vector for the Domain too, that would allow the application developer to define the
         // domain order
-        std::map<Domain, std::vector<QSharedPointer<Setting>>> m_settings;
-        QPointer<StorageManager>                               m_storage_manager;
+        std::map<Domain, std::vector<std::shared_ptr<Setting>>> m_settings;
+        QPointer<StorageManager>                                m_storage_manager;
     };
 } // namespace magnesia

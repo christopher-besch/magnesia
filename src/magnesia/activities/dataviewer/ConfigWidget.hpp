@@ -9,6 +9,7 @@
 #include "../../opcua_qt/abstraction/Endpoint.hpp"
 
 #include <cstddef>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -20,7 +21,6 @@
 #include <QLineEdit>
 #include <QModelIndex>
 #include <QPushButton>
-#include <QSharedPointer>
 #include <QTableView>
 #include <QWidget>
 #include <Qt>
@@ -54,7 +54,7 @@ namespace magnesia::activities::dataviewer {
       private:
         std::size_t m_count{};
 
-        QSharedPointer<opcua_qt::ConnectionBuilder> m_current_connection_builder;
+        std::shared_ptr<opcua_qt::ConnectionBuilder> m_current_connection_builder;
 
         // quick connect
         QLineEdit*                m_address{nullptr};

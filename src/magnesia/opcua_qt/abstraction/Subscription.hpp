@@ -8,13 +8,13 @@
 #include "Variant.hpp"
 #include "node/Node.hpp"
 
+#include <memory>
 #include <vector>
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Subscription.h>
 
 #include <QObject>
-#include <QSharedPointer>
 #include <qtmetamacros.h>
 
 #ifdef MAGNESIA_HAS_QT_6_5
@@ -83,8 +83,8 @@ namespace magnesia::opcua_qt::abstraction {
         [[nodiscard]] opcua::Subscription<opcua::Client>& handle() noexcept;
 
       signals:
-        void valueChanged(Node* node, AttributeId attribute_id, QSharedPointer<DataValue> value);
-        void eventTriggered(Node* node, QSharedPointer<std::vector<Variant>>);
+        void valueChanged(Node* node, AttributeId attribute_id, std::shared_ptr<DataValue> value);
+        void eventTriggered(Node* node, std::shared_ptr<std::vector<Variant>>);
 
       private:
         opcua::Subscription<opcua::Client> m_subscription;
