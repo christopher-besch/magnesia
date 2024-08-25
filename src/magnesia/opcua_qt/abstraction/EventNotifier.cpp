@@ -1,1 +1,1 @@
-#include "EventNotifier.hpp" // IWYU pragma: keep
+#include "EventNotifier.hpp"

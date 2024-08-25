@@ -1,1 +1,1 @@
-#include "LogCategory.hpp" // IWYU pragma: keep
+#include "LogCategory.hpp"

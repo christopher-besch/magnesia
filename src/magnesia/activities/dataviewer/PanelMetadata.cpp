@@ -1,1 +1,1 @@
-#include "PanelMetadata.hpp" // IWYU pragma: keep
+#include "PanelMetadata.hpp"
