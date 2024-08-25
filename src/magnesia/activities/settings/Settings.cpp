@@ -134,7 +134,7 @@ namespace magnesia::activities::settings {
         // create ApplicationCertificate (in main scroll area)
         auto* create_app_cert = new QPushButton{"Create New Application Certificate"};
         connect(create_app_cert, &QPushButton::clicked, this,
-                []() { Application::instance().getRouter().route({"certificate:create"}); });
+                [] { Application::instance().getRouter().route({"certificate:create"}); });
         scroll_area_layout->addWidget(create_app_cert);
 
         // activity layout
@@ -264,14 +264,14 @@ namespace magnesia::activities::settings {
 
             auto* view_button = new QPushButton{"View"};
             layout->addWidget(view_button);
-            connect(view_button, &QPushButton::clicked, view_button, [cert_id]() {
+            connect(view_button, &QPushButton::clicked, view_button, [cert_id] {
                 Application::instance().getRouter().route("certificate:view?storage-id=" + QString::number(cert_id));
             });
 
             auto* delete_button = new QPushButton{"Delete"};
             layout->addWidget(delete_button);
             connect(delete_button, &QPushButton::clicked, delete_button,
-                    [cert_id]() { Application::instance().getStorageManager().deleteCertificate(cert_id); });
+                    [cert_id] { Application::instance().getStorageManager().deleteCertificate(cert_id); });
 
             auto* cert_widget = new QWidget;
             cert_widget->setLayout(layout);
@@ -294,7 +294,7 @@ namespace magnesia::activities::settings {
             auto* delete_button = new QPushButton{"Delete"};
             layout->addWidget(delete_button);
             connect(delete_button, &QPushButton::clicked, delete_button,
-                    [key_id]() { Application::instance().getStorageManager().deleteKey(key_id); });
+                    [key_id] { Application::instance().getStorageManager().deleteKey(key_id); });
 
             auto* key_widget = new QWidget;
             key_widget->setLayout(layout);
@@ -394,7 +394,7 @@ namespace magnesia::activities::settings {
         // Widget being reconstructed.
         return wrap_in_setting_widget(
             right_layout, setting,
-            [setting, button]() {
+            [setting, button] {
                 button->setChecked(setting->getDefault());
                 button->setText(setting->getDefault() ? "True" : "False");
             },
@@ -410,12 +410,12 @@ namespace magnesia::activities::settings {
 
         auto* line_edit = new QLineEdit{cur_setting_value.value()};
         right_layout->addWidget(line_edit);
-        QObject::connect(line_edit, &QLineEdit::editingFinished, line_edit, [line_edit, key]() {
+        QObject::connect(line_edit, &QLineEdit::editingFinished, line_edit, [line_edit, key] {
             Application::instance().getSettingsManager().setStringSetting(key, line_edit->text());
         });
 
         return wrap_in_setting_widget(
-            right_layout, setting, [line_edit, setting]() { line_edit->setText(setting->getDefault()); }, key);
+            right_layout, setting, [line_edit, setting] { line_edit->setText(setting->getDefault()); }, key);
     }
 
     QWidget* Settings::createSettingWidget(const IntSetting* setting, const Domain& domain) {
@@ -435,8 +435,8 @@ namespace magnesia::activities::settings {
                          [key](int value) { Application::instance().getSettingsManager().setIntSetting(key, value); });
 
         return wrap_in_setting_widget(
-            right_layout, setting,
-            [spin_box, setting]() { spin_box->setValue(static_cast<int>(setting->getDefault())); }, key);
+            right_layout, setting, [spin_box, setting] { spin_box->setValue(static_cast<int>(setting->getDefault())); },
+            key);
     }
 
     QWidget* Settings::createSettingWidget(const DoubleSetting* setting, const Domain& domain) {
@@ -457,7 +457,7 @@ namespace magnesia::activities::settings {
         });
 
         return wrap_in_setting_widget(
-            right_layout, setting, [spin_box, setting]() { spin_box->setValue(setting->getDefault()); }, key);
+            right_layout, setting, [spin_box, setting] { spin_box->setValue(setting->getDefault()); }, key);
     }
 
     QWidget* Settings::createSettingWidget(const EnumSetting* setting, const Domain& domain) {
@@ -478,7 +478,7 @@ namespace magnesia::activities::settings {
         });
 
         return wrap_in_setting_widget(
-            right_layout, setting, [combo_box, setting]() { combo_box->setCurrentText(setting->getDefault()); }, key);
+            right_layout, setting, [combo_box, setting] { combo_box->setCurrentText(setting->getDefault()); }, key);
     }
 
     QWidget* Settings::createSettingWidget(const HistoricServerConnectionSetting* setting, const Domain& domain) {

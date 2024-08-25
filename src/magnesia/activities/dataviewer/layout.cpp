@@ -113,11 +113,11 @@ namespace magnesia::activities::dataviewer::layout {
         auto* close_action     = toolbar->addAction("Close");
 
         connect(close_action, &QAction::triggered, this, &QWidget::deleteLater);
-        connect(split_hor_action, &QAction::triggered, this, [this]() {
+        connect(split_hor_action, &QAction::triggered, this, [this] {
             qCDebug(lc_layout) << "Split Horizontally";
             Q_EMIT requestedSplit(this, Qt::Horizontal);
         });
-        connect(split_ver_action, &QAction::triggered, this, [this]() {
+        connect(split_ver_action, &QAction::triggered, this, [this] {
             qCDebug(lc_layout) << "Split Vertically";
             Q_EMIT requestedSplit(this, Qt::Vertical);
         });
