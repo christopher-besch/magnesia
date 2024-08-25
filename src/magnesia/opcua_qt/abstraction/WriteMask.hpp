@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-#include <open62541pp/Common.h>
-
 #include <QString>
 
 namespace magnesia::opcua_qt::abstraction {

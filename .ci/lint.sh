@@ -37,13 +37,24 @@ run_clang_tidy() {
     cmake --build "$BUILD_DIR" --target libopen62541.a || true
 
     # TODO: use run-clang-tidy -source-filter
-    find src -name '*.[ch]pp' -print0 \
+    find src -name '*.cpp' -print0 \
         | xargs -0 run-clang-tidy \
             -warnings-as-errors='*' \
             -use-color \
             -header-filter='.*' \
             -p "$BUILD_DIR" \
         || fail clang-tidy $?
+
+    # Manually run include-cleaner on header files, see https://github.com/llvm/llvm-project/issues/67550 for details
+    # why this is necessary.
+    find src -name '*.hpp' -print0 \
+        | parallel -v0 clang-tidy \
+            --warnings-as-errors='*' \
+            --use-color \
+            --header-filter='.*' \
+            --checks='-*,misc-include-cleaner' \
+            -p="$BUILD_DIR" \
+        || fail clang-tidy-headers $?
 }
 
 run_codespell() {

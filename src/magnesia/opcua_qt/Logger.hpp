@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LogEntry.hpp"
+#include "abstraction/LogLevel.hpp"
 
 #include <set>
 #include <vector>
