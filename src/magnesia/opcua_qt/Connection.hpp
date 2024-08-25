@@ -9,7 +9,7 @@
 #include "abstraction/node/Node.hpp"
 
 #include <optional>
-#include <vector>
+#include <span>
 
 #include <open62541pp/AccessControl.h>
 #include <open62541pp/Client.h>
@@ -50,7 +50,7 @@ namespace magnesia::opcua_qt {
          */
         Connection(Endpoint endpoint, const std::optional<opcua::Login>& login,
                    const std::optional<ApplicationCertificate>& certificate,
-                   const std::vector<QSslCertificate>& trust_list, const std::vector<QSslCertificate>& revocation_list,
+                   std::span<const QSslCertificate> trust_list, std::span<const QSslCertificate> revocation_list,
                    Logger* logger, QObject* parent = nullptr);
         /**
          * @brief Connects the underlying OPC UA client and poll for subscription updates asynchronously. The signal
@@ -88,7 +88,7 @@ namespace magnesia::opcua_qt {
          * @return Returns a Subscription pointer
          */
         [[nodiscard]] abstraction::Subscription*
-        createSubscription(abstraction::Node* node, const std::vector<abstraction::AttributeId>& attribute_ids);
+        createSubscription(abstraction::Node* node, std::span<const abstraction::AttributeId> attribute_ids);
         /**
          * @brief Stops polling for updates and disconnects the client
          */
@@ -106,8 +106,8 @@ namespace magnesia::opcua_qt {
 
       private:
         static opcua::Client constructClient(const std::optional<ApplicationCertificate>& certificate,
-                                             const std::vector<QSslCertificate>&          trust_list,
-                                             const std::vector<QSslCertificate>&          revocation_list);
+                                             std::span<const QSslCertificate>             trust_list,
+                                             std::span<const QSslCertificate>             revocation_list);
 
         void connectSynchronouslyAndRun();
 

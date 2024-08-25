@@ -16,6 +16,7 @@
 #include <iterator>
 #include <memory>
 #include <optional>
+#include <span>
 #include <vector>
 
 #include <QAbstractTableModel>
@@ -175,7 +176,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         return leaf_nodes;
     }
 
-    void NodeViewModel::subscribeNodes(const std::vector<Node*>& nodes, Connection* connection) {
+    void NodeViewModel::subscribeNodes(std::span<Node*> nodes, Connection* connection) {
         const std::vector attribute_ids{
             AttributeId::DISPLAY_NAME,
             AttributeId::VALUE,

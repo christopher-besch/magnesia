@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -148,10 +149,10 @@ namespace magnesia {
              getHistoricServerConnectionRevokedList(StorageId historic_server_connection_id) const;
         void deleteHistoricServerConnectionTrustList(StorageId historic_server_connection_id);
         void deleteHistoricServerConnectionRevokedList(StorageId historic_server_connection_id);
-        void setHistoricServerConnectionTrustList(StorageId                     historic_server_connection_id,
-                                                  const std::vector<StorageId>& certificates);
-        void setHistoricServerConnectionRevokedList(StorageId                     historic_server_connection_id,
-                                                    const std::vector<StorageId>& certificates);
+        void setHistoricServerConnectionTrustList(StorageId                  historic_server_connection_id,
+                                                  std::span<const StorageId> certificates);
+        void setHistoricServerConnectionRevokedList(StorageId                  historic_server_connection_id,
+                                                    std::span<const StorageId> certificates);
 
         [[nodiscard]] HistoricServerConnection
         queryToHistoricServerConnection(const QSqlQuery& query, StorageId historic_server_connection_id) const;

@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <ranges>
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -23,7 +24,7 @@
 #endif
 
 namespace {
-    std::vector<opcua::String> to_opcua_strings(const std::vector<QString>& list) {
+    std::vector<opcua::String> to_opcua_strings(std::span<const QString> list) {
         auto view = list | std::views::transform(&QString::toStdString);
         return std::vector<opcua::String>{view.begin(), view.end()};
     }
@@ -31,9 +32,9 @@ namespace {
 
 namespace magnesia::opcua_qt {
 
-    ApplicationCertificate::ApplicationCertificate(const std::vector<QString>& subject,
-                                                   const std::vector<QString>& subject_alt_name,
-                                                   std::size_t                 key_size_bits) {
+    ApplicationCertificate::ApplicationCertificate(std::span<const QString> subject,
+                                                   std::span<const QString> subject_alt_name,
+                                                   std::size_t              key_size_bits) {
         const auto result_pair =
             opcua::crypto::createCertificate(to_opcua_strings(subject), to_opcua_strings(subject_alt_name),
                                              key_size_bits, opcua::crypto::CertificateFormat::DER);

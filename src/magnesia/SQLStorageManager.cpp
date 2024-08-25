@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -1665,8 +1666,7 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
     }
 
     void SQLStorageManager::setHistoricServerConnectionTrustList(StorageId historic_server_connection_id,
-
-                                                                 const std::vector<StorageId>& certificates) {
+                                                                 std::span<const StorageId> certificates) {
         deleteHistoricServerConnectionRevokedList(historic_server_connection_id);
         for (auto cert_id : certificates) {
             QSqlQuery query{m_database};
@@ -1683,8 +1683,7 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
     }
 
     void SQLStorageManager::setHistoricServerConnectionRevokedList(StorageId historic_server_connection_id,
-
-                                                                   const std::vector<StorageId>& certificates) {
+                                                                   std::span<const StorageId> certificates) {
         deleteHistoricServerConnectionRevokedList(historic_server_connection_id);
         for (auto cert_id : certificates) {
             QSqlQuery query{m_database};

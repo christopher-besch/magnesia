@@ -5,6 +5,7 @@
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
 #include "../dataviewer_fwd.hpp"
 
+#include <span>
 #include <vector>
 
 #include <QAbstractTableModel>
@@ -33,7 +34,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
 
       private:
         static std::vector<opcua_qt::abstraction::Node*> findLeafNodes(opcua_qt::abstraction::Node* node);
-        void subscribeNodes(const std::vector<opcua_qt::abstraction::Node*>& nodes, opcua_qt::Connection* connection);
+        void subscribeNodes(std::span<opcua_qt::abstraction::Node*> nodes, opcua_qt::Connection* connection);
 
       private:
         DataViewer*                                       m_data_viewer;

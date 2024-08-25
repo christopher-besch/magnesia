@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <iterator>
 #include <optional>
+#include <span>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -38,8 +39,8 @@
 
 namespace magnesia::opcua_qt {
     opcua::Client Connection::constructClient(const std::optional<ApplicationCertificate>& certificate,
-                                              const std::vector<QSslCertificate>&          trust_list,
-                                              const std::vector<QSslCertificate>&          revocation_list) {
+                                              std::span<const QSslCertificate>             trust_list,
+                                              std::span<const QSslCertificate>             revocation_list) {
         if (certificate.has_value()) {
             const auto              cert_der = certificate->getCertificate().toDer();
             const opcua::ByteString user_certificate(std::string_view{cert_der.begin(), cert_der.end()});
@@ -65,8 +66,8 @@ namespace magnesia::opcua_qt {
 
     Connection::Connection(Endpoint endpoint, const std::optional<opcua::Login>& login,
                            const std::optional<ApplicationCertificate>& certificate,
-                           const std::vector<QSslCertificate>&          trust_list,
-                           const std::vector<QSslCertificate>& revocation_list, Logger* logger, QObject* parent)
+                           std::span<const QSslCertificate>             trust_list,
+                           std::span<const QSslCertificate> revocation_list, Logger* logger, QObject* parent)
         : QObject(parent), m_client(constructClient(certificate, trust_list, revocation_list)),
           m_server_endpoint(std::move(endpoint)), m_login(login) {
         Q_ASSERT(logger != nullptr);
@@ -120,9 +121,8 @@ namespace magnesia::opcua_qt {
         return abstraction::Node::fromOPCUANode(m_client.getNode(node_id.handle()), this);
     }
 
-    abstraction::Subscription*
-    Connection::createSubscription(abstraction::Node*                           node,
-                                   const std::vector<abstraction::AttributeId>& attribute_ids) {
+    abstraction::Subscription* Connection::createSubscription(abstraction::Node*                        node,
+                                                              std::span<const abstraction::AttributeId> attribute_ids) {
         auto* subscription = new abstraction::Subscription(m_client.createSubscription());
         for (const abstraction::AttributeId attribute_id : attribute_ids) {
             subscription->subscribeDataChanged(node, attribute_id);
