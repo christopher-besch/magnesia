@@ -28,7 +28,7 @@ namespace magnesia::opcua_qt {
     }
 
     opcua::Logger Logger::getOPCUALogger() noexcept {
-        return [&](opcua::LogLevel log_level, opcua::LogCategory log_category, std::string_view message) {
+        return [this](opcua::LogLevel log_level, opcua::LogCategory log_category, std::string_view message) {
             log({log_level, log_category, message});
         };
     }

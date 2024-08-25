@@ -81,7 +81,7 @@ namespace magnesia::opcua_qt {
         if (m_client.isConnected()) {
             return;
         }
-        QThreadPool::globalInstance()->start([&] { connectSynchronouslyAndRun(); });
+        QThreadPool::globalInstance()->start([this] { connectSynchronouslyAndRun(); });
     }
 
     void Connection::connectSynchronouslyAndRun() {
@@ -95,13 +95,13 @@ namespace magnesia::opcua_qt {
             m_client.connect(m_server_endpoint.getEndpointUrl().toString().toStdString());
         }
 
-        connect(this, &Connection::connected, this, [&] {
+        connect(this, &Connection::connected, this, [this] {
             m_timer.setInterval(
                 static_cast<int>(Application::instance()
                                      .getSettingsManager()
                                      .getIntSetting({.name = "opcua_poll_intervall", .domain = "general"})
                                      .value()));
-            connect(&m_timer, &QTimer::timeout, this, [&] { m_client.runIterate(0); });
+            connect(&m_timer, &QTimer::timeout, this, [this] { m_client.runIterate(0); });
             m_timer.start();
         });
 

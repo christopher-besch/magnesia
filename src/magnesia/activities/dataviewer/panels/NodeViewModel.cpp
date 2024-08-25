@@ -179,7 +179,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
 
         for (auto* node : nodes) {
             auto* subscription = connection->createSubscription(node, attribute_ids);
-            connect(subscription, &Subscription::valueChanged, this, [&](Node* subscribed_node) {
+            connect(subscription, &Subscription::valueChanged, this, [this](Node* subscribed_node) {
                 auto node_it = std::ranges::find(m_nodes, subscribed_node);
                 Q_ASSERT(node_it != m_nodes.cend());
                 auto row = static_cast<int>(std::distance(m_nodes.begin(), node_it));

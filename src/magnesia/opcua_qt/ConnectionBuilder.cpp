@@ -81,7 +81,7 @@ namespace magnesia::opcua_qt {
     }
 
     void ConnectionBuilder::findEndpoints() {
-        QThreadPool::globalInstance()->start([&] { Q_EMIT endpointsFound(findEndopintsSynchronously()); });
+        QThreadPool::globalInstance()->start([this] { Q_EMIT endpointsFound(findEndopintsSynchronously()); });
     }
 
     Connection* ConnectionBuilder::build() {

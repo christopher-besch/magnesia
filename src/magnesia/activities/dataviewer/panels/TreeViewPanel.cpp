@@ -40,10 +40,10 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         connect(this, &TreeViewPanel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
 
         connect(m_tree_view, &QTreeView::clicked, this,
-                [&](QModelIndex index) { indexSelected(index, Panels::attribute | Panels::reference_view); });
+                [this](QModelIndex index) { indexSelected(index, Panels::attribute | Panels::reference_view); });
 
         connect(m_tree_view, &QTreeView::doubleClicked, this,
-                [&](QModelIndex index) { indexSelected(index, Panels::node); });
+                [this](QModelIndex index) { indexSelected(index, Panels::node); });
     }
 
     void TreeViewPanel::indexSelected(QModelIndex index, panels::Panels recipients) {
