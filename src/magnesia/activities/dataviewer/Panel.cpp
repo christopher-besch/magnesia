@@ -2,6 +2,7 @@
 
 #include "../../opcua_qt/abstraction/NodeId.hpp"
 #include "DataViewer.hpp"
+#include "dataviewer_fwd.hpp"
 #include "panels.hpp"
 
 #include <QJsonObject>
@@ -13,8 +14,8 @@ namespace magnesia::activities::dataviewer {
         connect(m_dataviewer, &DataViewer::nodeSelected, this, &Panel::selectNodeAll);
     }
 
-    void Panel::selectNodeAll(const opcua_qt::abstraction::NodeId& node, panels::PanelType recipients) {
-        if ((recipients & m_panel_type) == m_panel_type) {
+    void Panel::selectNodeAll(const opcua_qt::abstraction::NodeId& node, panels::PanelTypes recipients) {
+        if (recipients.testFlag(m_panel_type)) {
             selectNode(node);
         }
     }

@@ -4,6 +4,7 @@
 #include "../DataViewer.hpp"
 #include "../Panel.hpp"
 #include "../PanelMetadata.hpp"
+#include "../dataviewer_fwd.hpp"
 #include "../panels.hpp"
 #include "TreeViewModel.hpp"
 
@@ -46,7 +47,7 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
                 [this](QModelIndex index) { indexSelected(index, PanelType::node); });
     }
 
-    void TreeViewPanel::indexSelected(QModelIndex index, panels::PanelType recipients) {
+    void TreeViewPanel::indexSelected(QModelIndex index, panels::PanelTypes recipients) {
         auto* node = TreeViewModel::getNode(index);
         if (node == nullptr) {
             return;

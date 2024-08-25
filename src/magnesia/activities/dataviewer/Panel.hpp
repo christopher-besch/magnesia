@@ -40,7 +40,7 @@ namespace magnesia::activities::dataviewer {
          * @param node the selected node's id.
          * @param recipients the types of panels that are targeted by this call.
          */
-        virtual void selectNodeAll(const opcua_qt::abstraction::NodeId& node, panels::PanelType recipients);
+        virtual void selectNodeAll(const opcua_qt::abstraction::NodeId& node, panels::PanelTypes recipients);
         /**
          * Called when any Panel signals that a node was selected and targets this panel's type. The default
          * implementation is a no-op.

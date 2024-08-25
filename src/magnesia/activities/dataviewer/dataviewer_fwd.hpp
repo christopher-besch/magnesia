@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QFlags>
+
 namespace magnesia::activities::dataviewer {
     class DataViewer;
     class Panel;
@@ -10,5 +12,7 @@ namespace magnesia::activities::dataviewer {
 
     namespace panels {
         enum class PanelType : unsigned;
+        Q_DECLARE_FLAGS(PanelTypes, PanelType)
+        Q_DECLARE_OPERATORS_FOR_FLAGS(PanelTypes)
     } // namespace panels
 } // namespace magnesia::activities::dataviewer

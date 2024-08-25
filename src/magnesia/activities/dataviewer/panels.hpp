@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../qt_version_check.hpp"
 #include "dataviewer_fwd.hpp"
 #include "panels/AttributeViewPanel.hpp"
 #include "panels/LogViewPanel.hpp"
@@ -9,31 +8,6 @@
 #include "panels/TreeViewPanel.hpp"
 
 #include <array>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypeTraits>
-#else
-#include <QtGlobal>
-#endif
-
-/**
- * Creates a binary operator and its assigning version for the enum class `type`.
- *
- * @param type the type to generate the operator for
- * @param op the operator to define
- */
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define MAGNESIA_BIN_OPERATOR(type, op)                                     \
-    /* NOLINTNEXTLINE(bugprone-macro-parentheses) */                        \
-    inline constexpr type operator op(type lhs, type rhs) {                 \
-        /* NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange) */  \
-        return static_cast<type>(qToUnderlying(lhs) op qToUnderlying(rhs)); \
-    }                                                                       \
-                                                                            \
-    /* NOLINTNEXTLINE(bugprone-macro-parentheses) */                        \
-    inline constexpr type operator op##=(type& lhs, type rhs) {             \
-        return lhs = lhs op rhs;                                            \
-    }
 
 namespace magnesia::activities::dataviewer::panels {
     /**
@@ -55,25 +29,4 @@ namespace magnesia::activities::dataviewer::panels {
         reference_view = 0x1 << 4,
         node           = 0x1 << 5,
     };
-
-    /**
-     * `operator&` and `operator&=` implementation
-     *
-     * @see MAGNESIA_BIN_OPERATOR(type, op)
-     */
-    MAGNESIA_BIN_OPERATOR(PanelType, &);
-    /**
-     * `operator|` and `operator|=` implementation
-     *
-     * @see MAGNESIA_BIN_OPERATOR(type, op)
-     */
-    MAGNESIA_BIN_OPERATOR(PanelType, |);
-    /**
-     * `operator^` and `operator^=` implementation
-     *
-     * @see MAGNESIA_BIN_OPERATOR(type, op)
-     */
-    MAGNESIA_BIN_OPERATOR(PanelType, ^);
 } // namespace magnesia::activities::dataviewer::panels
-
-#undef MAGNESIA_BIN_OPERATOR
