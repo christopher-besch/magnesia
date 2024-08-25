@@ -19,15 +19,17 @@ namespace magnesia::activities::dataviewer {
         [[nodiscard]] virtual QJsonObject saveState() const;
         [[nodiscard]] virtual bool        restoreState(const QJsonObject& data);
 
-        [[nodiscard]] virtual const PanelMetadata& metadata() const noexcept = 0;
+        [[nodiscard]] const PanelMetadata& metadata() const noexcept;
 
       protected:
         /**
          * @param dataviewer the `DataViewer` this panel belongs to.
          * @param panel the type of this panel. Requires an entry in the `panels::PanelType` enum.
+         * @param metadata the metadata of this panel
          * @param parent the parent QWidget passed to Qt.
          */
-        explicit Panel(DataViewer* dataviewer, panels::PanelType panel, QWidget* parent = nullptr);
+        explicit Panel(DataViewer* dataviewer, panels::PanelType panel, PanelMetadata metadata,
+                       QWidget* parent = nullptr);
 
         [[nodiscard]] DataViewer* getDataViewer() const noexcept;
 
@@ -51,6 +53,7 @@ namespace magnesia::activities::dataviewer {
 
       private:
         panels::PanelType m_panel_type;
+        PanelMetadata     m_metadata;
         DataViewer*       m_dataviewer;
     };
 } // namespace magnesia::activities::dataviewer

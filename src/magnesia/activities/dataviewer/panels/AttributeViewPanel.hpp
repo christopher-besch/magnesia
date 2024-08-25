@@ -17,8 +17,6 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
       public:
         explicit AttributeViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
 
-        [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
-
       signals:
         void nodeSelected(const opcua_qt::abstraction::NodeId& node_id);
         void nodeSelectedRecursive(const opcua_qt::abstraction::NodeId& node_id);

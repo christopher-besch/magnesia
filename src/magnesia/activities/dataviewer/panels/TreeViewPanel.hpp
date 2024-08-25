@@ -18,8 +18,6 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
       public:
         explicit TreeViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
 
-        [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
-
       private:
         void indexSelected(QModelIndex index, panels::PanelTypes recipients);
 

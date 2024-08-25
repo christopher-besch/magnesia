@@ -3,7 +3,6 @@
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
 #include "../DataViewer.hpp"
 #include "../Panel.hpp"
-#include "../PanelMetadata.hpp"
 #include "../dataviewer_fwd.hpp"
 #include "../panels.hpp"
 #include "TreeViewModel.hpp"
@@ -21,7 +20,7 @@
 
 namespace magnesia::activities::dataviewer::panels::treeview_panel {
     TreeViewPanel::TreeViewPanel(DataViewer* dataviewer, QWidget* parent)
-        : Panel(dataviewer, PanelType::treeview, parent), m_tree_view(new QTreeView(this)),
+        : Panel(dataviewer, PanelType::treeview, treeview_panel::metadata, parent), m_tree_view(new QTreeView(this)),
           m_model(new TreeViewModel(this)) {
         auto* connection = dataviewer->getConnection();
         auto* root_node  = connection->getRootNode();
@@ -54,9 +53,5 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         }
 
         Q_EMIT nodeSelected(node->getNodeId(), recipients);
-    }
-
-    const PanelMetadata& TreeViewPanel::metadata() const noexcept {
-        return treeview_panel::metadata;
     }
 } // namespace magnesia::activities::dataviewer::panels::treeview_panel

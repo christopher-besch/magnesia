@@ -3,7 +3,6 @@
 #include "../../../opcua_qt/abstraction/NodeId.hpp"
 #include "../DataViewer.hpp"
 #include "../Panel.hpp"
-#include "../PanelMetadata.hpp"
 #include "../dataviewer_fwd.hpp"
 #include "../panels.hpp"
 #include "../panels/NodeViewModel.hpp"
@@ -23,8 +22,8 @@
 
 namespace magnesia::activities::dataviewer::panels::node_view_panel {
     NodeViewPanel::NodeViewPanel(DataViewer* dataviewer, QWidget* parent)
-        : Panel(dataviewer, PanelType::node, parent), m_model(new NodeViewModel(dataviewer, this)),
-          m_table_view(new QTableView) {
+        : Panel(dataviewer, PanelType::node, node_view_panel::metadata, parent),
+          m_model(new NodeViewModel(dataviewer, this)), m_table_view(new QTableView) {
         m_table_view->setModel(m_model);
         m_table_view->horizontalHeader()->setStretchLastSection(true);
         m_table_view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -69,9 +68,5 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         auto* connection = getDataViewer()->getConnection();
         auto* node       = connection->getNode(node_id);
         m_model->appendNode(node, connection);
-    }
-
-    const PanelMetadata& NodeViewPanel::metadata() const noexcept {
-        return node_view_panel::metadata;
     }
 } // namespace magnesia::activities::dataviewer::panels::node_view_panel

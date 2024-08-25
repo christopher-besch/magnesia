@@ -5,7 +5,6 @@
 #include "../../../opcua_qt/abstraction/LogLevel.hpp"
 #include "../DataViewer.hpp"
 #include "../Panel.hpp"
-#include "../PanelMetadata.hpp"
 #include "../panels.hpp"
 #include "LogViewModel.hpp"
 
@@ -26,8 +25,9 @@
 
 namespace magnesia::activities::dataviewer::panels::log_view_panel {
     LogViewPanel::LogViewPanel(DataViewer* dataviewer, QWidget* parent)
-        : Panel(dataviewer, PanelType::log_view, parent), m_log_view_model(new LogViewModel(this)),
-          m_table_view(new QTableView(this)), m_log_level_combo_box(new QComboBox(this)) {
+        : Panel(dataviewer, PanelType::log_view, log_view_panel::metadata, parent),
+          m_log_view_model(new LogViewModel(this)), m_table_view(new QTableView(this)),
+          m_log_level_combo_box(new QComboBox(this)) {
         m_table_view->setModel(m_log_view_model);
         m_table_view->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_table_view->horizontalHeader()->setStretchLastSection(true);
@@ -113,9 +113,5 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
             m_log_lines, [this](const auto& log_line) { return log_line.getLevel() >= m_current_log_level; });
         m_filtered_log_lines = {filtered.begin(), filtered.end()};
         m_log_view_model->setLogLines(m_filtered_log_lines);
-    }
-
-    const PanelMetadata& LogViewPanel::metadata() const noexcept {
-        return log_view_panel::metadata;
     }
 } // namespace magnesia::activities::dataviewer::panels::log_view_panel

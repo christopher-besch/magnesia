@@ -18,8 +18,6 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
       public:
         explicit NodeViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
 
-        [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
-
       signals:
         void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::PanelTypes recipients);
 

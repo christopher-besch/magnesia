@@ -17,8 +17,6 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
       public:
         explicit ReferenceViewPanel(DataViewer* data_viewer, QWidget* parent = nullptr);
 
-        [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
-
       private slots:
         void selectNode(const opcua_qt::abstraction::NodeId& node) override;
 
