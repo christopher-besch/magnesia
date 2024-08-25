@@ -23,7 +23,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         void nodeSelected(const opcua_qt::abstraction::NodeId& node_id);
         void nodeSelectedRecursive(const opcua_qt::abstraction::NodeId& node_id);
 
-      public slots:
+      private slots:
         void selectNode(const opcua_qt::abstraction::NodeId& node_id) override;
 
       private:

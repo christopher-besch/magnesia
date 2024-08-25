@@ -23,10 +23,8 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
       signals:
         void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients);
 
-      public slots:
-        void selectNode(const opcua_qt::abstraction::NodeId& node) override;
-
       private slots:
+        void selectNode(const opcua_qt::abstraction::NodeId& node) override;
         void onCurrentNodeChanged(const QModelIndex& current);
 
       private:

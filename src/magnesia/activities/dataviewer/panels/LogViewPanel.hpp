@@ -26,7 +26,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
 
         [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
 
-      public slots:
+      private slots:
         void changedLogLevel(opcua_qt::LogLevel level);
         void log(const opcua_qt::LogEntry& entry);
         void saveLog();

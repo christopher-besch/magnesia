@@ -19,7 +19,7 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
 
         [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
 
-      public slots:
+      private slots:
         void selectNode(const opcua_qt::abstraction::NodeId& node) override;
 
       private:

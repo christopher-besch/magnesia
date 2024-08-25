@@ -52,7 +52,7 @@ namespace magnesia::activities::settings {
 
         // TODO: maybe focus specific certificate and keys too
 
-      public slots:
+      private slots:
         /**
          * To be called when a Certificate was changed
          *
