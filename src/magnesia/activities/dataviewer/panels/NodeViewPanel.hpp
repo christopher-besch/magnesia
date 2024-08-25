@@ -21,7 +21,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
 
       signals:
-        void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients);
+        void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::PanelType recipients);
 
       private slots:
         void selectNode(const opcua_qt::abstraction::NodeId& node) override;

@@ -20,7 +20,7 @@
 
 namespace magnesia::activities::dataviewer::panels::treeview_panel {
     TreeViewPanel::TreeViewPanel(DataViewer* dataviewer, QWidget* parent)
-        : Panel(dataviewer, Panels::treeview, parent), m_tree_view(new QTreeView(this)),
+        : Panel(dataviewer, PanelType::treeview, parent), m_tree_view(new QTreeView(this)),
           m_model(new TreeViewModel(this)) {
         auto* connection = dataviewer->getConnection();
         auto* root_node  = connection->getRootNode();
@@ -40,13 +40,13 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         connect(this, &TreeViewPanel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
 
         connect(m_tree_view, &QTreeView::clicked, this,
-                [this](QModelIndex index) { indexSelected(index, Panels::attribute | Panels::reference_view); });
+                [this](QModelIndex index) { indexSelected(index, PanelType::attribute | PanelType::reference_view); });
 
         connect(m_tree_view, &QTreeView::doubleClicked, this,
-                [this](QModelIndex index) { indexSelected(index, Panels::node); });
+                [this](QModelIndex index) { indexSelected(index, PanelType::node); });
     }
 
-    void TreeViewPanel::indexSelected(QModelIndex index, panels::Panels recipients) {
+    void TreeViewPanel::indexSelected(QModelIndex index, panels::PanelType recipients) {
         auto* node = TreeViewModel::getNode(index);
         if (node == nullptr) {
             return;

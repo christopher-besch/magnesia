@@ -8,12 +8,12 @@
 #include <QWidget>
 
 namespace magnesia::activities::dataviewer {
-    Panel::Panel(DataViewer* dataviewer, panels::Panels panel, QWidget* parent)
+    Panel::Panel(DataViewer* dataviewer, panels::PanelType panel, QWidget* parent)
         : QWidget(parent), m_panel_type(panel), m_dataviewer(dataviewer) {
         connect(m_dataviewer, &DataViewer::nodeSelected, this, &Panel::selectNodeAll);
     }
 
-    void Panel::selectNodeAll(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients) {
+    void Panel::selectNodeAll(const opcua_qt::abstraction::NodeId& node, panels::PanelType recipients) {
         if ((recipients & m_panel_type) == m_panel_type) {
             selectNode(node);
         }

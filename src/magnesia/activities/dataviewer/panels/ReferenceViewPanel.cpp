@@ -17,7 +17,7 @@
 
 namespace magnesia::activities::dataviewer::panels::reference_view_panel {
     ReferenceViewPanel::ReferenceViewPanel(DataViewer* data_viewer, QWidget* parent)
-        : Panel(data_viewer, Panels::reference_view, parent),
+        : Panel(data_viewer, PanelType::reference_view, parent),
           m_reference_view_model(new ReferenceViewModel(data_viewer->getConnection(), this)),
           m_table_view(new QTableView) {
         m_table_view->setModel(m_reference_view_model);

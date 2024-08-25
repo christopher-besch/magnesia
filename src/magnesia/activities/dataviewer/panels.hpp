@@ -37,7 +37,7 @@
 
 namespace magnesia::activities::dataviewer::panels {
     /**
-     * List of registered panels used to fill the UI. Add your panels metadata here and an entry to `panels::Panels`.
+     * List of registered panels used to fill the UI. Add your panels metadata here and an entry to `panels::PanelType`.
      */
     inline constexpr std::array all{
         log_view_panel::metadata,       treeview_panel::metadata,  attribute_view_panel::metadata,
@@ -48,7 +48,7 @@ namespace magnesia::activities::dataviewer::panels {
      * Bitset used internally for identifying panel types at runtime. Add your panels here and it's metadata to
      * `panels::all`.
      */
-    enum class Panels : unsigned {
+    enum class PanelType : unsigned {
         treeview       = 0x1 << 1,
         attribute      = 0x1 << 2,
         log_view       = 0x1 << 3,
@@ -61,19 +61,19 @@ namespace magnesia::activities::dataviewer::panels {
      *
      * @see MAGNESIA_BIN_OPERATOR(type, op)
      */
-    MAGNESIA_BIN_OPERATOR(Panels, &);
+    MAGNESIA_BIN_OPERATOR(PanelType, &);
     /**
      * `operator|` and `operator|=` implementation
      *
      * @see MAGNESIA_BIN_OPERATOR(type, op)
      */
-    MAGNESIA_BIN_OPERATOR(Panels, |);
+    MAGNESIA_BIN_OPERATOR(PanelType, |);
     /**
      * `operator^` and `operator^=` implementation
      *
      * @see MAGNESIA_BIN_OPERATOR(type, op)
      */
-    MAGNESIA_BIN_OPERATOR(Panels, ^);
+    MAGNESIA_BIN_OPERATOR(PanelType, ^);
 } // namespace magnesia::activities::dataviewer::panels
 
 #undef MAGNESIA_BIN_OPERATOR

@@ -9,6 +9,6 @@ namespace magnesia::activities::dataviewer {
     } // namespace layout
 
     namespace panels {
-        enum class Panels : unsigned;
+        enum class PanelType : unsigned;
     } // namespace panels
 } // namespace magnesia::activities::dataviewer
