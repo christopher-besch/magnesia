@@ -39,11 +39,12 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
         connect(this, &TreeViewPanel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
 
-        connect(m_tree_view, &QTreeView::clicked, this,
-                [this](QModelIndex index) { indexSelected(index, PanelType::attribute | PanelType::reference_view); });
+        connect(m_tree_view, &QTreeView::clicked, this, [this](QModelIndex index) {
+            indexSelected(index, PanelType::attributeview | PanelType::referenceview);
+        });
 
         connect(m_tree_view, &QTreeView::doubleClicked, this,
-                [this](QModelIndex index) { indexSelected(index, PanelType::node); });
+                [this](QModelIndex index) { indexSelected(index, PanelType::nodeview); });
     }
 
     void TreeViewPanel::indexSelected(QModelIndex index, panels::PanelTypes recipients) {

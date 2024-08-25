@@ -23,10 +23,10 @@ namespace magnesia::activities::dataviewer::panels {
      * `panels::all`.
      */
     enum class PanelType : unsigned {
-        treeview       = 0x1 << 1,
-        attribute      = 0x1 << 2,
-        log_view       = 0x1 << 3,
-        reference_view = 0x1 << 4,
-        node           = 0x1 << 5,
+        treeview      = 0x1 << 1,
+        attributeview = 0x1 << 2,
+        logview       = 0x1 << 3,
+        referenceview = 0x1 << 4,
+        nodeview      = 0x1 << 5,
     };
 } // namespace magnesia::activities::dataviewer::panels

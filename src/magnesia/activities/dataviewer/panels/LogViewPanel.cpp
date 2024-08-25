@@ -25,7 +25,7 @@
 
 namespace magnesia::activities::dataviewer::panels::log_view_panel {
     LogViewPanel::LogViewPanel(DataViewer* dataviewer, QWidget* parent)
-        : Panel(dataviewer, PanelType::log_view, log_view_panel::metadata, parent),
+        : Panel(dataviewer, PanelType::logview, log_view_panel::metadata, parent),
           m_log_view_model(new LogViewModel(this)), m_table_view(new QTableView(this)),
           m_log_level_combo_box(new QComboBox(this)) {
         m_table_view->setModel(m_log_view_model);

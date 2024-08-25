@@ -22,7 +22,7 @@
 
 namespace magnesia::activities::dataviewer::panels::node_view_panel {
     NodeViewPanel::NodeViewPanel(DataViewer* dataviewer, QWidget* parent)
-        : Panel(dataviewer, PanelType::node, node_view_panel::metadata, parent),
+        : Panel(dataviewer, PanelType::nodeview, node_view_panel::metadata, parent),
           m_model(new NodeViewModel(dataviewer, this)), m_table_view(new QTableView) {
         m_table_view->setModel(m_model);
         m_table_view->horizontalHeader()->setStretchLastSection(true);
@@ -61,7 +61,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
             return;
         }
 
-        Q_EMIT nodeSelected(node->getNodeId(), PanelType::attribute | PanelType::reference_view);
+        Q_EMIT nodeSelected(node->getNodeId(), PanelType::attributeview | PanelType::referenceview);
     }
 
     void NodeViewPanel::selectNode(const opcua_qt::abstraction::NodeId& node_id) {
