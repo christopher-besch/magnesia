@@ -65,7 +65,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         connect(dataviewer->getLogger(), &opcua_qt::Logger::logEntryAdded, this, &LogViewPanel::log);
         connect(m_clear_log_button, &QPushButton::clicked, m_log_view_model, &LogViewModel::clearLogs);
         connect(m_save_log_button, &QPushButton::clicked, this, &LogViewPanel::saveLog);
-        connect(m_log_level_combo_box, &QComboBox::currentIndexChanged, [this](int /*index*/) {
+        connect(m_log_level_combo_box, &QComboBox::currentIndexChanged, [this] {
             auto level = m_log_level_combo_box->currentData().value<opcua_qt::LogLevel>();
             this->changedLogLevel(level);
         });

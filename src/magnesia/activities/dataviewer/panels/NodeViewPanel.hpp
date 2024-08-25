@@ -27,7 +27,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         void selectNode(const opcua_qt::abstraction::NodeId& node) override;
 
       private slots:
-        void onCurrentNodeChanged(const QModelIndex& current, const QModelIndex& previous);
+        void onCurrentNodeChanged(const QModelIndex& current);
 
       private:
         NodeViewModel* m_model;

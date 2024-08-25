@@ -60,7 +60,7 @@ namespace magnesia::activities::settings {
          *
          * @see StorageManager::certificateChanged
          */
-        void onCertificateChange(StorageId cert_id);
+        void onCertificateChange();
         /**
          * To be called when a Key was changed
          *
@@ -68,7 +68,7 @@ namespace magnesia::activities::settings {
          *
          * @see StorageManager::keyChanged
          */
-        void onKeyChange(StorageId key_id);
+        void onKeyChange();
         /**
          * To be called when an ApplicationCertificate was changed
          *
@@ -76,7 +76,7 @@ namespace magnesia::activities::settings {
          *
          * @see StorageManager::applicationCertificateChanged
          */
-        void onApplicationCertificateChange(StorageId cert_id);
+        void onApplicationCertificateChange();
         /**
          * To be called when a Layout was changed
          *
@@ -84,7 +84,7 @@ namespace magnesia::activities::settings {
          *
          * @see StorageManager::layoutChanged
          */
-        void onLayoutChange(StorageId layout_id);
+        void onLayoutChange();
         /**
          * To be called when a HistoricServerConnection was changed
          *
@@ -92,7 +92,7 @@ namespace magnesia::activities::settings {
          *
          * @see StorageManager::historicServerConnectionChanged
          */
-        void onHistoricServerConnectionChange(StorageId server_con_id);
+        void onHistoricServerConnectionChange();
         /**
          * To be called when a setting domain was defined.
          *
@@ -100,7 +100,7 @@ namespace magnesia::activities::settings {
          *
          * @see SettingsManager::settingDomainDefined
          */
-        void onSettingDomainDefined(const Domain& domain);
+        void onSettingDomainDefined();
         /**
          * To be called when a Setting was changed
          *
@@ -108,7 +108,7 @@ namespace magnesia::activities::settings {
          *
          * @see StorageManager::settingChanged
          */
-        void onSettingChanged(const SettingKey& key);
+        void onSettingChanged();
 
       private:
         void reCreateSettings();

@@ -167,45 +167,45 @@ namespace magnesia::activities::settings {
         connect(settings_manager, &SettingsManager::settingChanged, this, &Settings::onSettingChanged);
     }
 
-    void Settings::onCertificateChange(StorageId /*cert_id*/) {
+    void Settings::onCertificateChange() {
         setUpdatesEnabled(false);
         reCreateCertificates();
         reCreateSettings();
         setUpdatesEnabled(true);
     }
 
-    void Settings::onKeyChange(StorageId /*key_id*/) {
+    void Settings::onKeyChange() {
         setUpdatesEnabled(false);
         reCreateKeys();
         reCreateSettings();
         setUpdatesEnabled(true);
     }
 
-    void Settings::onApplicationCertificateChange(StorageId /*cert_id*/) {
+    void Settings::onApplicationCertificateChange() {
         setUpdatesEnabled(false);
         reCreateSettings();
         setUpdatesEnabled(true);
     }
 
-    void Settings::onLayoutChange(StorageId /*layout_id*/) {
+    void Settings::onLayoutChange() {
         setUpdatesEnabled(false);
         reCreateSettings();
         setUpdatesEnabled(true);
     }
 
-    void Settings::onHistoricServerConnectionChange(StorageId /*server_con_id*/) {
+    void Settings::onHistoricServerConnectionChange() {
         setUpdatesEnabled(false);
         reCreateSettings();
         setUpdatesEnabled(true);
     }
 
-    void Settings::onSettingDomainDefined(const Domain& /*domain*/) {
+    void Settings::onSettingDomainDefined() {
         setUpdatesEnabled(false);
         reCreateSettings();
         setUpdatesEnabled(true);
     }
 
-    void Settings::onSettingChanged(const SettingKey& /*key*/) {
+    void Settings::onSettingChanged() {
         // TODO: do this better
         // heuristic: when this tab is visible the user probably didn't change anything somewhere else and this event is
         // coming from the Settings itself
