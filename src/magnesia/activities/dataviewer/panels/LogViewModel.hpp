@@ -1,28 +1,29 @@
 #pragma once
 
-#include "../../../opcua_qt/LogEntry.hpp"
-#include "../../../opcua_qt/abstraction/LogCategory.hpp"
-
-#include <vector>
+#include "../../../opcua_qt/Logger.hpp"
+#include "../../../opcua_qt/abstraction/LogLevel.hpp"
 
 #include <QAbstractTableModel>
+#include <QComboBox>
+#include <QModelIndex>
 #include <QObject>
+#include <QSortFilterProxyModel>
+#include <QTableView>
+#include <QVariant>
+#include <QWidget>
 #include <Qt>
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::dataviewer::panels::log_view_panel {
     /**
      * @class LogViewModel
-     * @brief Model for the LogViewPanel.
+     * @brief Model for the LogViewPanel
      */
     class LogViewModel : public QAbstractTableModel {
         Q_OBJECT
 
       public:
-        /**
-         * @param parent Parent of the LogViewModel.
-         */
-        explicit LogViewModel(QObject* parent = nullptr);
+        explicit LogViewModel(opcua_qt::Logger* logger, QObject* parent = nullptr);
 
         [[nodiscard]] int      rowCount(const QModelIndex& parent = QModelIndex()) const override;
         [[nodiscard]] int      columnCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -30,43 +31,48 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation,
                                           int role = Qt::DisplayRole) const override;
 
-        /**
-         * Loads log lines inside the view.
-         *
-         * @param log_lines Log lines of the node.
-         */
-        void setLogLines(const std::vector<opcua_qt::LogEntry>& log_lines);
+      private:
+        friend class LogFilterModel;
 
-        /**
-         * Saves the log to a file.
-         *
-         * @param file_name Name of the file.
-         * @return whether or not saving was successful.
-         */
-        bool saveLogToFile(const QString& file_name);
+        enum {
+            LevelColumn,
+            CategoryColumn,
+            MessageColumn,
 
-        /**
-         * Retrieves the log lines of the view.
-         *
-         * @return List containing the log entries of the node.
-         */
-        [[nodiscard]] const std::vector<opcua_qt::LogEntry>& getLogLines() const;
-
-      public slots:
-
-        /**
-         * Adds a Log line into the view.
-         *
-         * @param entry Log entry to be added.
-         */
-        void addLogLine(const opcua_qt::LogEntry& entry);
-
-        /**
-         * Clears the logs in the view.
-         */
-        void clearLogs();
+            COLUMN_COUNT,
+        };
 
       private:
-        std::vector<opcua_qt::LogEntry> m_log_lines;
+        opcua_qt::Logger* m_logger;
+    };
+
+    /**
+     * @class LogFilterModel
+     * @brief Proxy model to enable the LogViewPanel to filter log entries
+     */
+    class LogFilterModel : public QSortFilterProxyModel {
+        Q_OBJECT
+
+      public:
+        using QSortFilterProxyModel::QSortFilterProxyModel;
+
+        [[nodiscard]] bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
+
+        /**
+         * Set minimum log level used to filter rows
+         *
+         * @param min_level the new minimum log level
+         */
+        void setMinLevel(opcua_qt::LogLevel min_level);
+        /**
+         * Set minimum log entry row. Used to clear a panel without clearing underlying data.
+         *
+         * @param row the new minimum log entry row
+         */
+        void setMinimumRow(int row);
+
+      private:
+        opcua_qt::LogLevel m_min_level{};
+        int                m_min_row{};
     };
 } // namespace magnesia::activities::dataviewer::panels::log_view_panel

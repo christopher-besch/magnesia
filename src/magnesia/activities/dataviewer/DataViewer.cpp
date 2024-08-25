@@ -197,7 +197,7 @@ namespace magnesia::activities::dataviewer {
                                {"data":{},"id":"referenceview","type":"panel"}
                              ],"splitter_state":"AAAA/wAAAAEAAAACAAAANgAAADYA/////wEAAAACAA==","type":"layout"}
                            ],"splitter_state":"AAAA/wAAAAEAAAADAAABAgAAASQAAAEkAP////8BAAAAAQA=","type":"layout"},
-                           {"data":{},"id":"logview","type":"panel"}
+                           {"data":{"level":2},"id":"logview","type":"panel"}
                          ],"splitter_state":"AAAA/wAAAAEAAAACAAAA5AAAADYA/////wEAAAACAA==","type":"layout"}
                        ],"splitter_state":"AAAA/wAAAAEAAAABAAABJAD/////AQAAAAEA","type":"layout"}
                    )json"),

@@ -1,9 +1,8 @@
 #pragma once
 
 #include "LogEntry.hpp"
-#include "abstraction/LogLevel.hpp"
 
-#include <set>
+#include <cstddef>
 #include <vector>
 
 #include <open62541pp/Logger.h>
@@ -27,24 +26,25 @@ namespace magnesia::opcua_qt {
          * @param entry a LogEntry
          */
         void log(LogEntry entry) noexcept;
-        /**
-         * @brief returns a list of entries that match the log level
-         *
-         * @param levels
-         *
-         * @return log entries
-         */
-        [[nodiscard]] std::vector<LogEntry> getLogForLevel(const std::set<LogLevel>& levels) const noexcept;
 
         /**
          * Retrieves the OPC UA logger.
          */
         opcua::Logger getOPCUALogger() noexcept;
 
+        /**
+         * Provides access to all log entries.
+         *
+         * @return vector of all log entries
+         */
+        [[nodiscard]] const std::vector<LogEntry>& getEntries() const {
+            return m_log_entries;
+        }
+
       private:
         std::vector<LogEntry> m_log_entries;
 
       signals:
-        void logEntryAdded(LogEntry& entry);
+        void logEntryAdded(std::size_t index);
     };
 } // namespace magnesia::opcua_qt
