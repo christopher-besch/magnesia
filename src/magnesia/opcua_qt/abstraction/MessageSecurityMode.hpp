@@ -4,7 +4,8 @@
 
 namespace magnesia::opcua_qt {
     /**
-     * The security mode of a connection.
+     * @class MessageSecurityMode
+     * @brief The security mode of a connection.
      *
      * @see Connection
      */

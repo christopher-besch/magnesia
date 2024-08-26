@@ -6,7 +6,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Parameters for a MonitoredItem
+     * @class MonitoringParameters
+     * @brief Parameters for a MonitoredItem
      *
      * @see MonitoredItem
      *
@@ -14,6 +15,9 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class MonitoringParameters {
       public:
+        /**
+         * @param parameters Monitoring parameters.
+         */
         explicit MonitoringParameters(opcua::services::MonitoringParametersEx parameters);
 
         /**

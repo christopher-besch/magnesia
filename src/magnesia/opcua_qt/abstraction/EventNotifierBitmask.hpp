@@ -10,7 +10,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * A bitmaks for EventNotifiers.
+     * @class EventNotifierBitmask
+     * @brief A bitmask for EventNotifiers.
      *
      * @see EventNotifier
      */

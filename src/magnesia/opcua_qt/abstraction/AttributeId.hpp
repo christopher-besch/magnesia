@@ -4,7 +4,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Identifiers for node attributes.
+     * @class AttributeId
+     * @brief Identifiers for node attributes.
      *
      * See https://reference.opcfoundation.org/Core/Part3/v105/docs/5.9
      */

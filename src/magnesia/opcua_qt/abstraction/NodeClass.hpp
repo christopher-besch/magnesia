@@ -6,7 +6,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * All NodeClasses.
+     * @class NodeClass
+     * @brief All NodeClasses as an Enumeration
      *
      * @see Node
      * @see VariableNode

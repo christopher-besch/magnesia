@@ -12,7 +12,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Contains a value as a Variant and metadata about it.
+     * @class DataValue
+     * @brief Contains a value as a Variant and metadata about it.
      *
      * @see Variant
      *

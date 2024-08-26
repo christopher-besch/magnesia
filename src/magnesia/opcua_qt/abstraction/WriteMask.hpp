@@ -6,7 +6,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Indicates which attributes of a node a writeable.
+     * @class WriteMask
+     * @brief Indicates which attributes of a node a writeable.
      *
      * See https://reference.opcfoundation.org/Core/Part3/v105/docs/8.60
      */

@@ -6,7 +6,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * A text in a translation specified by the locale field.
+     * @class LocalizedText
+     * @brief A text in a translation specified by the locale field.
      *
      * See https://reference.opcfoundation.org/Core/Part3/v105/docs/8.5/
      */

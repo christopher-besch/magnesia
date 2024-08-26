@@ -8,7 +8,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Used for the BrowseName attribute.
+     * @class QualifiedName
+     * @brief Used for the BrowseName attribute.
      *
      * @see Node
      *
@@ -16,7 +17,15 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class QualifiedName {
       public:
+        /**
+         * @param qualified_name The qualified name.
+         */
         explicit QualifiedName(opcua::QualifiedName qualified_name);
+
+        /**
+         * @param namespace_index   Index of the Namespace.
+         * @param name              The name
+         */
         QualifiedName(uint16_t namespace_index, QString& name);
 
         /**

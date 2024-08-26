@@ -8,7 +8,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Description of a reference of a Node.
+     * @class ReferenceDescription
+     * @brief Description of a reference of a Node.
      *
      * @see Node
      *
@@ -16,6 +17,9 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class ReferenceDescription {
       public:
+        /**
+         * @param reference_description Reference description
+         */
         explicit ReferenceDescription(opcua::ReferenceDescription reference_description);
 
         /**

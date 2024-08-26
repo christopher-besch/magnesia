@@ -9,7 +9,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Used to uniquely identify a node within the global namespace.
+     * @class NodeId
+     * @brief Used to uniquely identify a node within the global namespace.
      *
      * @see Node
      *
@@ -17,7 +18,11 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class NodeId {
       public:
+        /**
+         * @param node_id Id of the Node.
+         */
         explicit NodeId(opcua::NodeId node_id);
+
         /**
          * Get the namespace index.
          */

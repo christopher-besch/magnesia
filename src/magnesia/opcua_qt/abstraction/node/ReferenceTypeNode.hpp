@@ -12,7 +12,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Subclass of Node for ReferenceType NodeClass.
+     * @class ReferenceTypeNode
+     * @brief Subclass of Node for ReferenceType NodeClass.
      *
      * @see Node
      * @see NodeClass
@@ -21,6 +22,10 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class ReferenceTypeNode : public Node {
       public:
+        /**
+         * @param node Node
+         * @param parent Parent of the ReferenceTypeNode.
+         */
         explicit ReferenceTypeNode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] std::optional<LocalizedText> getInverseName() override;

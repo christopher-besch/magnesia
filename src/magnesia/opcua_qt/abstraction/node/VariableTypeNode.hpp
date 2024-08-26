@@ -23,7 +23,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Subclass of Node for VariableType NodeClass.
+     * @class VariableTypeNode
+     * @brief Subclass of Node for VariableType NodeClass.
      *
      * @see Node
      * @see NodeClass
@@ -32,6 +33,10 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class VariableTypeNode : public Node {
       public:
+        /**
+         * @param node
+         * @param parent Parent of the VariableTypeNode.
+         */
         explicit VariableTypeNode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] std::optional<DataValue>            getDataValue() override;

@@ -6,12 +6,16 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Holds parameters for a Subscription.
+     * @class SubscriptionParameters
+     * @brief Holds parameters for a Subscription.
      *
      * @see Subscription
      */
     class SubscriptionParameters {
       public:
+        /**
+         * @param parameters Parameters for a subscription.
+         */
         explicit SubscriptionParameters(opcua::services::SubscriptionParameters parameters);
 
         /**

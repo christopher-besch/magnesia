@@ -14,7 +14,15 @@ namespace magnesia::opcua_qt {
      */
     class Endpoint {
       public:
+        /**
+         * @param endpoint Description of the endpoint.
+         */
         explicit Endpoint(opcua::EndpointDescription endpoint);
+        /**
+         * @param endpoint_url                      URL of the endpoint
+         * @param endpoint_security_policy_uri      Security policy of the endpoint.
+         * @param endpoint_message_security_mode    The security mode for the messages of the endpoint.
+         */
         explicit Endpoint(const QUrl& endpoint_url, const QString& endpoint_security_policy_uri,
                           opcua_qt::MessageSecurityMode endpoint_message_security_mode);
         /**

@@ -10,12 +10,16 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * A bitmask for WriteMasks.
+     * @class WriteMaskBitmask
+     * @brief A bitmask for WriteMasks.
      *
      * @see WriteMask
      */
     class WriteMaskBitmask {
       public:
+        /**
+         * @param bitmask Bitmask of a WriteMasks.
+         */
         explicit WriteMaskBitmask(opcua::Bitmask<opcua::WriteMask> bitmask);
 
         /**

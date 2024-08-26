@@ -12,7 +12,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Subclass of Node for Object NodeClass.
+     * @class ObjectNode
+     * @brief Subclass of Node for Object NodeClass.
      *
      * @see Node
      * @see NodeClass
@@ -21,6 +22,10 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class ObjectNode : public Node {
       public:
+        /**
+         * @param node Node
+         * @param parent Parent of the ObjectNode.
+         */
         explicit ObjectNode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] std::optional<EventNotifierBitmask> getEventNotifierType() override;

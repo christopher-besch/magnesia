@@ -11,7 +11,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Subclass of Node for DataType NodeClass.
+     * @class DataTypeNode
+     * @brief Subclass of Node for DataType NodeClass.
      *
      * @see Node
      * @see NodeClass
@@ -20,6 +21,10 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class DataTypeNode : public Node {
       public:
+        /**
+         * @param node Node
+         * @param parent Parent of the DataTypeNode.
+         */
         explicit DataTypeNode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] std::optional<bool> isAbstract() override;

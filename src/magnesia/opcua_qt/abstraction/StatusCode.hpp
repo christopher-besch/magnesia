@@ -8,12 +8,16 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * A numerical value that is used to report the outcome of an operation performed by an OPC UA Server.
+     * @class StatusCode
+     * @brief A numerical value that is used to report the outcome of an operation performed by an OPC UA Server.
      *
      * See https://reference.opcfoundation.org/Core/Part4/v105/docs/7.39
      */
     class StatusCode {
       public:
+        /**
+         * @param status The StatusCode.
+         */
         explicit StatusCode(opcua::StatusCode status);
 
         /**

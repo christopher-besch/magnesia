@@ -36,6 +36,9 @@ namespace magnesia::opcua_qt {
          */
         [[nodiscard]] std::vector<LogEntry> getLogForLevel(const std::set<LogLevel>& levels) const noexcept;
 
+        /**
+         * Retrieves the OPC UA logger.
+         */
         opcua::Logger getOPCUALogger() noexcept;
 
       private:

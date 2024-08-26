@@ -11,8 +11,18 @@
 #include <QVariant>
 
 namespace magnesia::opcua_qt::abstraction {
+
+    /**
+     * @class Variant
+     * @brief Union of different OPC UA types.
+     *
+     * See https://open62541pp.github.io/open62541pp/classopcua_1_1Variant.html
+     */
     class Variant {
       public:
+        /**
+         * @param variant OPC UA variant.
+         */
         explicit Variant(opcua::Variant variant);
 
         /**
