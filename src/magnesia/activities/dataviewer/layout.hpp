@@ -22,8 +22,9 @@
 
 namespace magnesia::activities::dataviewer::layout {
     /**
-     * Helper class that wraps a `QWidget` in a panel with a toolbar to add the layout actions and a selector for the
-     * type of panel to display.
+     * @class PanelWrapper
+     * @brief Helper class that wraps a `QWidget` in a panel with a toolbar to add the layout actions and a selector for
+     * the type of panel to display.
      */
     class PanelWrapper : public QFrame {
         Q_OBJECT
@@ -82,7 +83,8 @@ namespace magnesia::activities::dataviewer::layout {
     };
 
     /**
-     * Provides a 2D panel layouting system for the `DataViewer`.
+     * @class PanelLayout
+     * @brief Provides a 2D panel layouting system for the `DataViewer`.
      */
     class PanelLayout : public QSplitter {
         Q_OBJECT
@@ -120,8 +122,19 @@ namespace magnesia::activities::dataviewer::layout {
          */
         void insertWidget(int index, class Panel* panel = nullptr);
 
+        /**
+         * Saves the current state as Layout.
+         *
+         * @return JSON document containing the layout.
+         */
         [[nodiscard]] QJsonDocument saveState() const;
-        bool                        restoreState(const QJsonDocument& state);
+
+        /**
+         * Restores the former state of panels stored as Layout.
+         *
+         * @return true iff restoring the state succeeded.
+         */
+        bool restoreState(const QJsonDocument& state);
 
       protected:
         /**

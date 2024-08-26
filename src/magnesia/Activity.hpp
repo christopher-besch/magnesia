@@ -5,7 +5,8 @@
 
 namespace magnesia {
     /**
-     * Base class for implementing new activities.
+     * @class Activity
+     * @brief Base class for implementing new activities.
      *
      * @see ActivityMetadata
      * @see ConfigWidget

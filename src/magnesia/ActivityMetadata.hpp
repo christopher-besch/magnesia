@@ -6,6 +6,9 @@
 
 namespace magnesia {
     /**
+     * @class ActivityMetadata
+     * @brief A struct connecting activities to the application.
+     *
      * Metadata struct for activities. Every activity needs an instance of this struct. It defines what code to run on
      * application startup and what `ConfigWidget` to display in the AddActivity Activity. These are the entry points
      * available to activity developers.

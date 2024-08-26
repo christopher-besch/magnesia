@@ -16,10 +16,18 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::dataviewer::panels::node_view_panel {
+    /**
+     * @class NodeViewModel
+     * @brief Model for the NodeViewPanel.
+     */
     class NodeViewModel : public QAbstractTableModel {
         Q_OBJECT
 
       public:
+        /**
+         * @param data_viewer DataViewer displaying the panel.
+         * @param parent Parent of the model.
+         */
         explicit NodeViewModel(DataViewer* data_viewer, QObject* parent = nullptr);
 
         [[nodiscard]] int      rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -29,7 +37,19 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
                                           int role = Qt::DisplayRole) const override;
         bool                   removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
+        /**
+         * Appends a node to the nodeview.
+         *
+         * @param node Node
+         * @param connection Coennection to an OPC UA server.
+         */
         void appendNode(opcua_qt::abstraction::Node* node, opcua_qt::Connection* connection);
+
+        /**
+         * Retrieves a node inside the view.
+         *
+         * @param index Index inside the view.
+         */
         [[nodiscard]] opcua_qt::abstraction::Node* getNode(QModelIndex index) const;
 
       private:

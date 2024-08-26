@@ -6,8 +6,15 @@
 #include <QUrl>
 
 namespace magnesia::activities::settings {
+    /**
+     * @class SettingsUrlHandler
+     * @brief URLHandler for the settings activity.
+     */
     class SettingsUrlHandler : public URLHandler {
       public:
+        /**
+         * @param activity Settings activity opening the url handler.
+         */
         explicit SettingsUrlHandler(Settings* activity);
         bool handleURL(const QUrl& url) override;
 

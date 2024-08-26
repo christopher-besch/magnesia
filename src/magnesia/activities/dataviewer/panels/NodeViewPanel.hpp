@@ -12,13 +12,27 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::dataviewer::panels::node_view_panel {
+    /**
+     * @class NodeViewPanel
+     * @brief Panel for displaying nodes.
+     */
     class NodeViewPanel : public Panel {
         Q_OBJECT
 
       public:
+        /**
+         * @param dataviewer DataViewer displaying the panel.
+         * @param parent Parent of the panel.
+         */
         explicit NodeViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
 
       signals:
+        /**
+         * Emitted when a node is selected.
+         *
+         * @param node Id of the node.
+         * @param recipients Panels effected by the signal.
+         */
         void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::PanelTypes recipients);
 
       private slots:
