@@ -557,12 +557,11 @@ namespace magnesia::activities::dataviewer {
                     default:
                         Q_ASSERT(false);
                 }
-            }
-
-            if (role == ConnectionRole) {
+            } else if (role == Qt::ToolTipRole && index.column() == EndpointSecurityPolicyColumn) {
+                return connection.second.endpoint_security_policy_uri;
+            } else if (role == ConnectionRole) {
                 return QVariant::fromValue(connection.second);
-            }
-            if (role == ConnectionIdRole) {
+            } else if (role == ConnectionIdRole) {
                 return QVariant::fromValue(connection.first);
             }
 
