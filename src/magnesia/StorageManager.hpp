@@ -30,7 +30,8 @@ namespace magnesia {
     };
 
     /**
-     * Base class for handling persistent storage.
+     * @class StorageManager
+     * @brief Base class for handling persistent storage.
      */
     class StorageManager : public QObject {
         Q_OBJECT
@@ -327,6 +328,7 @@ namespace magnesia {
          * doesn't fail when setting not set
          */
         virtual void resetSetting(const SettingKey& key) = 0;
+
         // Most of these could receive the same name with function overloading.
         // This is not done because doing so causes confusion when types are implicitly cast and the setting is inserted
         // into the wrong relation.

@@ -5,10 +5,13 @@
 
 namespace magnesia {
     /**
-     * The layout of panels inside a tab.
+     * @class Layout
+     * @brief The layout of panels inside a tab.
      */
     struct Layout {
-        QString       name;
+        ///  Name of the layout.
+        QString name;
+        /// JSON Document containing the layout.
         QJsonDocument json_data;
     };
 } // namespace magnesia

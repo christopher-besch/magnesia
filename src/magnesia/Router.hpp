@@ -11,7 +11,8 @@
 
 namespace magnesia {
     /**
-     * Interface to implement custom URL handlers for the `Router` class.
+     * @class URLHandler
+     * @brief Interface to implement custom URL handlers for the `Router` class.
      */
     class URLHandler : public QObject {
         Q_OBJECT
@@ -28,6 +29,10 @@ namespace magnesia {
         virtual bool handleURL(const QUrl& url) = 0;
     };
 
+    /**
+     * @class Router
+     * @brief Connects different parts of the application to enable communication between them.
+     */
     class Router : public QObject {
         Q_OBJECT
 

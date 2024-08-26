@@ -31,11 +31,14 @@ namespace magnesia {
     using LayoutGroup = QString;
 
     /**
-     * The identifier for a setting.
+     * @class SettingKey
+     * @brief The identifier for a setting.
      */
     struct SettingKey {
+        /// Name of the Setting.
         SettingName name;
-        Domain      domain;
+        /// Domain containing the setting.
+        Domain domain;
     };
 
     inline bool operator<(const SettingKey& lhs, const SettingKey& rhs) {
