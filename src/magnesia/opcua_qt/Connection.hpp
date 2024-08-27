@@ -8,13 +8,13 @@
 #include "abstraction/Subscription.hpp"
 #include "abstraction/node/Node.hpp"
 
+#include <mutex>
 #include <optional>
 #include <span>
 
 #include <open62541pp/AccessControl.h>
 #include <open62541pp/Client.h>
 
-#include <QMutex>
 #include <QObject>
 #include <QSslCertificate>
 #include <QTimer>
@@ -117,6 +117,6 @@ namespace magnesia::opcua_qt {
         std::optional<opcua::Login> m_login;
         QTimer                      m_timer;
         // locked when connection is established
-        QMutex m_connect_mutex;
+        std::mutex m_connect_mutex;
     };
 } // namespace magnesia::opcua_qt

@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <mutex>
 #include <optional>
 #include <ranges>
 #include <utility>
@@ -20,7 +21,6 @@
 #include <open62541pp/Result.h>
 
 #include <QLoggingCategory>
-#include <QMutexLocker>
 #include <QSslCertificate>
 #include <QString>
 #include <QThreadPool>
@@ -39,7 +39,7 @@ namespace {
 
 namespace magnesia::opcua_qt {
     ConnectionBuilder& ConnectionBuilder::url(const QUrl& url) noexcept {
-        const QMutexLocker locker(&m_get_endpoint_mutex);
+        const std::unique_lock locker(m_get_endpoint_mutex);
 
         m_url = url;
         return *this;
@@ -133,7 +133,7 @@ namespace magnesia::opcua_qt {
     }
 
     opcua::Result<std::vector<Endpoint>> ConnectionBuilder::findEndopintsSynchronously() {
-        const QMutexLocker locker(&m_get_endpoint_mutex);
+        const std::unique_lock locker(m_get_endpoint_mutex);
 
         Q_ASSERT(m_url.has_value());
         try {

@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <mutex>
 #include <optional>
 #include <span>
 #include <string_view>
@@ -23,7 +24,6 @@
 #include <open62541pp/Common.h>
 #include <open62541pp/types/Builtin.h>
 
-#include <QMutexLocker>
 #include <QObject>
 #include <QSslCertificate>
 #include <QThreadPool>
@@ -86,7 +86,7 @@ namespace magnesia::opcua_qt {
     }
 
     void Connection::connectSynchronouslyAndRun() {
-        const QMutexLocker locker(&m_connect_mutex);
+        const std::unique_lock locker(m_connect_mutex);
 
         Q_ASSERT(!m_client.isRunning());
         m_client.setSecurityMode(static_cast<opcua::MessageSecurityMode>(m_server_endpoint.getSecurityMode()));

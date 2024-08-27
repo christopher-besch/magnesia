@@ -6,12 +6,12 @@
 #include "Logger.hpp"
 #include "abstraction/Endpoint.hpp"
 
+#include <mutex>
 #include <optional>
 #include <vector>
 
 #include <open62541pp/Result.h>
 
-#include <QMutex>
 #include <QObject>
 #include <QSslCertificate>
 #include <QString>
@@ -157,6 +157,6 @@ namespace magnesia::opcua_qt {
         std::vector<StorageId>   m_trust_list;
         std::vector<StorageId>   m_revoked_list;
         // this mutex protects m_url and m_endpoints
-        QMutex m_get_endpoint_mutex;
+        std::mutex m_get_endpoint_mutex;
     };
 } // namespace magnesia::opcua_qt
