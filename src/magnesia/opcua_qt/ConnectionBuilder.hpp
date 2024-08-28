@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../database_types.hpp"
-#include "ApplicationCertificate.hpp"
 #include "Connection.hpp"
 #include "Logger.hpp"
 #include "abstraction/Endpoint.hpp"
