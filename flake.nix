@@ -45,37 +45,34 @@
         ...
       }: {
         default = pkgs.mkShell {
-          packages = with pkgs;
-            [
-              # faster incremental builds
-              ninja
+          packages = with pkgs; [
+            # faster incremental builds
+            ninja
 
-              # C++ static analysis/formatting
-              llvmPackages_19.clang-tools
-              llvmPackages_19.clang
-              cppcheck
+            # C++ static analysis/formatting
+            llvmPackages_19.clang-tools
+            llvmPackages_19.clang
+            cppcheck
 
-              # CMake static analysis/formatting
-              cmake-language-server
-              cmake-format
+            # CMake static analysis/formatting
+            cmake-language-server
+            cmake-format
 
-              # doc generation
-              doxygen
-              graphviz
-              sphinx
+            # doc generation
+            doxygen
+            graphviz
+            sphinx
 
-              # spell checking
-              codespell
+            # spell checking
+            codespell
 
-              # shell
-              shellcheck
-              shfmt
+            # shell
+            shellcheck
+            shfmt
 
-              sqlite-interactive
-              parallel
-            ]
-            # also C++ static analysis, but platform dependent
-            ++ lib.optionals (lib.meta.availableOn stdenv.hostPlatform clazy) [clazy];
+            sqlite-interactive
+            parallel
+          ];
 
           inputsFrom = [self.packages.${system}.default];
 
