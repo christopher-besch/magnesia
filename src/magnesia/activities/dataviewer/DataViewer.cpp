@@ -40,10 +40,6 @@ namespace {
 } // namespace
 
 namespace magnesia::activities::dataviewer {
-    namespace detail {
-        class LayoutSelectorModel;
-    } // namespace detail
-
     DataViewer::DataViewer(opcua_qt::Connection* connection, opcua_qt::Logger* logger, QWidget* parent)
         : Activity(parent), m_root_layout(new layout::PanelLayout(this, Qt::Horizontal, nullptr)),
           m_connection(connection), m_logger(logger) {
