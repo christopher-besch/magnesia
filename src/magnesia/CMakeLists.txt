@@ -106,6 +106,11 @@ set_target_properties(
     MACOSX_BUNDLE ON
 )
 
+if(WIN32)
+    # without this wingdi.h is included which defines many macros (e.g., ERROR) causing errors
+    target_compile_definitions(magnesia PRIVATE NOGDI)
+endif()
+
 install(
     TARGETS magnesia
     BUNDLE DESTINATION .

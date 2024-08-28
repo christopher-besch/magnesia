@@ -61,7 +61,7 @@ namespace {
 
         if (!QDir{}.mkpath(appdir.absolutePath())) {
             qCCritical(lc_application) << "can't create data directory" << appdir.absolutePath();
-            terminate();
+            magnesia::terminate();
         }
 
         qCInfo(lc_application) << "using data directory" << appdir.absolutePath();

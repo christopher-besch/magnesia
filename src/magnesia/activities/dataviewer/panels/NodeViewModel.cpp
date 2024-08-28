@@ -120,8 +120,6 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
             default:
                 return {};
         }
-
-        return {};
     }
 
     void NodeViewModel::appendNode(Node* node, Connection* connection) {
