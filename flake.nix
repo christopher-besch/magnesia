@@ -54,7 +54,6 @@
               llvmPackages_19.clang-tools
               llvmPackages_19.clang
               cppcheck
-              include-what-you-use
 
               # CMake static analysis/formatting
               cmake-language-server
