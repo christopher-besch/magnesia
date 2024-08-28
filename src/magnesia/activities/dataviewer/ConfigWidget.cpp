@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -23,6 +24,7 @@
 
 #include <open62541pp/Result.h>
 
+#include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QAbstractListModel>
 #include <QAbstractTableModel>
@@ -521,7 +523,6 @@ namespace magnesia::activities::dataviewer {
             connect(storage_manager, &StorageManager::historicServerConnectionChanged, this,
                     &HistoricServerConnectionModel::onHistoricServerConnectionChanged);
 
-            // NOLINTNEXTLINE(misc-include-cleaner): greater is provided by <functional>
             std::ranges::sort(m_connections, std::ranges::greater{},
                               [](const auto& con) { return con.second.last_used; });
         }
@@ -556,12 +557,11 @@ namespace magnesia::activities::dataviewer {
                     default:
                         Q_ASSERT(false);
                 }
-            }
-
-            if (role == ConnectionRole) {
+            } else if (role == Qt::ToolTipRole && index.column() == EndpointSecurityPolicyColumn) {
+                return connection.second.endpoint_security_policy_uri;
+            } else if (role == ConnectionRole) {
                 return QVariant::fromValue(connection.second);
-            }
-            if (role == ConnectionIdRole) {
+            } else if (role == ConnectionIdRole) {
                 return QVariant::fromValue(connection.first);
             }
 
@@ -614,7 +614,7 @@ namespace magnesia::activities::dataviewer {
             Q_ASSERT(connection.has_value());
 
             auto iter =
-                // NOLINTNEXTLINE(misc-include-cleaner): lower_bound is provided by <algorithm>, greater by <functional>
+                // NOLINTNEXTLINE(misc-include-cleaner): lower_bound is provided by <algorithm>
                 std::ranges::lower_bound(m_connections, connection->last_used, std::ranges::greater{},
                                          [](const auto& con) { return con.second.last_used; });
             auto row = static_cast<int>(std::distance(m_connections.begin(), iter));

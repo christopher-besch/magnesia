@@ -3,7 +3,7 @@
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
 #include "../DataViewer.hpp"
 #include "../Panel.hpp"
-#include "../PanelMetadata.hpp"
+#include "../dataviewer_fwd.hpp"
 #include "../panels.hpp"
 #include "TreeViewModel.hpp"
 
@@ -20,7 +20,7 @@
 
 namespace magnesia::activities::dataviewer::panels::treeview_panel {
     TreeViewPanel::TreeViewPanel(DataViewer* dataviewer, QWidget* parent)
-        : Panel(dataviewer, Panels::treeview, parent), m_tree_view(new QTreeView(this)),
+        : Panel(dataviewer, PanelType::treeview, treeview_panel::metadata, parent), m_tree_view(new QTreeView(this)),
           m_model(new TreeViewModel(this)) {
         auto* connection = dataviewer->getConnection();
         auto* root_node  = connection->getRootNode();
@@ -39,23 +39,20 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
         connect(this, &TreeViewPanel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
 
-        connect(m_tree_view, &QTreeView::clicked, this,
-                [&](QModelIndex index) { indexSelected(index, Panels::attribute | Panels::reference_view); });
+        connect(m_tree_view, &QTreeView::clicked, this, [this](QModelIndex index) {
+            indexSelected(index, PanelType::attributeview | PanelType::referenceview);
+        });
 
         connect(m_tree_view, &QTreeView::doubleClicked, this,
-                [&](QModelIndex index) { indexSelected(index, Panels::node); });
+                [this](QModelIndex index) { indexSelected(index, PanelType::nodeview); });
     }
 
-    void TreeViewPanel::indexSelected(QModelIndex index, panels::Panels recipients) {
+    void TreeViewPanel::indexSelected(QModelIndex index, panels::PanelTypes recipients) {
         auto* node = TreeViewModel::getNode(index);
         if (node == nullptr) {
             return;
         }
 
         Q_EMIT nodeSelected(node->getNodeId(), recipients);
-    }
-
-    const PanelMetadata& TreeViewPanel::metadata() const noexcept {
-        return treeview_panel::metadata;
     }
 } // namespace magnesia::activities::dataviewer::panels::treeview_panel

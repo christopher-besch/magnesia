@@ -52,9 +52,7 @@ namespace magnesia::opcua_qt::abstraction {
 
     std::optional<std::vector<quint32>> VariableTypeNode::getArrayDimensions() {
         try {
-            auto                 vector = handle().readArrayDimensions();
-            std::vector<quint32> list{vector.begin(), vector.end()};
-            return list;
+            return handle().readArrayDimensions();
         } catch (opcua::BadStatus&) {
             return std::nullopt;
         }
@@ -64,15 +62,15 @@ namespace magnesia::opcua_qt::abstraction {
         return handle().readIsAbstract();
     }
 
-    void VariableTypeNode::setDataValue(DataValue& value) {
+    void VariableTypeNode::setDataValue(const DataValue& value) {
         handle().writeDataValue(value.handle());
     }
 
-    void VariableTypeNode::setDataValue(Variant& value) {
+    void VariableTypeNode::setDataValue(const Variant& value) {
         handle().writeValue(value.handle());
     }
 
-    void VariableTypeNode::setDataType(NodeId& data_type) {
+    void VariableTypeNode::setDataType(const NodeId& data_type) {
         handle().writeDataType(data_type.handle());
     }
 
@@ -80,7 +78,7 @@ namespace magnesia::opcua_qt::abstraction {
         handle().writeValueRank(static_cast<opcua::ValueRank>(rank));
     }
 
-    void VariableTypeNode::setArrayDimensions(std::vector<quint32>& dimensions) {
+    void VariableTypeNode::setArrayDimensions(const std::vector<quint32>& dimensions) {
         handle().writeArrayDimensions(dimensions);
     }
 

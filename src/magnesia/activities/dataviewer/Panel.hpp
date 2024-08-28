@@ -19,15 +19,17 @@ namespace magnesia::activities::dataviewer {
         [[nodiscard]] virtual QJsonObject saveState() const;
         [[nodiscard]] virtual bool        restoreState(const QJsonObject& data);
 
-        [[nodiscard]] virtual const PanelMetadata& metadata() const noexcept = 0;
+        [[nodiscard]] const PanelMetadata& metadata() const noexcept;
 
       protected:
         /**
          * @param dataviewer the `DataViewer` this panel belongs to.
-         * @param panel the type of this panel. Requires an entry in the `panels::Panels` enum.
+         * @param panel the type of this panel. Requires an entry in the `panels::PanelType` enum.
+         * @param metadata the metadata of this panel
          * @param parent the parent QWidget passed to Qt.
          */
-        explicit Panel(DataViewer* dataviewer, panels::Panels panel, QWidget* parent = nullptr);
+        explicit Panel(DataViewer* dataviewer, panels::PanelType panel, PanelMetadata metadata,
+                       QWidget* parent = nullptr);
 
         [[nodiscard]] DataViewer* getDataViewer() const noexcept;
 
@@ -40,7 +42,7 @@ namespace magnesia::activities::dataviewer {
          * @param node the selected node's id.
          * @param recipients the types of panels that are targeted by this call.
          */
-        virtual void selectNodeAll(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients);
+        virtual void selectNodeAll(const opcua_qt::abstraction::NodeId& node, panels::PanelTypes recipients);
         /**
          * Called when any Panel signals that a node was selected and targets this panel's type. The default
          * implementation is a no-op.
@@ -50,7 +52,8 @@ namespace magnesia::activities::dataviewer {
         virtual void selectNode(const opcua_qt::abstraction::NodeId& node);
 
       private:
-        panels::Panels m_panel_type;
-        DataViewer*    m_dataviewer;
+        panels::PanelType m_panel_type;
+        PanelMetadata     m_metadata;
+        DataViewer*       m_dataviewer;
     };
 } // namespace magnesia::activities::dataviewer

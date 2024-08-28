@@ -1,1 +1,1 @@
-#include "ActivityMetadata.hpp" // IWYU pragma: keep
+#include "ActivityMetadata.hpp"

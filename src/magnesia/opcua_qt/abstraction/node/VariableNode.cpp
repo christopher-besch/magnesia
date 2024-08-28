@@ -48,9 +48,7 @@ namespace magnesia::opcua_qt::abstraction {
 
     std::optional<std::vector<quint32>> VariableNode::getArrayDimensions() {
         try {
-            auto                 vector = handle().readArrayDimensions();
-            std::vector<quint32> list{vector.begin(), vector.end()};
-            return list;
+            return handle().readArrayDimensions();
         } catch (opcua::BadStatus&) {
             return std::nullopt;
         }
@@ -76,15 +74,15 @@ namespace magnesia::opcua_qt::abstraction {
         return handle().readHistorizing();
     }
 
-    void VariableNode::setDataValue(DataValue& value) {
+    void VariableNode::setDataValue(const DataValue& value) {
         handle().writeDataValue(value.handle());
     }
 
-    void VariableNode::setDataValue(Variant& value) {
+    void VariableNode::setDataValue(const Variant& value) {
         handle().writeValue(value.handle());
     }
 
-    void VariableNode::setDataType(NodeId& data_type) {
+    void VariableNode::setDataType(const NodeId& data_type) {
         handle().writeDataType(data_type.handle());
     }
 
@@ -92,7 +90,7 @@ namespace magnesia::opcua_qt::abstraction {
         handle().writeValueRank(static_cast<opcua::ValueRank>(rank));
     }
 
-    void VariableNode::setArrayDimensions(std::vector<quint32>& dimensions) {
+    void VariableNode::setArrayDimensions(const std::vector<quint32>& dimensions) {
         handle().writeArrayDimensions(dimensions);
     }
 

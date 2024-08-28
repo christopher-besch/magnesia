@@ -44,7 +44,7 @@ namespace magnesia::activities::dataviewer {
          * @param node the selected node
          * @param recipients the target panel types
          */
-        void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::Panels recipients);
+        void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::PanelTypes recipients);
 
       private:
         QLayout* buildLayoutSelector();

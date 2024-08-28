@@ -13,10 +13,10 @@ namespace magnesia::opcua_qt::abstraction {
 
     std::vector<std::pair<AccessLevel, bool>> AccessLevelBitmask::getFlags() const {
         return {
-            {getFlagPair(AccessLevel::CURRENT_READ)},    {getFlagPair(AccessLevel::CURRENT_WRITE)},
-            {getFlagPair(AccessLevel::HISTORY_READ)},    {getFlagPair(AccessLevel::HISTORY_WRITE)},
-            {getFlagPair(AccessLevel::SEMANTIC_CHANGE)}, {getFlagPair(AccessLevel::STATUS_WRITE)},
-            {getFlagPair(AccessLevel::TIMESTAMP_WRITE)},
+            getFlagPair(AccessLevel::CURRENT_READ),    getFlagPair(AccessLevel::CURRENT_WRITE),
+            getFlagPair(AccessLevel::HISTORY_READ),    getFlagPair(AccessLevel::HISTORY_WRITE),
+            getFlagPair(AccessLevel::SEMANTIC_CHANGE), getFlagPair(AccessLevel::STATUS_WRITE),
+            getFlagPair(AccessLevel::TIMESTAMP_WRITE),
         };
     }
 

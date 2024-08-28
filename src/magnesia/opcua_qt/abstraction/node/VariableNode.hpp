@@ -44,11 +44,11 @@ namespace magnesia::opcua_qt::abstraction {
         [[nodiscard]] std::optional<double>               getMinimumSamplingInterval() override;
         [[nodiscard]] std::optional<bool>                 isHistorizing() override;
 
-        void setDataValue(DataValue& value) override;
-        void setDataValue(Variant& value) override;
-        void setDataType(NodeId& data_type) override;
+        void setDataValue(const DataValue& value) override;
+        void setDataValue(const Variant& value) override;
+        void setDataType(const NodeId& data_type) override;
         void setValueRank(ValueRank rank) override;
-        void setArrayDimensions(std::vector<quint32>& dimensions) override;
+        void setArrayDimensions(const std::vector<quint32>& dimensions) override;
         void setAccessLevel(AccessLevelBitmask mask) override;
         void setUserAccessLevel(AccessLevelBitmask mask) override;
         void setHistorizing(bool historizing) override;

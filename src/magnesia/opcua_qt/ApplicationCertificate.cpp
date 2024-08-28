@@ -26,7 +26,7 @@
 namespace {
     std::vector<opcua::String> to_opcua_strings(std::span<const QString> list) {
         auto view = list | std::views::transform(&QString::toStdString);
-        return std::vector<opcua::String>{view.begin(), view.end()};
+        return {view.begin(), view.end()};
     }
 } // namespace
 

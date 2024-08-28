@@ -5,28 +5,30 @@
 #include "../../../opcua_qt/abstraction/LogLevel.hpp"
 #include "../DataViewer.hpp"
 #include "../Panel.hpp"
-#include "../PanelMetadata.hpp"
 #include "../panels.hpp"
 #include "LogViewModel.hpp"
 
-#include <vector>
+#include <ranges>
 
-#include <QBoxLayout>
+#include <QAbstractItemView>
 #include <QComboBox>
 #include <QFileDialog>
 #include <QFrame>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QString>
 #include <QTableView>
+#include <QVBoxLayout>
 #include <QVariant>
 #include <QWidget>
 
 namespace magnesia::activities::dataviewer::panels::log_view_panel {
     LogViewPanel::LogViewPanel(DataViewer* dataviewer, QWidget* parent)
-        : Panel(dataviewer, Panels::log_view, parent), m_log_view_model(new LogViewModel(this)),
-          m_table_view(new QTableView(this)), m_log_level_combo_box(new QComboBox(this)) {
+        : Panel(dataviewer, PanelType::logview, log_view_panel::metadata, parent),
+          m_log_view_model(new LogViewModel(this)), m_table_view(new QTableView(this)),
+          m_log_level_combo_box(new QComboBox(this)) {
         m_table_view->setModel(m_log_view_model);
         m_table_view->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_table_view->horizontalHeader()->setStretchLastSection(true);
@@ -64,7 +66,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         connect(dataviewer->getLogger(), &opcua_qt::Logger::logEntryAdded, this, &LogViewPanel::log);
         connect(m_clear_log_button, &QPushButton::clicked, m_log_view_model, &LogViewModel::clearLogs);
         connect(m_save_log_button, &QPushButton::clicked, this, &LogViewPanel::saveLog);
-        connect(m_log_level_combo_box, &QComboBox::currentIndexChanged, [this](int /*index*/) {
+        connect(m_log_level_combo_box, &QComboBox::currentIndexChanged, [this] {
             auto level = m_log_level_combo_box->currentData().value<opcua_qt::LogLevel>();
             this->changedLogLevel(level);
         });
@@ -108,17 +110,9 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
     }
 
     void LogViewPanel::filterLogs() {
-        std::vector<opcua_qt::LogEntry> filtered_logs;
-        for (const auto& log_line : m_log_lines) {
-            if (log_line.getLevel() >= m_current_log_level) {
-                filtered_logs.push_back(log_line);
-            }
-        }
-        m_filtered_log_lines = filtered_logs;
+        auto filtered = std::views::filter(
+            m_log_lines, [this](const auto& log_line) { return log_line.getLevel() >= m_current_log_level; });
+        m_filtered_log_lines = {filtered.begin(), filtered.end()};
         m_log_view_model->setLogLines(m_filtered_log_lines);
-    }
-
-    const PanelMetadata& LogViewPanel::metadata() const noexcept {
-        return log_view_panel::metadata;
     }
 } // namespace magnesia::activities::dataviewer::panels::log_view_panel

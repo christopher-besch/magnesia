@@ -10,10 +10,9 @@
 #include "abstraction/Subscription.hpp"
 #include "abstraction/node/Node.hpp"
 
-#include <algorithm>
-#include <iterator>
 #include <mutex>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <string_view>
 #include <utility>
@@ -53,11 +52,11 @@ namespace magnesia::opcua_qt {
                 return opcua::ByteString(std::string_view{der.begin(), der.end()});
             };
 
-            std::vector<opcua::ByteString> trust_list_bytestring;
-            std::ranges::transform(trust_list, std::back_inserter(trust_list_bytestring), cert_to_bytestring);
+            auto              trust_list_view = std::views::transform(trust_list, cert_to_bytestring);
+            const std::vector trust_list_bytestring(trust_list_view.begin(), trust_list_view.end());
 
-            std::vector<opcua::ByteString> revocation_list_bytestring;
-            std::ranges::transform(revocation_list, std::back_inserter(revocation_list_bytestring), cert_to_bytestring);
+            auto              revocation_list_view = std::views::transform(revocation_list, cert_to_bytestring);
+            const std::vector revocation_list_bytestring(revocation_list_view.begin(), revocation_list_view.end());
 
             return {user_certificate, private_key, trust_list_bytestring, revocation_list_bytestring};
         }
@@ -82,7 +81,7 @@ namespace magnesia::opcua_qt {
         if (m_client.isConnected()) {
             return;
         }
-        QThreadPool::globalInstance()->start([&] { connectSynchronouslyAndRun(); });
+        QThreadPool::globalInstance()->start([this] { connectSynchronouslyAndRun(); });
     }
 
     void Connection::connectSynchronouslyAndRun() {
@@ -96,13 +95,13 @@ namespace magnesia::opcua_qt {
             m_client.connect(m_server_endpoint.getEndpointUrl().toString().toStdString());
         }
 
-        connect(this, &Connection::connected, this, [&] {
+        connect(this, &Connection::connected, this, [this] {
             m_timer.setInterval(
                 static_cast<int>(Application::instance()
                                      .getSettingsManager()
                                      .getIntSetting({.name = "opcua_poll_intervall", .domain = "general"})
                                      .value()));
-            connect(&m_timer, &QTimer::timeout, this, [&] { m_client.runIterate(0); });
+            connect(&m_timer, &QTimer::timeout, this, [this] { m_client.runIterate(0); });
             m_timer.start();
         });
 

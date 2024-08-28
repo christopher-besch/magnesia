@@ -3,7 +3,6 @@
 #include "../../../opcua_qt/abstraction/NodeId.hpp"
 #include "../DataViewer.hpp"
 #include "../Panel.hpp"
-#include "../PanelMetadata.hpp"
 #include "../panels.hpp"
 #include "AttributeViewModel.hpp"
 
@@ -20,8 +19,8 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
     using opcua_qt::abstraction::NodeId;
 
     AttributeViewPanel::AttributeViewPanel(DataViewer* dataviewer, QWidget* parent)
-        : Panel(dataviewer, Panels::attribute, parent), m_tree_view(new QTreeView(this)),
-          m_model(new AttributeViewModel(this)) {
+        : Panel(dataviewer, PanelType::attributeview, attribute_view_panel::metadata, parent),
+          m_tree_view(new QTreeView(this)), m_model(new AttributeViewModel(this)) {
         m_tree_view->setModel(m_model);
         m_tree_view->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
         m_tree_view->setFrameShape(QFrame::Shape::NoFrame);
@@ -38,8 +37,4 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         auto* connection = getDataViewer()->getConnection();
         m_model->setNode(connection->getNode(node_id), connection);
     }
-
-    const PanelMetadata& AttributeViewPanel::metadata() const noexcept {
-        return attribute_view_panel::metadata;
-    };
 } // namespace magnesia::activities::dataviewer::panels::attribute_view_panel

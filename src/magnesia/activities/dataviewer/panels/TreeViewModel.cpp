@@ -2,7 +2,9 @@
 
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
 
+#include <algorithm>
 #include <cstddef>
+#include <iterator>
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
@@ -126,13 +128,8 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     int TreeViewModel::getChildIndexOf(Node* parent, Node* child) {
         auto children = parent->getChildren();
 
-        for (std::size_t i = 0; i < children.size(); i++) {
-            if (children[i] == child) {
-                return static_cast<int>(i);
-            }
-        }
-
-        return -1;
+        auto iter = std::ranges::find(children, child);
+        return iter != children.end() ? static_cast<int>(std::distance(children.begin(), iter)) : -1;
     }
 
 } // namespace magnesia::activities::dataviewer::panels::treeview_panel

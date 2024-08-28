@@ -1,13 +1,10 @@
 #pragma once
 
 #include "../../../opcua_qt/abstraction/NodeId.hpp"
-#include "../../../opcua_qt/abstraction/node/Node.hpp"
 #include "../Panel.hpp"
 #include "../PanelMetadata.hpp"
 #include "../dataviewer_fwd.hpp"
 #include "AttributeViewModel.hpp"
-
-#include <vector>
 
 #include <QLabel>
 #include <QTreeView>
@@ -20,19 +17,16 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
       public:
         explicit AttributeViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
 
-        [[nodiscard]] const PanelMetadata& metadata() const noexcept override;
-
       signals:
         void nodeSelected(const opcua_qt::abstraction::NodeId& node_id);
         void nodeSelectedRecursive(const opcua_qt::abstraction::NodeId& node_id);
 
-      public slots:
+      private slots:
         void selectNode(const opcua_qt::abstraction::NodeId& node_id) override;
 
       private:
-        std::vector<opcua_qt::abstraction::Node> m_nodes;
-        QTreeView*                               m_tree_view;
-        AttributeViewModel*                      m_model;
+        QTreeView*          m_tree_view;
+        AttributeViewModel* m_model;
     };
 
     inline constexpr PanelMetadata metadata{

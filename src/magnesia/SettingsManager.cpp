@@ -12,9 +12,9 @@
 #include <algorithm>
 #include <cstdint>
 #include <functional>
-#include <iterator>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -219,11 +219,8 @@ namespace magnesia {
     }
 
     std::vector<Domain> SettingsManager::getAllDomains() const {
-        std::vector<Domain> domains;
-        domains.reserve(m_settings.size());
-        std::ranges::transform(m_settings, std::back_inserter(domains),
-                               [](const auto& setting) { return setting.first; });
-        return domains;
+        auto res = std::views::transform(m_settings, &decltype(m_settings)::value_type::first);
+        return {res.begin(), res.end()};
     }
 
     std::vector<std::shared_ptr<Setting>> SettingsManager::getSettingDefinitions(const Domain& domain) const {
@@ -235,10 +232,9 @@ namespace magnesia {
 
     std::optional<std::shared_ptr<Setting>> SettingsManager::findSettingDefinition(const SettingKey& key) const {
         auto settings_in_domain = getSettingDefinitions(key.domain);
-        for (const auto& setting : settings_in_domain) {
-            if (setting->getName() == key.name) {
-                return setting;
-            }
+        if (auto iter = std::ranges::find(settings_in_domain, key.name, &Setting::getName);
+            iter != settings_in_domain.end()) {
+            return *iter;
         }
         return std::nullopt;
     }

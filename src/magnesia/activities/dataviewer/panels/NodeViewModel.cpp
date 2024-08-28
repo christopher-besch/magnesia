@@ -2,7 +2,6 @@
 
 #include "../../../opcua_qt/Connection.hpp"
 #include "../../../opcua_qt/abstraction/AttributeId.hpp"
-#include "../../../opcua_qt/abstraction/DataValue.hpp"
 #include "../../../opcua_qt/abstraction/LocalizedText.hpp"
 #include "../../../opcua_qt/abstraction/NodeClass.hpp"
 #include "../../../opcua_qt/abstraction/NodeId.hpp"
@@ -14,7 +13,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
-#include <memory>
 #include <optional>
 #include <span>
 #include <vector>
@@ -39,7 +37,6 @@
 namespace magnesia::activities::dataviewer::panels::node_view_panel {
     using opcua_qt::Connection;
     using opcua_qt::abstraction::AttributeId;
-    using opcua_qt::abstraction::DataValue;
     using opcua_qt::abstraction::Node;
     using opcua_qt::abstraction::NodeClass;
     using opcua_qt::abstraction::Subscription;
@@ -182,17 +179,15 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
 
         for (auto* node : nodes) {
             auto* subscription = connection->createSubscription(node, attribute_ids);
-            connect(
-                subscription, &Subscription::valueChanged, this,
-                [&](Node* subscribed_node, AttributeId /*attribute_id*/, const std::shared_ptr<DataValue>& /*value*/) {
-                    auto node_it = std::ranges::find(m_nodes, subscribed_node);
-                    Q_ASSERT(node_it != m_nodes.cend());
-                    auto row = static_cast<int>(std::distance(m_nodes.begin(), node_it));
+            connect(subscription, &Subscription::valueChanged, this, [this](Node* subscribed_node) {
+                auto node_it = std::ranges::find(m_nodes, subscribed_node);
+                Q_ASSERT(node_it != m_nodes.cend());
+                auto row = static_cast<int>(std::distance(m_nodes.begin(), node_it));
 
-                    auto left_index  = createIndex(row, 0);
-                    auto right_index = createIndex(row, COLUMN_COUNT - 1); // -1 because both indices are inclusive
-                    Q_EMIT dataChanged(left_index, right_index, {Qt::DisplayRole});
-                });
+                auto left_index  = createIndex(row, 0);
+                auto right_index = createIndex(row, COLUMN_COUNT - 1); // -1 because both indices are inclusive
+                Q_EMIT dataChanged(left_index, right_index, {Qt::DisplayRole});
+            });
             subscription->setPublishingMode(true);
 
             m_subscriptions.push_back(subscription);

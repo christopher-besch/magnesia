@@ -8,7 +8,6 @@
 #include "Logger.hpp"
 #include "abstraction/Endpoint.hpp"
 
-#include <algorithm>
 #include <iterator>
 #include <mutex>
 #include <optional>
@@ -82,7 +81,7 @@ namespace magnesia::opcua_qt {
     }
 
     void ConnectionBuilder::findEndpoints() {
-        QThreadPool::globalInstance()->start([&] { Q_EMIT endpointsFound(findEndopintsSynchronously()); });
+        QThreadPool::globalInstance()->start([this] { Q_EMIT endpointsFound(findEndopintsSynchronously()); });
     }
 
     Connection* ConnectionBuilder::build() {
@@ -138,10 +137,10 @@ namespace magnesia::opcua_qt {
         Q_ASSERT(m_url.has_value());
         try {
             const auto endpoint_descriptions = opcua::Client{}.getEndpoints(m_url.value().toString().toStdString());
-            std::vector<Endpoint> endpoints;
-            std::ranges::transform(endpoint_descriptions, std::back_inserter(endpoints),
-                                   [](auto endpoint) { return Endpoint{std::move(endpoint)}; });
-            return endpoints;
+            auto       res = std::views::transform(endpoint_descriptions, [](opcua::EndpointDescription endpoint) {
+                return Endpoint{std::move(endpoint)};
+            });
+            return std::vector(res.begin(), res.end());
         } catch (const opcua::BadStatus& status) {
             return opcua::BadResult(status.code());
         }

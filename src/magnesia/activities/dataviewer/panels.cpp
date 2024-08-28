@@ -1,1 +1,1 @@
-#include "panels.hpp" // IWYU pragma: keep
+#include "panels.hpp"
