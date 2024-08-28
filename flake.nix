@@ -68,6 +68,10 @@
               # spell checking
               codespell
 
+              # shell
+              shellcheck
+              shfmt
+
               sqlite-interactive
               parallel
             ]
