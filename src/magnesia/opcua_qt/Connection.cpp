@@ -10,7 +10,6 @@
 #include "abstraction/Subscription.hpp"
 #include "abstraction/node/Node.hpp"
 
-#include <mutex>
 #include <optional>
 #include <ranges>
 #include <span>
@@ -81,11 +80,6 @@ namespace magnesia::opcua_qt {
         if (m_client.isConnected()) {
             return;
         }
-        QThreadPool::globalInstance()->start([this] { connectSynchronouslyAndRun(); });
-    }
-
-    void Connection::connectSynchronouslyAndRun() {
-        const std::unique_lock locker(m_connect_mutex);
 
         Q_ASSERT(!m_client.isRunning());
         m_client.setSecurityMode(static_cast<opcua::MessageSecurityMode>(m_server_endpoint.getSecurityMode()));

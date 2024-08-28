@@ -8,7 +8,6 @@
 #include "abstraction/Subscription.hpp"
 #include "abstraction/node/Node.hpp"
 
-#include <mutex>
 #include <optional>
 #include <span>
 
@@ -109,14 +108,10 @@ namespace magnesia::opcua_qt {
                                              std::span<const QSslCertificate>             trust_list,
                                              std::span<const QSslCertificate>             revocation_list);
 
-        void connectSynchronouslyAndRun();
-
       private:
         opcua::Client               m_client;
         opcua_qt::Endpoint          m_server_endpoint;
         std::optional<opcua::Login> m_login;
         QTimer                      m_timer;
-        // locked when connection is established
-        std::mutex m_connect_mutex;
     };
 } // namespace magnesia::opcua_qt
