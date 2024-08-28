@@ -11,6 +11,7 @@
 #include "layout.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <iterator>
 #include <utility>
 
@@ -159,7 +160,7 @@ namespace magnesia::activities::dataviewer {
         }
 
         int LayoutSelectorModel::rowCount(const QModelIndex& /*parent*/) const {
-            return static_cast<int>(m_virtual_layouts.count() + m_layouts.count() + 1);
+            return static_cast<int>(m_virtual_layouts.size() + m_layouts.size() + 1);
         }
 
         QVariant LayoutSelectorModel::data(const QModelIndex& index, int role) const {
@@ -167,13 +168,15 @@ namespace magnesia::activities::dataviewer {
                 return {};
             }
 
+            auto row = static_cast<std::size_t>(index.row());
+
             if (role == Qt::DisplayRole) {
-                if (index.row() < m_virtual_layouts.count()) {
-                    return m_virtual_layouts.at(index.row()).name;
+                if (row < m_virtual_layouts.size()) {
+                    return m_virtual_layouts[row].name;
                 }
 
-                if (index.row() < m_virtual_layouts.count() + m_layouts.count()) {
-                    return m_layouts.at(index.row() - m_virtual_layouts.count()).second.name;
+                if (row < m_virtual_layouts.size() + m_layouts.size()) {
+                    return m_layouts[row - m_virtual_layouts.size()].second.name;
                 }
 
                 if (index.row() == rowCount() - 1) {
@@ -182,12 +185,12 @@ namespace magnesia::activities::dataviewer {
             }
 
             if (role == Qt::UserRole) {
-                if (index.row() < m_virtual_layouts.count()) {
-                    return m_virtual_layouts[index.row()].json_data;
+                if (row < m_virtual_layouts.size()) {
+                    return m_virtual_layouts[row].json_data;
                 }
 
-                if (index.row() < m_virtual_layouts.count() + m_layouts.count()) {
-                    return m_layouts[index.row() - m_virtual_layouts.count()].second.json_data;
+                if (row < m_virtual_layouts.size() + m_layouts.size()) {
+                    return m_layouts[row - m_virtual_layouts.size()].second.json_data;
                 }
             }
 
@@ -201,14 +204,14 @@ namespace magnesia::activities::dataviewer {
             if (count != 1) {
                 return false;
             }
-            if (row == m_layouts.count()) {
+            if (row == static_cast<int>(m_layouts.size())) {
                 return false;
             }
 
-            auto layout_id = m_layouts.at(row).first;
+            auto layout_id = m_layouts[static_cast<std::size_t>(row)].first;
 
             beginRemoveRows(parent, row, row);
-            m_layouts.remove(row);
+            m_layouts.erase(m_layouts.begin() + row);
             Application::instance().getStorageManager().deleteLayout(layout_id, m_group, m_domain);
             endRemoveRows();
 
@@ -224,19 +227,20 @@ namespace magnesia::activities::dataviewer {
             auto layout = Application::instance().getStorageManager().getLayout(layout_id, m_group, m_domain);
             Q_ASSERT(layout.has_value());
 
-            const int row = static_cast<int>(m_layouts.count());
+            const int row = static_cast<int>(m_layouts.size());
             beginInsertRows({}, row, row);
-            m_layouts.emplaceBack(layout_id, *layout);
+            m_layouts.emplace_back(layout_id, *layout);
             endInsertRows();
         }
 
         int LayoutSelectorModel::rowIndex(StorageId layout_id) const {
-            auto iter = std::ranges::find(std::as_const(m_layouts), layout_id, &decltype(m_layouts)::value_type::first);
-            if (iter == m_layouts.cend()) {
+            auto iter = std::ranges::find(m_layouts, layout_id, &decltype(m_layouts)::value_type::first);
+            if (iter == m_layouts.end()) {
                 return -1;
             }
 
-            return static_cast<int>(m_virtual_layouts.count() + std::distance(m_layouts.cbegin(), iter));
+            return static_cast<int>(m_virtual_layouts.size()
+                                    + static_cast<std::size_t>(std::distance(m_layouts.begin(), iter)));
         }
 
         void LayoutSelectorModel::onLayoutChanged(StorageId layout_id, const LayoutGroup& group, const Domain& domain,

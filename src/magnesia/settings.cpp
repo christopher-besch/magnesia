@@ -4,9 +4,8 @@
 #include "terminate.hpp"
 
 #include <cstdint>
+#include <set>
 #include <utility>
-
-#include <QSet>
 
 namespace magnesia {
     QString Setting::getName() const {
@@ -103,7 +102,7 @@ namespace magnesia {
         return m_default_value;
     }
 
-    const QSet<EnumSettingValue>& EnumSetting::getPossibleValues() const {
+    const std::set<EnumSettingValue>& EnumSetting::getPossibleValues() const {
         return m_possible_values;
     }
 
@@ -112,7 +111,7 @@ namespace magnesia {
     }
 
     EnumSetting::EnumSetting(QString name, QString human_readable_name, QString description,
-                             EnumSettingValue default_value, QSet<EnumSettingValue> possible_values)
+                             EnumSettingValue default_value, std::set<EnumSettingValue> possible_values)
         : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
           m_default_value{std::move(default_value)}, m_possible_values{std::move(possible_values)} {
         if (!isValid(m_default_value)) {

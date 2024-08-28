@@ -12,8 +12,10 @@
 
 #include <cstdint>
 #include <iterator>
+#include <memory>
 #include <optional>
 #include <utility>
+#include <vector>
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Common.h>
@@ -25,9 +27,7 @@
 #include <open62541pp/types/DataValue.h>
 #include <open62541pp/types/Variant.h>
 
-#include <QList>
 #include <QLoggingCategory>
-#include <QSharedPointer>
 #include <qtmetamacros.h>
 
 #ifdef MAGNESIA_HAS_QT_6_5
@@ -51,9 +51,9 @@ namespace magnesia::opcua_qt::abstraction {
         m_subscription.setSubscriptionParameters(parameters.handle());
     }
 
-    QList<MonitoredItem> Subscription::getMonitoredItems() noexcept {
-        auto                 vector = m_subscription.getMonitoredItems();
-        QList<MonitoredItem> items{std::move_iterator{vector.begin()}, std::move_iterator{vector.end()}};
+    std::vector<MonitoredItem> Subscription::getMonitoredItems() noexcept {
+        auto                       vector = m_subscription.getMonitoredItems();
+        std::vector<MonitoredItem> items{std::move_iterator{vector.begin()}, std::move_iterator{vector.end()}};
         return items;
     }
 
@@ -68,7 +68,7 @@ namespace magnesia::opcua_qt::abstraction {
                     node->setCacheDataValue(DataValue(value));
                 }
 
-                Q_EMIT valueChanged(node, attribute_id, QSharedPointer<DataValue>{new DataValue(value)});
+                Q_EMIT valueChanged(node, attribute_id, std::make_shared<DataValue>(value));
             }));
     }
 
@@ -76,13 +76,13 @@ namespace magnesia::opcua_qt::abstraction {
         return MonitoredItem(m_subscription.subscribeEvent(
             node->getNodeId().handle(), opcua::EventFilter(),
             [&, node](uint32_t /*subId*/, uint32_t /*monId*/, opcua::Span<const opcua::Variant> event_fields) {
-                auto* items = new QList<Variant>();
-                items->reserve(static_cast<qsizetype>(event_fields.size()));
+                auto items = std::make_shared<std::vector<Variant>>();
+                items->reserve(event_fields.size());
 
                 for (const auto& item : event_fields) {
-                    items->append(Variant(item));
+                    items->emplace_back(item);
                 }
-                Q_EMIT eventTriggered(node, QSharedPointer<QList<Variant>>{items});
+                Q_EMIT eventTriggered(node, std::move(items));
             }));
     }
 

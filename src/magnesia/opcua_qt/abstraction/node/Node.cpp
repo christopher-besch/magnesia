@@ -23,13 +23,13 @@
 
 #include <optional>
 #include <utility>
+#include <vector>
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Common.h>
 #include <open62541pp/ErrorHandling.h>
 #include <open62541pp/Node.h>
 
-#include <QList>
 #include <QObject>
 
 #ifdef MAGNESIA_HAS_QT_6_5
@@ -95,17 +95,17 @@ namespace magnesia::opcua_qt::abstraction {
         return m_cache_parent.value();
     }
 
-    QList<Node*> Node::getChildren() {
+    std::vector<Node*> Node::getChildren() {
         if (m_cache_children.has_value()) {
             return m_cache_children.value();
         }
 
-        QList<Node*> nodes{};
+        std::vector<Node*> nodes{};
 
         for (const auto& node : m_node.browseChildren()) {
             if (auto* specific_node = Node::fromOPCUANode(node, parent()); specific_node != nullptr) {
                 specific_node->m_cache_parent = this;
-                nodes.append(specific_node);
+                nodes.push_back(specific_node);
             }
         }
 
@@ -113,11 +113,11 @@ namespace magnesia::opcua_qt::abstraction {
         return nodes;
     }
 
-    QList<ReferenceDescription> Node::getReferences() {
-        QList<ReferenceDescription> references = QList<ReferenceDescription>();
+    std::vector<ReferenceDescription> Node::getReferences() {
+        std::vector<ReferenceDescription> references;
 
         for (const auto& reference : m_node.browseReferences()) {
-            references.append(ReferenceDescription(reference));
+            references.emplace_back(reference);
         }
 
         return references;
@@ -155,7 +155,7 @@ namespace magnesia::opcua_qt::abstraction {
         return std::nullopt;
     }
 
-    std::optional<QList<quint32>> Node::getArrayDimensions() {
+    std::optional<std::vector<quint32>> Node::getArrayDimensions() {
         return std::nullopt;
     }
 
@@ -215,7 +215,7 @@ namespace magnesia::opcua_qt::abstraction {
 
     void Node::setValueRank(ValueRank /*rank*/) {}
 
-    void Node::setArrayDimensions(QList<quint32>& /*dimensions*/) {}
+    void Node::setArrayDimensions(std::vector<quint32>& /*dimensions*/) {}
 
     void Node::setAccessLevel(AccessLevelBitmask /*mask*/) {}
 
@@ -223,7 +223,7 @@ namespace magnesia::opcua_qt::abstraction {
 
     void Node::setHistorizing(bool /*historizing*/) {}
 
-    QList<Variant> Node::callMethod(NodeId& /*method_id*/, QList<Variant>& /*args*/) {
+    std::vector<Variant> Node::callMethod(NodeId& /*method_id*/, std::vector<Variant>& /*args*/) {
         return {};
     }
 

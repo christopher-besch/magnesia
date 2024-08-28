@@ -3,16 +3,15 @@
 #include "EventNotifier.hpp"
 
 #include <utility>
+#include <vector>
 
 #include <open62541pp/Bitmask.h>
 #include <open62541pp/Common.h>
 
-#include <QList>
-
 namespace magnesia::opcua_qt::abstraction {
     EventNotifierBitmask::EventNotifierBitmask(opcua::Bitmask<opcua::EventNotifier> bitmask) : m_bitmask(bitmask) {}
 
-    QList<std::pair<EventNotifier, bool>> EventNotifierBitmask::getFlags() const {
+    std::vector<std::pair<EventNotifier, bool>> EventNotifierBitmask::getFlags() const {
         return {
             {getFlagPair(EventNotifier::SUBSCRIBE_TO_EVENTS)},
             {getFlagPair(EventNotifier::HISTORY_READ)},

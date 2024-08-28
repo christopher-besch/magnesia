@@ -9,12 +9,13 @@
 #include "../panels.hpp"
 #include "LogViewModel.hpp"
 
+#include <vector>
+
 #include <QBoxLayout>
 #include <QComboBox>
 #include <QFileDialog>
 #include <QFrame>
 #include <QHeaderView>
-#include <QList>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QString>
@@ -94,7 +95,7 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
         if (entry.getLevel() >= m_current_log_level) {
             m_log_view_model->addLogLine(entry);
         }
-        m_log_lines.append(entry);
+        m_log_lines.push_back(entry);
     }
 
     void LogViewPanel::saveLog() {
@@ -107,10 +108,10 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
     }
 
     void LogViewPanel::filterLogs() {
-        QList<opcua_qt::LogEntry> filtered_logs;
+        std::vector<opcua_qt::LogEntry> filtered_logs;
         for (const auto& log_line : m_log_lines) {
             if (log_line.getLevel() >= m_current_log_level) {
-                filtered_logs.append(log_line);
+                filtered_logs.push_back(log_line);
             }
         }
         m_filtered_log_lines = filtered_logs;

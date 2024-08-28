@@ -3,6 +3,7 @@
 #include "qt_version_check.hpp"
 
 #include <utility>
+#include <vector>
 
 #include <QPointer>
 #include <QString>
@@ -28,7 +29,7 @@ namespace magnesia {
         }
 
         if (handler == nullptr) {
-            m_static_handlers.remove(scheme);
+            m_static_handlers.erase(scheme);
         } else {
             handler->setParent(this);
             existing_handler = handler;
@@ -50,8 +51,8 @@ namespace magnesia {
 
         if (auto dynamic_handlers = m_dynamic_handlers.find(scheme); dynamic_handlers != m_dynamic_handlers.end()) {
             // Remove destroyed handlers. QPointer becomes null when it's object is destroyed.
-            dynamic_handlers->removeIf([](const QPointer<URLHandler>& handler) { return handler.isNull(); });
-            for (const auto& handler : *dynamic_handlers) {
+            std::erase_if(dynamic_handlers->second, [](const auto& pointer) { return pointer.isNull(); });
+            for (const auto& handler : dynamic_handlers->second) {
                 auto res = handler->handleURL(url);
                 if (res) {
                     return true;
@@ -60,8 +61,8 @@ namespace magnesia {
         }
 
         if (auto static_handler = m_static_handlers.find(scheme); static_handler != m_static_handlers.end()) {
-            Q_ASSERT(static_handler.value() != nullptr);
-            auto res = static_handler.value()->handleURL(url);
+            Q_ASSERT(static_handler->second != nullptr);
+            auto res = static_handler->second->handleURL(url);
             if (res) {
                 return true;
             }

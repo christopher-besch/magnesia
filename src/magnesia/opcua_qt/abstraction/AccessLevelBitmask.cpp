@@ -3,16 +3,15 @@
 #include "AccessLevel.hpp"
 
 #include <utility>
+#include <vector>
 
 #include <open62541pp/Bitmask.h>
 #include <open62541pp/Common.h>
 
-#include <QList>
-
 namespace magnesia::opcua_qt::abstraction {
     AccessLevelBitmask::AccessLevelBitmask(opcua::Bitmask<opcua::AccessLevel> bitmask) : m_bitmask(bitmask) {}
 
-    QList<std::pair<AccessLevel, bool>> AccessLevelBitmask::getFlags() const {
+    std::vector<std::pair<AccessLevel, bool>> AccessLevelBitmask::getFlags() const {
         return {
             {getFlagPair(AccessLevel::CURRENT_READ)},    {getFlagPair(AccessLevel::CURRENT_WRITE)},
             {getFlagPair(AccessLevel::HISTORY_READ)},    {getFlagPair(AccessLevel::HISTORY_WRITE)},

@@ -12,12 +12,14 @@
 #include "../DataViewer.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <iterator>
+#include <memory>
 #include <optional>
-#include <utility>
+#include <span>
+#include <vector>
 
 #include <QAbstractTableModel>
-#include <QList>
 #include <QModelIndex>
 #include <QObject>
 #include <QStack>
@@ -128,7 +130,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         if (node != nullptr) {
             auto leaf_nodes = findLeafNodes(node);
             subscribeNodes(leaf_nodes, connection);
-            m_nodes.append(leaf_nodes);
+            m_nodes.insert(m_nodes.end(), leaf_nodes.begin(), leaf_nodes.end());
         }
 
         endResetModel();
@@ -137,22 +139,24 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
     bool NodeViewModel::removeRows(int row, int count, const QModelIndex& parent) {
         beginRemoveRows(parent, row, row + count - 1);
 
-        qDeleteAll(m_subscriptions.sliced(row, count));
-        m_nodes.remove(row, count);
-        m_subscriptions.remove(row, count);
+        auto nodes_first = m_nodes.begin() + row;
+        auto nodes_last  = nodes_first + count;
+        qDeleteAll(nodes_first, nodes_last);
+        m_nodes.erase(nodes_first, nodes_last);
+        m_subscriptions.erase(m_subscriptions.begin() + row, m_subscriptions.begin() + row + count);
 
         endRemoveRows();
 
         return true;
     }
 
-    QList<Node*> NodeViewModel::findLeafNodes(Node* node) {
+    std::vector<Node*> NodeViewModel::findLeafNodes(Node* node) {
         if (node == nullptr) {
             return {};
         }
 
-        QList<Node*>  leaf_nodes;
-        QStack<Node*> stack;
+        std::vector<Node*> leaf_nodes;
+        QStack<Node*>      stack;
         stack.push(node);
 
         while (!stack.isEmpty()) {
@@ -165,15 +169,15 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
 
             if (current->getNodeClass() == NodeClass::VARIABLE
                 || (current->getNodeClass() == NodeClass::VARIABLE_TYPE && current->getDataValue().has_value())) {
-                leaf_nodes.append(current);
+                leaf_nodes.push_back(current);
             }
         }
 
         return leaf_nodes;
     }
 
-    void NodeViewModel::subscribeNodes(const QList<Node*>& nodes, Connection* connection) {
-        const QList attribute_ids{
+    void NodeViewModel::subscribeNodes(std::span<Node*> nodes, Connection* connection) {
+        const std::vector attribute_ids{
             AttributeId::DISPLAY_NAME,
             AttributeId::VALUE,
         };
@@ -182,10 +186,10 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
             auto* subscription = connection->createSubscription(node, attribute_ids);
             connect(
                 subscription, &Subscription::valueChanged, this,
-                [&](Node* subscribed_node, AttributeId /*attribute_id*/, const QSharedPointer<DataValue>& /*value*/) {
-                    auto node_it = std::ranges::find(std::as_const(m_nodes), subscribed_node);
+                [&](Node* subscribed_node, AttributeId /*attribute_id*/, const std::shared_ptr<DataValue>& /*value*/) {
+                    auto node_it = std::ranges::find(m_nodes, subscribed_node);
                     Q_ASSERT(node_it != m_nodes.cend());
-                    auto row = static_cast<int>(std::distance(m_nodes.cbegin(), node_it));
+                    auto row = static_cast<int>(std::distance(m_nodes.begin(), node_it));
 
                     auto left_index  = createIndex(row, 0);
                     auto right_index = createIndex(row, COLUMN_COUNT - 1); // -1 because both indices are inclusive
@@ -193,7 +197,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
                 });
             subscription->setPublishingMode(true);
 
-            m_subscriptions.append(subscription);
+            m_subscriptions.push_back(subscription);
         }
     }
 
@@ -202,7 +206,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
             return nullptr;
         }
 
-        return m_nodes.value(index.row());
+        return m_nodes[static_cast<std::size_t>(index.row())];
     }
 
 } // namespace magnesia::activities::dataviewer::panels::node_view_panel

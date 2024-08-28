@@ -5,8 +5,10 @@
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
 #include "../dataviewer_fwd.hpp"
 
+#include <span>
+#include <vector>
+
 #include <QAbstractTableModel>
-#include <QList>
 #include <QModelIndex>
 #include <QObject>
 #include <QVariant>
@@ -31,13 +33,13 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         [[nodiscard]] opcua_qt::abstraction::Node* getNode(QModelIndex index) const;
 
       private:
-        static QList<opcua_qt::abstraction::Node*> findLeafNodes(opcua_qt::abstraction::Node* node);
-        void subscribeNodes(const QList<opcua_qt::abstraction::Node*>& nodes, opcua_qt::Connection* connection);
+        static std::vector<opcua_qt::abstraction::Node*> findLeafNodes(opcua_qt::abstraction::Node* node);
+        void subscribeNodes(std::span<opcua_qt::abstraction::Node*> nodes, opcua_qt::Connection* connection);
 
       private:
-        DataViewer*                                 m_data_viewer;
-        QList<opcua_qt::abstraction::Node*>         m_nodes;
-        QList<opcua_qt::abstraction::Subscription*> m_subscriptions;
+        DataViewer*                                       m_data_viewer;
+        std::vector<opcua_qt::abstraction::Node*>         m_nodes;
+        std::vector<opcua_qt::abstraction::Subscription*> m_subscriptions;
 
       private:
         enum {

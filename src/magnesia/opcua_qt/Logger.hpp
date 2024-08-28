@@ -2,11 +2,12 @@
 
 #include "LogEntry.hpp"
 
+#include <set>
+#include <vector>
+
 #include <open62541pp/Logger.h>
 
-#include <QList>
 #include <QObject>
-#include <QSet>
 #include <qtmetamacros.h>
 
 namespace magnesia::opcua_qt {
@@ -30,14 +31,14 @@ namespace magnesia::opcua_qt {
          *
          * @param levels
          *
-         * @return QList of LogEntry
+         * @return log entries
          */
-        [[nodiscard]] QList<LogEntry> getLogForLevel(const QSet<LogLevel>& levels) const noexcept;
+        [[nodiscard]] std::vector<LogEntry> getLogForLevel(const std::set<LogLevel>& levels) const noexcept;
 
         opcua::Logger getOPCUALogger() noexcept;
 
       private:
-        QList<LogEntry> m_log_entries;
+        std::vector<LogEntry> m_log_entries;
 
       signals:
         void logEntryAdded(LogEntry& entry);

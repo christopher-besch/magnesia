@@ -3,11 +3,10 @@
 #include "AccessLevel.hpp"
 
 #include <utility>
+#include <vector>
 
 #include <open62541pp/Bitmask.h>
 #include <open62541pp/Common.h>
-
-#include <QList>
 
 namespace magnesia::opcua_qt::abstraction {
     /**
@@ -26,7 +25,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * See https://reference.opcfoundation.org/Core/Part3/v104/docs/8.57
          */
-        [[nodiscard]] QList<std::pair<AccessLevel, bool>> getFlags() const;
+        [[nodiscard]] std::vector<std::pair<AccessLevel, bool>> getFlags() const;
 
         /**
          * Get a specific flag from AccessLevel.

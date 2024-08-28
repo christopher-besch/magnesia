@@ -3,16 +3,16 @@
 #include "WriteMask.hpp"
 
 #include <utility>
+#include <vector>
 
 #include <open62541pp/Bitmask.h>
 #include <open62541pp/Common.h>
 
-#include <QList>
-
 namespace magnesia::opcua_qt::abstraction {
     WriteMaskBitmask::WriteMaskBitmask(opcua::Bitmask<opcua::WriteMask> bitmask) : m_bitmask(bitmask) {}
 
-    QList<std::pair<WriteMask, bool>> WriteMaskBitmask::getFlags() const {
+    // TODO: unnecessary allocation, magic index, other type than vector? other api (getFlag(...))? See also other types
+    std::vector<std::pair<WriteMask, bool>> WriteMaskBitmask::getFlags() const {
         return {
             {getFlagPair(WriteMask::ACCESS_LEVEL)},
             {getFlagPair(WriteMask::ARRAY_DIMENSIONS)},

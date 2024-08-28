@@ -12,17 +12,18 @@
 
 #include <algorithm>
 #include <iterator>
+#include <mutex>
 #include <optional>
+#include <span>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 #include <open62541pp/AccessControl.h>
 #include <open62541pp/Client.h>
 #include <open62541pp/Common.h>
 #include <open62541pp/types/Builtin.h>
 
-#include <QList>
-#include <QMutexLocker>
 #include <QObject>
 #include <QSslCertificate>
 #include <QThreadPool>
@@ -38,8 +39,8 @@
 
 namespace magnesia::opcua_qt {
     opcua::Client Connection::constructClient(const std::optional<ApplicationCertificate>& certificate,
-                                              const QList<QSslCertificate>&                trust_list,
-                                              const QList<QSslCertificate>&                revocation_list) {
+                                              std::span<const QSslCertificate>             trust_list,
+                                              std::span<const QSslCertificate>             revocation_list) {
         if (certificate.has_value()) {
             const auto              cert_der = certificate->getCertificate().toDer();
             const opcua::ByteString user_certificate(std::string_view{cert_der.begin(), cert_der.end()});
@@ -52,10 +53,10 @@ namespace magnesia::opcua_qt {
                 return opcua::ByteString(std::string_view{der.begin(), der.end()});
             };
 
-            QList<opcua::ByteString> trust_list_bytestring;
+            std::vector<opcua::ByteString> trust_list_bytestring;
             std::ranges::transform(trust_list, std::back_inserter(trust_list_bytestring), cert_to_bytestring);
 
-            QList<opcua::ByteString> revocation_list_bytestring;
+            std::vector<opcua::ByteString> revocation_list_bytestring;
             std::ranges::transform(revocation_list, std::back_inserter(revocation_list_bytestring), cert_to_bytestring);
 
             return {user_certificate, private_key, trust_list_bytestring, revocation_list_bytestring};
@@ -65,8 +66,8 @@ namespace magnesia::opcua_qt {
 
     Connection::Connection(Endpoint endpoint, const std::optional<opcua::Login>& login,
                            const std::optional<ApplicationCertificate>& certificate,
-                           const QList<QSslCertificate>& trust_list, const QList<QSslCertificate>& revocation_list,
-                           Logger* logger, QObject* parent)
+                           std::span<const QSslCertificate>             trust_list,
+                           std::span<const QSslCertificate> revocation_list, Logger* logger, QObject* parent)
         : QObject(parent), m_client(constructClient(certificate, trust_list, revocation_list)),
           m_server_endpoint(std::move(endpoint)), m_login(login) {
         Q_ASSERT(logger != nullptr);
@@ -85,7 +86,7 @@ namespace magnesia::opcua_qt {
     }
 
     void Connection::connectSynchronouslyAndRun() {
-        const QMutexLocker locker(&m_connect_mutex);
+        const std::unique_lock locker(m_connect_mutex);
 
         Q_ASSERT(!m_client.isRunning());
         m_client.setSecurityMode(static_cast<opcua::MessageSecurityMode>(m_server_endpoint.getSecurityMode()));
@@ -120,8 +121,8 @@ namespace magnesia::opcua_qt {
         return abstraction::Node::fromOPCUANode(m_client.getNode(node_id.handle()), this);
     }
 
-    abstraction::Subscription* Connection::createSubscription(abstraction::Node*                     node,
-                                                              const QList<abstraction::AttributeId>& attribute_ids) {
+    abstraction::Subscription* Connection::createSubscription(abstraction::Node*                        node,
+                                                              std::span<const abstraction::AttributeId> attribute_ids) {
         auto* subscription = new abstraction::Subscription(m_client.createSubscription());
         for (const abstraction::AttributeId attribute_id : attribute_ids) {
             subscription->subscribeDataChanged(node, attribute_id);

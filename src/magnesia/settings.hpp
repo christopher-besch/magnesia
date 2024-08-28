@@ -3,9 +3,9 @@
 #include "database_types.hpp"
 
 #include <cstdint>
+#include <set>
 
 #include <QLayout>
-#include <QSet>
 #include <QString>
 #include <QWidget>
 
@@ -172,7 +172,7 @@ namespace magnesia {
         /**
          *  @return the possible value.
          */
-        [[nodiscard]] const QSet<EnumSettingValue>& getPossibleValues() const;
+        [[nodiscard]] const std::set<EnumSettingValue>& getPossibleValues() const;
 
         /**
          *  @return true iff value fulfills the requirements for enum settings.
@@ -180,11 +180,11 @@ namespace magnesia {
         [[nodiscard]] bool isValid(const EnumSettingValue& value) const;
 
         EnumSetting(QString name, QString human_readable_name, QString description, EnumSettingValue default_value,
-                    QSet<EnumSettingValue> possible_values);
+                    std::set<EnumSettingValue> possible_values);
 
       private:
-        EnumSettingValue       m_default_value;
-        QSet<EnumSettingValue> m_possible_values;
+        EnumSettingValue           m_default_value;
+        std::set<EnumSettingValue> m_possible_values;
     };
 
     /**

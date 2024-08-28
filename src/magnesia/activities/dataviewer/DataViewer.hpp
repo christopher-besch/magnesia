@@ -10,10 +10,10 @@
 #include "dataviewer_fwd.hpp"
 
 #include <utility>
+#include <vector>
 
 #include <QAbstractListModel>
 #include <QLayout>
-#include <QList>
 #include <QModelIndex>
 #include <QObject>
 #include <QVariant>
@@ -84,10 +84,10 @@ namespace magnesia::activities::dataviewer {
                                  StorageChange type);
 
           private:
-            Domain                              m_domain;
-            LayoutGroup                         m_group;
-            QList<std::pair<StorageId, Layout>> m_layouts;
-            QList<Layout>                       m_virtual_layouts;
+            Domain                                    m_domain;
+            LayoutGroup                               m_group;
+            std::vector<std::pair<StorageId, Layout>> m_layouts;
+            std::vector<Layout>                       m_virtual_layouts;
         };
     } // namespace detail
 } // namespace magnesia::activities::dataviewer

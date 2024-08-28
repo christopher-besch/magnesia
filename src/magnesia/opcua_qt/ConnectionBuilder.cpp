@@ -10,17 +10,17 @@
 
 #include <algorithm>
 #include <iterator>
+#include <mutex>
 #include <optional>
 #include <ranges>
 #include <utility>
+#include <vector>
 
 #include <open62541pp/Client.h>
 #include <open62541pp/ErrorHandling.h>
 #include <open62541pp/Result.h>
 
-#include <QList>
 #include <QLoggingCategory>
-#include <QMutexLocker>
 #include <QSslCertificate>
 #include <QString>
 #include <QThreadPool>
@@ -39,7 +39,7 @@ namespace {
 
 namespace magnesia::opcua_qt {
     ConnectionBuilder& ConnectionBuilder::url(const QUrl& url) noexcept {
-        const QMutexLocker locker(&m_get_endpoint_mutex);
+        const std::unique_lock locker(m_get_endpoint_mutex);
 
         m_url = url;
         return *this;
@@ -71,12 +71,12 @@ namespace magnesia::opcua_qt {
         return *this;
     }
 
-    ConnectionBuilder& ConnectionBuilder::trustList(const QList<StorageId>& trust_list) noexcept {
+    ConnectionBuilder& ConnectionBuilder::trustList(const std::vector<StorageId>& trust_list) noexcept {
         m_trust_list = trust_list;
         return *this;
     }
 
-    ConnectionBuilder& ConnectionBuilder::revokedList(const QList<StorageId>& revoked_list) noexcept {
+    ConnectionBuilder& ConnectionBuilder::revokedList(const std::vector<StorageId>& revoked_list) noexcept {
         m_revoked_list = revoked_list;
         return *this;
     }
@@ -113,18 +113,18 @@ namespace magnesia::opcua_qt {
             | std::views::filter([](const auto& opt) { return opt.has_value(); })
             | std::views::transform([](std::optional<QSslCertificate> cert) { return *std::move(cert); });
 
-        constexpr auto to_qlist = [](auto&& range) {
-            return QList(std::move_iterator{range.begin()}, std::move_iterator{range.end()});
+        constexpr auto to_vector = [](auto&& range) {
+            return std::vector(std::move_iterator{range.begin()}, std::move_iterator{range.end()});
         };
 
-        const auto trust_list = to_qlist(m_trust_list | to_certs);
-        if (m_trust_list.count() != trust_list.count()) {
+        const auto trust_list = to_vector(m_trust_list | to_certs);
+        if (m_trust_list.size() != trust_list.size()) {
             qCCritical(lc_builder) << "got invalid certificate id in trust list, aborting...";
             return nullptr;
         }
 
-        const auto revoked_list = to_qlist(m_revoked_list | to_certs);
-        if (m_revoked_list.count() != revoked_list.count()) {
+        const auto revoked_list = to_vector(m_revoked_list | to_certs);
+        if (m_revoked_list.size() != revoked_list.size()) {
             qCCritical(lc_builder) << "got invalid certificate id in revoked list, aborting...";
             return nullptr;
         }
@@ -132,13 +132,13 @@ namespace magnesia::opcua_qt {
         return new Connection(m_endpoint.value(), login, app_cert, trust_list, revoked_list, m_logger);
     }
 
-    opcua::Result<QList<Endpoint>> ConnectionBuilder::findEndopintsSynchronously() {
-        const QMutexLocker locker(&m_get_endpoint_mutex);
+    opcua::Result<std::vector<Endpoint>> ConnectionBuilder::findEndopintsSynchronously() {
+        const std::unique_lock locker(m_get_endpoint_mutex);
 
         Q_ASSERT(m_url.has_value());
         try {
             const auto endpoint_descriptions = opcua::Client{}.getEndpoints(m_url.value().toString().toStdString());
-            QList<Endpoint> endpoints;
+            std::vector<Endpoint> endpoints;
             std::ranges::transform(endpoint_descriptions, std::back_inserter(endpoints),
                                    [](auto endpoint) { return Endpoint{std::move(endpoint)}; });
             return endpoints;
@@ -171,11 +171,11 @@ namespace magnesia::opcua_qt {
         return m_certificate;
     }
 
-    const QList<StorageId>& ConnectionBuilder::getTrustList() const {
+    const std::vector<StorageId>& ConnectionBuilder::getTrustList() const {
         return m_trust_list;
     }
 
-    const QList<StorageId>& ConnectionBuilder::getRevokedList() const {
+    const std::vector<StorageId>& ConnectionBuilder::getRevokedList() const {
         return m_revoked_list;
     }
 } // namespace magnesia::opcua_qt

@@ -8,13 +8,13 @@
 #include "abstraction/Subscription.hpp"
 #include "abstraction/node/Node.hpp"
 
+#include <mutex>
 #include <optional>
+#include <span>
 
 #include <open62541pp/AccessControl.h>
 #include <open62541pp/Client.h>
 
-#include <QList>
-#include <QMutex>
 #include <QObject>
 #include <QSslCertificate>
 #include <QTimer>
@@ -49,8 +49,9 @@ namespace magnesia::opcua_qt {
          * trust_list and revocation_list have no effect if there is no client certificate.
          */
         Connection(Endpoint endpoint, const std::optional<opcua::Login>& login,
-                   const std::optional<ApplicationCertificate>& certificate, const QList<QSslCertificate>& trust_list,
-                   const QList<QSslCertificate>& revocation_list, Logger* logger, QObject* parent = nullptr);
+                   const std::optional<ApplicationCertificate>& certificate,
+                   std::span<const QSslCertificate> trust_list, std::span<const QSslCertificate> revocation_list,
+                   Logger* logger, QObject* parent = nullptr);
         /**
          * @brief Connects the underlying OPC UA client and poll for subscription updates asynchronously. The signal
          * connected gets emitted when the connection has been established.
@@ -87,7 +88,7 @@ namespace magnesia::opcua_qt {
          * @return Returns a Subscription pointer
          */
         [[nodiscard]] abstraction::Subscription*
-        createSubscription(abstraction::Node* node, const QList<abstraction::AttributeId>& attribute_ids);
+        createSubscription(abstraction::Node* node, std::span<const abstraction::AttributeId> attribute_ids);
         /**
          * @brief Stops polling for updates and disconnects the client
          */
@@ -105,8 +106,8 @@ namespace magnesia::opcua_qt {
 
       private:
         static opcua::Client constructClient(const std::optional<ApplicationCertificate>& certificate,
-                                             const QList<QSslCertificate>&                trust_list,
-                                             const QList<QSslCertificate>&                revocation_list);
+                                             std::span<const QSslCertificate>             trust_list,
+                                             std::span<const QSslCertificate>             revocation_list);
 
         void connectSynchronouslyAndRun();
 
@@ -116,6 +117,6 @@ namespace magnesia::opcua_qt {
         std::optional<opcua::Login> m_login;
         QTimer                      m_timer;
         // locked when connection is established
-        QMutex m_connect_mutex;
+        std::mutex m_connect_mutex;
     };
 } // namespace magnesia::opcua_qt

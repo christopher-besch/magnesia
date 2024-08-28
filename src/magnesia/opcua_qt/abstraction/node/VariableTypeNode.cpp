@@ -7,10 +7,9 @@
 #include "../Variant.hpp"
 #include "Node.hpp"
 
-#include <cstddef>
-#include <cstdint>
 #include <optional>
 #include <utility>
+#include <vector>
 
 #include <open62541pp/Client.h>
 #include <open62541pp/Common.h>
@@ -18,7 +17,6 @@
 #include <open62541pp/Node.h>
 #include <open62541pp/Span.h>
 
-#include <QList>
 #include <QObject>
 
 #ifdef MAGNESIA_HAS_QT_6_5
@@ -52,10 +50,10 @@ namespace magnesia::opcua_qt::abstraction {
         return static_cast<ValueRank>(handle().readValueRank());
     }
 
-    std::optional<QList<quint32>> VariableTypeNode::getArrayDimensions() {
+    std::optional<std::vector<quint32>> VariableTypeNode::getArrayDimensions() {
         try {
-            auto           vector = handle().readArrayDimensions();
-            QList<quint32> list{vector.begin(), vector.end()};
+            auto                 vector = handle().readArrayDimensions();
+            std::vector<quint32> list{vector.begin(), vector.end()};
             return list;
         } catch (opcua::BadStatus&) {
             return std::nullopt;
@@ -82,9 +80,8 @@ namespace magnesia::opcua_qt::abstraction {
         handle().writeValueRank(static_cast<opcua::ValueRank>(rank));
     }
 
-    void VariableTypeNode::setArrayDimensions(QList<quint32>& dimensions) {
-        opcua::Span<const uint32_t> span(dimensions.data(), static_cast<std::size_t>(dimensions.size()));
-        handle().writeArrayDimensions(span);
+    void VariableTypeNode::setArrayDimensions(std::vector<quint32>& dimensions) {
+        handle().writeArrayDimensions(dimensions);
     }
 
     void VariableTypeNode::setAbstract(bool abstract) {

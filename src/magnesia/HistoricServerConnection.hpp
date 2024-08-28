@@ -4,9 +4,9 @@
 #include "opcua_qt/abstraction/MessageSecurityMode.hpp"
 
 #include <optional>
+#include <vector>
 
 #include <QDateTime>
-#include <QList>
 #include <QString>
 #include <QUrl>
 
@@ -24,8 +24,8 @@ namespace magnesia {
         std::optional<QString>   username;
         std::optional<QString>   password;
         std::optional<StorageId> application_certificate_id;
-        QList<StorageId>         trust_list_certificate_ids;
-        QList<StorageId>         revoked_list_certificate_ids;
+        std::vector<StorageId>   trust_list_certificate_ids;
+        std::vector<StorageId>   revoked_list_certificate_ids;
 
         std::optional<StorageId> last_layout_id;
         std::optional<QString>   last_layout_group;

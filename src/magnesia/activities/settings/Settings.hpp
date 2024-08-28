@@ -7,9 +7,10 @@
 #include "../../qt_version_check.hpp"
 #include "../../settings.hpp"
 
-#include <QList>
+#include <map>
+#include <vector>
+
 #include <QListWidget>
-#include <QMap>
 #include <QScrollArea>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -143,12 +144,12 @@ namespace magnesia::activities::settings {
         QVBoxLayout* m_key_list{nullptr};
 
         // only used to focus specific widgets and delete them
-        QMap<Domain, QWidget*>     m_domain_widgets;
-        QMap<SettingKey, QWidget*> m_setting_widgets;
-        QList<QWidget*>            m_certificate_widgets;
-        QList<QWidget*>            m_key_widgets;
-        QWidget*                   m_certificates_widget{nullptr};
-        QWidget*                   m_keys_widget{nullptr};
+        std::map<Domain, QWidget*>     m_domain_widgets;
+        std::map<SettingKey, QWidget*> m_setting_widgets;
+        std::vector<QWidget*>          m_certificate_widgets;
+        std::vector<QWidget*>          m_key_widgets;
+        QWidget*                       m_certificates_widget{nullptr};
+        QWidget*                       m_keys_widget{nullptr};
     };
 
     inline constexpr ActivityMetadata metadata{

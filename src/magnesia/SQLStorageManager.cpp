@@ -11,11 +11,12 @@
 
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 #include <QJsonDocument>
-#include <QList>
 #include <QLoggingCategory>
 #include <QObject>
 #include <QSqlDriver>
@@ -304,43 +305,43 @@ SELECT name, json_data FROM Layout WHERE id = :id AND layout_group = :layout_gro
         };
     }
 
-    QList<std::pair<StorageId, QSslCertificate>> SQLStorageManager::getAllCertificates() const {
+    std::vector<std::pair<StorageId, QSslCertificate>> SQLStorageManager::getAllCertificates() const {
         QSqlQuery query{R"sql(SELECT id, pem FROM Certificate;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database all Certificate retrieval failed.", query);
             terminate();
         }
 
-        QList<std::pair<StorageId, QSslCertificate>> certificates{};
+        std::vector<std::pair<StorageId, QSslCertificate>> certificates;
         while (query.next()) {
             const auto certs = QSslCertificate::fromData(query.value("pem").toByteArray(), QSsl::EncodingFormat::Pem);
             // you may not store more than one certificate
             if (certs.size() != 1) {
                 return {};
             }
-            certificates.emplaceBack(query.value("id").toULongLong(), certs.front());
+            certificates.emplace_back(query.value("id").toULongLong(), certs.front());
         }
         return certificates;
     }
 
-    QList<std::pair<StorageId, QSslKey>> SQLStorageManager::getAllKeys() const {
+    std::vector<std::pair<StorageId, QSslKey>> SQLStorageManager::getAllKeys() const {
         QSqlQuery query{R"sql(SELECT id, pem FROM Key;)sql", m_database};
         if (query.lastError().isValid()) {
             warnQuery("database all Key retrieval failed.", query);
             terminate();
         }
 
-        QList<std::pair<StorageId, QSslKey>> keys{};
+        std::vector<std::pair<StorageId, QSslKey>> keys;
         while (query.next()) {
             // TODO: use actual key type
             QSslKey key{query.value("pem").toByteArray(), QSsl::Rsa, QSsl::Pem};
             Q_ASSERT(!key.isNull());
-            keys.emplaceBack(query.value("id").toULongLong(), std::move(key));
+            keys.emplace_back(query.value("id").toULongLong(), std::move(key));
         }
         return keys;
     }
 
-    QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>>
+    std::vector<std::pair<StorageId, opcua_qt::ApplicationCertificate>>
     SQLStorageManager::getAllApplicationCertificates() const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
@@ -355,7 +356,7 @@ WHERE ApplicationCertificate.certificate_id = Certificate.id
             terminate();
         }
 
-        QList<std::pair<StorageId, opcua_qt::ApplicationCertificate>> app_certificates{};
+        std::vector<std::pair<StorageId, opcua_qt::ApplicationCertificate>> app_certificates;
         while (query.next()) {
             auto certs =
                 QSslCertificate::fromData(query.value("Certificate.pem").toByteArray(), QSsl::EncodingFormat::Pem);
@@ -367,13 +368,14 @@ WHERE ApplicationCertificate.certificate_id = Certificate.id
             // TODO: use actual key type
             QSslKey key{query.value("Key.pem").toByteArray(), QSsl::Rsa, QSsl::Pem};
             Q_ASSERT(!key.isNull());
-            app_certificates.emplaceBack(query.value("ApplicationCertificate.id").toULongLong(),
-                                         opcua_qt::ApplicationCertificate{std::move(key), certs.front()});
+            app_certificates.emplace_back(query.value("ApplicationCertificate.id").toULongLong(),
+                                          opcua_qt::ApplicationCertificate{std::move(key), certs.front()});
         }
         return app_certificates;
     }
 
-    QList<std::pair<StorageId, HistoricServerConnection>> SQLStorageManager::getAllHistoricServerConnections() const {
+    std::vector<std::pair<StorageId, HistoricServerConnection>>
+    SQLStorageManager::getAllHistoricServerConnections() const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT
@@ -397,16 +399,16 @@ FROM HistoricServerConnection;
             terminate();
         }
 
-        QList<std::pair<StorageId, HistoricServerConnection>> historic_connections{};
+        std::vector<std::pair<StorageId, HistoricServerConnection>> historic_connections;
         while (query.next()) {
-            historic_connections.emplaceBack(query.value("historic_server_connection_id").toULongLong(),
-                                             queryToHistoricServerConnection(query));
+            historic_connections.emplace_back(query.value("historic_server_connection_id").toULongLong(),
+                                              queryToHistoricServerConnection(query));
         }
         return historic_connections;
     }
 
-    QList<std::pair<StorageId, Layout>> SQLStorageManager::getAllLayouts(const LayoutGroup& group,
-                                                                         const Domain&      domain) const {
+    std::vector<std::pair<StorageId, Layout>> SQLStorageManager::getAllLayouts(const LayoutGroup& group,
+                                                                               const Domain&      domain) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
 SELECT id, name, json_data FROM Layout WHERE layout_group = :layout_group AND domain = :domain;
@@ -419,13 +421,13 @@ SELECT id, name, json_data FROM Layout WHERE layout_group = :layout_group AND do
             terminate();
         }
 
-        QList<std::pair<StorageId, Layout>> layouts{};
+        std::vector<std::pair<StorageId, Layout>> layouts;
         while (query.next()) {
-            layouts.emplaceBack(query.value("id").toULongLong(),
-                                Layout{
-                                    .name      = query.value("name").toString(),
-                                    .json_data = QJsonDocument::fromJson(query.value("json_data").toString().toUtf8()),
-                                });
+            layouts.emplace_back(query.value("id").toULongLong(),
+                                 Layout{
+                                     .name      = query.value("name").toString(),
+                                     .json_data = QJsonDocument::fromJson(query.value("json_data").toString().toUtf8()),
+                                 });
         }
         return layouts;
     }
@@ -1075,7 +1077,7 @@ WHERE LayoutSetting.name = :name
         // If you want to remove a table don't just remove it's creation.
         // Instead append a query to drop that table.
         // This allows users to smoothly update.
-        QList<QString> migrations{
+        std::vector<QString> migrations{
             R"sql(
 -- Every time a tuple in relation R is deleted the tuple with the DBRelation enum id of R and the identifier of the deleted tuple is appended to this relation.A
 -- This is realized using SQL TRIGGERs for the relations with onChange Qt signals.
@@ -1537,12 +1539,12 @@ RETURNING relation, id, key, layout_group, name, domain;
         // connected to the ...Changed signals call other functions on the SqlStorageManager that do a query on the
         // database, breaking the loop over the query results. Loading all entries eagerly fixes this by not relying on
         // the query after signaling the first changes.
-        QList<std::tuple<DBRelation, unsigned long long, QString, QString, QString, QString>> deleted_tuples;
+        std::vector<std::tuple<DBRelation, unsigned long long, QString, QString, QString, QString>> deleted_tuples;
         while (query.next()) {
-            deleted_tuples.emplaceBack(static_cast<DBRelation>(query.value("relation").toUInt()),
-                                       query.value("id").toULongLong(), query.value("key").toString(),
-                                       query.value("layout_group").toString(), query.value("name").toString(),
-                                       query.value("domain").toString());
+            deleted_tuples.emplace_back(static_cast<DBRelation>(query.value("relation").toUInt()),
+                                        query.value("id").toULongLong(), query.value("key").toString(),
+                                        query.value("layout_group").toString(), query.value("name").toString(),
+                                        query.value("domain").toString());
         }
 
         for (const auto& [relation, id, key, layout_group, name, domain] : deleted_tuples) {
@@ -1599,7 +1601,7 @@ RETURNING relation, id, key, layout_group, name, domain;
                                   << "\nVariables:" << query.boundValues() << "\nError:" << query.lastError();
     }
 
-    QList<StorageId>
+    std::vector<StorageId>
     SQLStorageManager::getHistoricServerConnectionTrustList(StorageId historic_server_connection_id) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
@@ -1612,14 +1614,14 @@ SELECT certificate_id FROM HistoricServerConnectionTrustList WHERE historic_serv
             terminate();
         }
 
-        QList<StorageId> certificate_ids{};
+        std::vector<StorageId> certificate_ids;
         while (query.next()) {
-            certificate_ids.append(query.value("certificate_id").toULongLong());
+            certificate_ids.push_back(query.value("certificate_id").toULongLong());
         }
         return certificate_ids;
     }
 
-    QList<StorageId>
+    std::vector<StorageId>
     SQLStorageManager::getHistoricServerConnectionRevokedList(StorageId historic_server_connection_id) const {
         QSqlQuery query{m_database};
         query.prepare(R"sql(
@@ -1632,9 +1634,9 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
             terminate();
         }
 
-        QList<StorageId> certificate_ids{};
+        std::vector<StorageId> certificate_ids;
         while (query.next()) {
-            certificate_ids.append(query.value("certificate_id").toULongLong());
+            certificate_ids.push_back(query.value("certificate_id").toULongLong());
         }
         return certificate_ids;
     }
@@ -1664,8 +1666,7 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
     }
 
     void SQLStorageManager::setHistoricServerConnectionTrustList(StorageId historic_server_connection_id,
-
-                                                                 const QList<StorageId>& certificates) {
+                                                                 std::span<const StorageId> certificates) {
         deleteHistoricServerConnectionRevokedList(historic_server_connection_id);
         for (auto cert_id : certificates) {
             QSqlQuery query{m_database};
@@ -1682,8 +1683,7 @@ SELECT certificate_id FROM HistoricServerConnectionRevokedList WHERE historic_se
     }
 
     void SQLStorageManager::setHistoricServerConnectionRevokedList(StorageId historic_server_connection_id,
-
-                                                                   const QList<StorageId>& certificates) {
+                                                                   std::span<const StorageId> certificates) {
         deleteHistoricServerConnectionRevokedList(historic_server_connection_id);
         for (auto cert_id : certificates) {
             QSqlQuery query{m_database};

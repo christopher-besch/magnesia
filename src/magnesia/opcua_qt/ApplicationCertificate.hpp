@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstddef>
+#include <span>
 
-#include <QList>
 #include <QSslCertificate>
 #include <QSslKey>
 #include <QString>
@@ -24,7 +24,7 @@ namespace magnesia::opcua_qt {
          * @param key_size_bits Size of the generated key in bits. If set to 0, the maximum key size is used.
          *        Possible values are: 0, 1024 (deprecated), 2048, 4096
          */
-        ApplicationCertificate(const QList<QString>& subject, const QList<QString>& subject_alt_name,
+        ApplicationCertificate(std::span<const QString> subject, std::span<const QString> subject_alt_name,
                                std::size_t key_size_bits = s_default_key_size);
         /**
          * @brief Creates a Certificate Object from an existing certificate

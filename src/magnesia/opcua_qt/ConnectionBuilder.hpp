@@ -6,12 +6,12 @@
 #include "Logger.hpp"
 #include "abstraction/Endpoint.hpp"
 
+#include <mutex>
 #include <optional>
+#include <vector>
 
 #include <open62541pp/Result.h>
 
-#include <QList>
-#include <QMutex>
 #include <QObject>
 #include <QSslCertificate>
 #include <QString>
@@ -92,7 +92,7 @@ namespace magnesia::opcua_qt {
          *
          * @param trust_list
          */
-        ConnectionBuilder& trustList(const QList<StorageId>& trust_list) noexcept;
+        ConnectionBuilder& trustList(const std::vector<StorageId>& trust_list) noexcept;
         /**
          * @brief Sets the revoked certificate list.
          * Only effective if a client certificate is selected.
@@ -101,7 +101,7 @@ namespace magnesia::opcua_qt {
          *
          * @param revoked_list
          */
-        ConnectionBuilder& revokedList(const QList<StorageId>& revoked_list) noexcept;
+        ConnectionBuilder& revokedList(const std::vector<StorageId>& revoked_list) noexcept;
 
         /**
          * @brief creates a connection from this builder by consuming the builder
@@ -135,17 +135,17 @@ namespace magnesia::opcua_qt {
         [[nodiscard]] const std::optional<QString>&   getUsername() const;
         [[nodiscard]] const std::optional<QString>&   getPassword() const;
         [[nodiscard]] const std::optional<StorageId>& getCertificate() const;
-        [[nodiscard]] const QList<StorageId>&         getTrustList() const;
-        [[nodiscard]] const QList<StorageId>&         getRevokedList() const;
+        [[nodiscard]] const std::vector<StorageId>&   getTrustList() const;
+        [[nodiscard]] const std::vector<StorageId>&   getRevokedList() const;
 
       signals:
         /**
          * @brief emits a list of endpoints from the url
          */
-        void endpointsFound(opcua::Result<QList<Endpoint>> result);
+        void endpointsFound(opcua::Result<std::vector<Endpoint>> result);
 
       private:
-        opcua::Result<QList<Endpoint>> findEndopintsSynchronously();
+        opcua::Result<std::vector<Endpoint>> findEndopintsSynchronously();
 
       private:
         std::optional<QUrl>      m_url;
@@ -154,9 +154,9 @@ namespace magnesia::opcua_qt {
         std::optional<QString>   m_username;
         std::optional<QString>   m_password;
         std::optional<StorageId> m_certificate;
-        QList<StorageId>         m_trust_list;
-        QList<StorageId>         m_revoked_list;
+        std::vector<StorageId>   m_trust_list;
+        std::vector<StorageId>   m_revoked_list;
         // this mutex protects m_url and m_endpoints
-        QMutex m_get_endpoint_mutex;
+        std::mutex m_get_endpoint_mutex;
     };
 } // namespace magnesia::opcua_qt

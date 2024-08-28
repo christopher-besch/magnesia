@@ -3,6 +3,7 @@
 #include "../../../opcua_qt/Connection.hpp"
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
 
+#include <cstddef>
 #include <utility>
 
 #include <QAbstractTableModel>
@@ -43,7 +44,7 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
             return {};
         }
 
-        auto reference = m_references.at(index.row());
+        auto reference = m_references[static_cast<std::size_t>(index.row())];
         switch (index.column()) {
             case 0:
                 return reference.first;
@@ -78,7 +79,7 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
                 reference_name = reference_type->getDisplayName().getText();
             }
 
-            m_references.emplaceBack(reference_name, reference.getDisplayName().getText());
+            m_references.emplace_back(reference_name, reference.getDisplayName().getText());
         }
         endResetModel();
     }

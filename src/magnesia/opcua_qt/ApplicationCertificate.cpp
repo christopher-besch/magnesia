@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <ranges>
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -11,7 +12,6 @@
 #include <open62541pp/types/Builtin.h>
 
 #include <QByteArray>
-#include <QList>
 #include <QSsl>
 #include <QSslCertificate>
 #include <QSslKey>
@@ -24,7 +24,7 @@
 #endif
 
 namespace {
-    std::vector<opcua::String> to_vector(const QList<QString>& list) {
+    std::vector<opcua::String> to_opcua_strings(std::span<const QString> list) {
         auto view = list | std::views::transform(&QString::toStdString);
         return std::vector<opcua::String>{view.begin(), view.end()};
     }
@@ -32,10 +32,12 @@ namespace {
 
 namespace magnesia::opcua_qt {
 
-    ApplicationCertificate::ApplicationCertificate(const QList<QString>& subject,
-                                                   const QList<QString>& subject_alt_name, std::size_t key_size_bits) {
-        const auto result_pair = opcua::crypto::createCertificate(to_vector(subject), to_vector(subject_alt_name),
-                                                                  key_size_bits, opcua::crypto::CertificateFormat::DER);
+    ApplicationCertificate::ApplicationCertificate(std::span<const QString> subject,
+                                                   std::span<const QString> subject_alt_name,
+                                                   std::size_t              key_size_bits) {
+        const auto result_pair =
+            opcua::crypto::createCertificate(to_opcua_strings(subject), to_opcua_strings(subject_alt_name),
+                                             key_size_bits, opcua::crypto::CertificateFormat::DER);
 
         auto certificate = result_pair.certificate.get();
         m_certificate    = QSslCertificate{

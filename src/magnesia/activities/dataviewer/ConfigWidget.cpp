@@ -14,10 +14,12 @@
 #include "DataViewer.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <iterator>
 #include <memory>
 #include <optional>
 #include <utility>
+#include <vector>
 
 #include <open62541pp/Result.h>
 
@@ -35,13 +37,11 @@
 #include <QLabel>
 #include <QLayout>
 #include <QLineEdit>
-#include <QList>
 #include <QLoggingCategory>
 #include <QMetaType>
 #include <QModelIndex>
 #include <QObject>
 #include <QPushButton>
-#include <QSharedPointer>
 #include <QSslCertificate>
 #include <QString>
 #include <QTableView>
@@ -287,7 +287,7 @@ namespace magnesia::activities::dataviewer {
     }
 
     void ConfigWidget::reset() {
-        m_current_connection_builder = nullptr;
+        m_current_connection_builder.reset();
         m_endpoint_selector_model->clear();
         m_connect_button->setEnabled(false);
     }
@@ -299,30 +299,30 @@ namespace magnesia::activities::dataviewer {
                               << "\n  username:" << m_username->text()              //
                               << "\n  password:" << m_password->text();
 
-        auto builder = m_current_connection_builder = QSharedPointer<ConnectionBuilder>{new ConnectionBuilder};
+        m_current_connection_builder = std::make_shared<ConnectionBuilder>();
         m_current_connection_builder->logger(new opcua_qt::Logger);
 
-        builder->url(m_address->text());
+        m_current_connection_builder->url(m_address->text());
         if (auto username = m_username->text(); !username.isEmpty()) {
-            builder->username(m_username->text());
-            builder->password(m_password->text());
+            m_current_connection_builder->username(m_username->text());
+            m_current_connection_builder->password(m_password->text());
         }
         // FIXME: the connection builder is never destroyed, as there is a cyclical reference between signal connection
         // and lambda
-        connect(builder.get(), &ConnectionBuilder::endpointsFound, this,
-                [this, builder](const opcua::Result<QList<Endpoint>>& endpoints) {
+        connect(m_current_connection_builder.get(), &ConnectionBuilder::endpointsFound, this,
+                [this, builder = m_current_connection_builder](const opcua::Result<std::vector<Endpoint>>& endpoints) {
                     if (m_current_connection_builder != builder) {
                         // TODO: cleanup?
                         return;
                     }
                     onEndpointsFound(endpoints);
                 });
-        builder->findEndpoints();
+        m_current_connection_builder->findEndpoints();
 
         m_connect_button->setEnabled(false);
     }
 
-    void ConfigWidget::onEndpointsFound(const opcua::Result<QList<Endpoint>>& result) {
+    void ConfigWidget::onEndpointsFound(const opcua::Result<std::vector<Endpoint>>& result) {
         if (result.hasValue()) {
             const auto& endpoints = result.value();
             qCDebug(lc_dv_config) << "endpoints:";
@@ -381,7 +381,7 @@ namespace magnesia::activities::dataviewer {
         QVariant EndpointTableModel::data(const QModelIndex& index, int role) const {
             Q_ASSERT(checkIndex(index));
 
-            const auto& endpoint = m_endpoints[index.row()];
+            const auto& endpoint = m_endpoints[static_cast<std::size_t>(index.row())];
             const auto  column   = index.column();
 
             if (role == Qt::DisplayRole) {
@@ -419,7 +419,7 @@ namespace magnesia::activities::dataviewer {
             return {};
         }
 
-        void EndpointTableModel::setEndpoints(QList<opcua_qt::Endpoint> endpoints) {
+        void EndpointTableModel::setEndpoints(std::vector<opcua_qt::Endpoint> endpoints) {
             beginResetModel();
             m_endpoints = std::move(endpoints);
             endResetModel();
@@ -438,7 +438,7 @@ namespace magnesia::activities::dataviewer {
         }
 
         int CertificateModel::rowCount(const QModelIndex& /*parent*/) const {
-            return static_cast<int>(m_certificates.count());
+            return static_cast<int>(m_certificates.size());
         }
 
         QVariant CertificateModel::data(const QModelIndex& index, int role) const {
@@ -447,14 +447,14 @@ namespace magnesia::activities::dataviewer {
             }
 
             if (role == Qt::DisplayRole) {
-                auto info =
-                    m_certificates[index.row()].second.getCertificate().subjectInfo(QSslCertificate::CommonName);
+                auto info = m_certificates[static_cast<std::size_t>(index.row())].second.getCertificate().subjectInfo(
+                    QSslCertificate::CommonName);
                 // TODO: what to do with the other info?
                 return info.front();
             }
 
             if (role == Qt::UserRole) {
-                return QVariant::fromValue(m_certificates[index.row()].first);
+                return QVariant::fromValue(m_certificates[static_cast<std::size_t>(index.row())].first);
             }
 
             return {};
@@ -468,10 +468,10 @@ namespace magnesia::activities::dataviewer {
                 return false;
             }
 
-            auto cert = m_certificates.at(row);
+            auto cert = m_certificates[static_cast<std::size_t>(row)];
 
             beginRemoveRows(parent, row, row + count - 1);
-            m_certificates.remove(row);
+            m_certificates.erase(m_certificates.begin() + row);
             Application::instance().getStorageManager().deleteHistoricServerConnection(cert.first);
             endRemoveRows();
 
@@ -482,16 +482,15 @@ namespace magnesia::activities::dataviewer {
             auto cert = Application::instance().getStorageManager().getApplicationCertificate(cert_id);
             Q_ASSERT(cert.has_value());
 
-            const int row = static_cast<int>(m_certificates.count());
+            const int row = static_cast<int>(m_certificates.size());
             beginInsertRows({}, row, row);
-            m_certificates.emplaceBack(cert_id, *cert);
+            m_certificates.emplace_back(cert_id, *cert);
             endInsertRows();
         }
 
         int CertificateModel::rowIndex(StorageId cert_id) const {
-            auto iter =
-                std::ranges::find(std::as_const(m_certificates), cert_id, &decltype(m_certificates)::value_type::first);
-            if (iter == m_certificates.cend()) {
+            auto iter = std::ranges::find(m_certificates, cert_id, &decltype(m_certificates)::value_type::first);
+            if (iter == m_certificates.end()) {
                 return -1;
             }
 
@@ -528,7 +527,7 @@ namespace magnesia::activities::dataviewer {
         }
 
         int HistoricServerConnectionModel::rowCount(const QModelIndex& /*parent*/) const {
-            return static_cast<int>(m_connections.count());
+            return static_cast<int>(m_connections.size());
         }
 
         int HistoricServerConnectionModel::columnCount(const QModelIndex& /*parent*/) const {
@@ -540,7 +539,7 @@ namespace magnesia::activities::dataviewer {
                 return {};
             }
 
-            const auto& connection = m_connections[index.row()];
+            const auto& connection = m_connections[static_cast<std::size_t>(index.row())];
 
             if (role == Qt::DisplayRole) {
                 switch (index.column()) {
@@ -600,10 +599,10 @@ namespace magnesia::activities::dataviewer {
                 return false;
             }
 
-            auto connection = m_connections.at(row);
+            auto connection = m_connections[static_cast<std::size_t>(row)];
 
             beginRemoveRows(parent, row, row + count - 1);
-            m_connections.remove(row);
+            m_connections.erase(m_connections.begin() + row);
             Application::instance().getStorageManager().deleteHistoricServerConnection(connection.first);
             endRemoveRows();
 
@@ -616,9 +615,9 @@ namespace magnesia::activities::dataviewer {
 
             auto iter =
                 // NOLINTNEXTLINE(misc-include-cleaner): lower_bound is provided by <algorithm>, greater by <functional>
-                std::ranges::lower_bound(std::as_const(m_connections), connection->last_used, std::ranges::greater{},
+                std::ranges::lower_bound(m_connections, connection->last_used, std::ranges::greater{},
                                          [](const auto& con) { return con.second.last_used; });
-            auto row = static_cast<int>(std::distance(m_connections.cbegin(), iter));
+            auto row = static_cast<int>(std::distance(m_connections.begin(), iter));
 
             beginInsertRows({}, row, row);
             m_connections.emplace(iter, connection_id, *std::move(connection));
@@ -626,9 +625,8 @@ namespace magnesia::activities::dataviewer {
         }
 
         int HistoricServerConnectionModel::rowIndex(StorageId connection_id) const {
-            auto iter = std::ranges::find(std::as_const(m_connections), connection_id,
-                                          &decltype(m_connections)::value_type::first);
-            if (iter == m_connections.cend()) {
+            auto iter = std::ranges::find(m_connections, connection_id, &decltype(m_connections)::value_type::first);
+            if (iter == m_connections.end()) {
                 return -1;
             }
 
