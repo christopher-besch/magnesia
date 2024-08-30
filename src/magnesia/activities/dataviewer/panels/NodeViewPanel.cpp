@@ -38,7 +38,6 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
 
         connect(m_table_view->selectionModel(), &QItemSelectionModel::currentChanged, this,
                 &NodeViewPanel::onCurrentNodeChanged);
-        connect(this, &NodeViewPanel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
 
         m_table_view->setContextMenuPolicy(Qt::ActionsContextMenu);
         auto* remove = m_table_view->addAction("Remove selected", Qt::Key_Delete, this, [this] {
