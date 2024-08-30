@@ -102,6 +102,10 @@ namespace magnesia::activities::dataviewer {
                         return;
                     }
 
+                    if (index == m_old_layout_index) {
+                        return;
+                    }
+
                     qCDebug(lc_data_viewer) << "selected layout" << index;
                     auto model_index = layout_selector->model()->index(index, 0);
                     auto state       = layout_selector->model()->data(model_index, Qt::UserRole);
@@ -126,6 +130,7 @@ namespace magnesia::activities::dataviewer {
                     save_edit->hide();
                     save_button->hide();
                     abort_button->hide();
+                    m_old_layout_index = index;
                     layout_selector->setFocus(Qt::FocusReason::OtherFocusReason);
                     layout_selector->setCurrentIndex(index);
                 });

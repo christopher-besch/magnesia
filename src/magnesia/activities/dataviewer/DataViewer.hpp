@@ -71,7 +71,7 @@ namespace magnesia::activities::dataviewer {
         opcua_qt::Connection* m_connection;
         opcua_qt::Logger*     m_logger;
 
-        int m_old_layout_index{};
+        int m_old_layout_index{-1};
     };
 
     namespace detail {
