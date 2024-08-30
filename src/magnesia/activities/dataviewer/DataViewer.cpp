@@ -87,12 +87,17 @@ namespace magnesia::activities::dataviewer {
         save_button->hide();
         layout->addWidget(save_button);
 
+        auto* abort_button = new QPushButton("Abort");
+        abort_button->hide();
+        layout->addWidget(abort_button);
+
         connect(layout_selector, &QComboBox::currentIndexChanged, this,
-                [this, layout_selector, save_edit, save_button](int index) {
+                [this, layout_selector, save_edit, save_button, abort_button](int index) {
                     if (index == layout_selector->model()->rowCount() - 1) {
                         layout_selector->hide();
                         save_edit->show();
                         save_button->show();
+                        abort_button->show();
                         save_edit->setFocus(Qt::FocusReason::OtherFocusReason);
                         return;
                     }
@@ -101,26 +106,40 @@ namespace magnesia::activities::dataviewer {
                     auto model_index = layout_selector->model()->index(index, 0);
                     auto state       = layout_selector->model()->data(model_index, Qt::UserRole);
                     m_root_layout->restoreState(state.toJsonDocument());
+                    m_old_layout_index = index;
                 });
 
-        connect(save_button, &QPushButton::clicked, this, [this, layout_selector, model, save_edit, save_button] {
-            auto state = m_root_layout->saveState();
-            auto name  = save_edit->text();
+        connect(save_button, &QPushButton::clicked, this,
+                [this, layout_selector, model, save_edit, save_button, abort_button] {
+                    auto state = m_root_layout->saveState();
+                    auto name  = save_edit->text();
 
-            qCDebug(lc_data_viewer) << "saving layout" << name << "with json_data" << state;
+                    qCDebug(lc_data_viewer) << "saving layout" << name << "with json_data" << state;
 
-            auto index = model->addLayout({
-                .name      = name,
-                .json_data = state,
-            });
+                    auto index = model->addLayout({
+                        .name      = name,
+                        .json_data = state,
+                    });
 
-            save_edit->clear();
-            layout_selector->show();
-            save_edit->hide();
-            save_button->hide();
-            layout_selector->setFocus(Qt::FocusReason::OtherFocusReason);
-            layout_selector->setCurrentIndex(index);
-        });
+                    save_edit->clear();
+                    layout_selector->show();
+                    save_edit->hide();
+                    save_button->hide();
+                    abort_button->hide();
+                    layout_selector->setFocus(Qt::FocusReason::OtherFocusReason);
+                    layout_selector->setCurrentIndex(index);
+                });
+
+        connect(abort_button, &QPushButton::clicked, this,
+                [this, layout_selector, save_edit, save_button, abort_button] {
+                    save_edit->clear();
+                    layout_selector->show();
+                    save_edit->hide();
+                    save_button->hide();
+                    abort_button->hide();
+                    layout_selector->setFocus(Qt::FocusReason::OtherFocusReason);
+                    layout_selector->setCurrentIndex(m_old_layout_index);
+                });
 
         layout_selector->setModel(model);
         layout->addWidget(layout_selector);

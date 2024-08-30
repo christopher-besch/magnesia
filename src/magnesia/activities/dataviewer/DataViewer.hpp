@@ -70,6 +70,8 @@ namespace magnesia::activities::dataviewer {
         layout::PanelLayout*  m_root_layout;
         opcua_qt::Connection* m_connection;
         opcua_qt::Logger*     m_logger;
+
+        int m_old_layout_index{};
     };
 
     namespace detail {
