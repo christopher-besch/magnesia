@@ -137,6 +137,8 @@ namespace magnesia::activities::settings {
                 [] { Application::instance().getRouter().route({"certificate:create"}); });
         scroll_area_layout->addWidget(create_app_cert);
 
+        scroll_area_layout->addStretch();
+
         // activity layout
         auto* layout = new QHBoxLayout;
         layout->setContentsMargins(4, 4, 4, 4);
