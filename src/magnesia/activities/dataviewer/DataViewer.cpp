@@ -78,6 +78,10 @@ namespace magnesia::activities::dataviewer {
 
         auto* layout_selector = new QComboBox;
         auto* model           = new detail::LayoutSelectorModel(s_storage_domain, s_layout_group, layout_selector);
+        layout->addWidget(layout_selector);
+
+        auto* delete_button = new QPushButton("Remove Layout");
+        layout->addWidget(delete_button);
 
         auto* save_edit = new QLineEdit;
         save_edit->hide();
@@ -92,9 +96,10 @@ namespace magnesia::activities::dataviewer {
         layout->addWidget(abort_button);
 
         connect(layout_selector, &QComboBox::currentIndexChanged, this,
-                [this, layout_selector, save_edit, save_button, abort_button](int index) {
+                [this, layout_selector, model, delete_button, save_edit, save_button, abort_button](int index) {
                     if (index == layout_selector->model()->rowCount() - 1) {
                         layout_selector->hide();
+                        delete_button->hide();
                         save_edit->show();
                         save_button->show();
                         abort_button->show();
@@ -102,19 +107,23 @@ namespace magnesia::activities::dataviewer {
                         return;
                     }
 
+                    auto model_index = model->index(index, 0);
+
+                    auto deletable = model->data(model_index, detail::LayoutSelectorModel::DeletableRole).toBool();
+                    delete_button->setEnabled(deletable);
+
                     if (index == m_old_layout_index) {
                         return;
                     }
 
                     qCDebug(lc_data_viewer) << "selected layout" << index;
-                    auto model_index = layout_selector->model()->index(index, 0);
-                    auto state       = layout_selector->model()->data(model_index, Qt::UserRole);
+                    auto state = model->data(model_index, detail::LayoutSelectorModel::LayoutRole);
                     m_root_layout->restoreState(state.toJsonDocument());
                     m_old_layout_index = index;
                 });
 
         connect(save_button, &QPushButton::clicked, this,
-                [this, layout_selector, model, save_edit, save_button, abort_button] {
+                [this, layout_selector, model, delete_button, save_edit, save_button, abort_button] {
                     auto state = m_root_layout->saveState();
                     auto name  = save_edit->text();
 
@@ -127,6 +136,7 @@ namespace magnesia::activities::dataviewer {
 
                     save_edit->clear();
                     layout_selector->show();
+                    delete_button->show();
                     save_edit->hide();
                     save_button->hide();
                     abort_button->hide();
@@ -136,9 +146,10 @@ namespace magnesia::activities::dataviewer {
                 });
 
         connect(abort_button, &QPushButton::clicked, this,
-                [this, layout_selector, save_edit, save_button, abort_button] {
+                [this, layout_selector, delete_button, save_edit, save_button, abort_button] {
                     save_edit->clear();
                     layout_selector->show();
+                    delete_button->show();
                     save_edit->hide();
                     save_button->hide();
                     abort_button->hide();
@@ -146,8 +157,18 @@ namespace magnesia::activities::dataviewer {
                     layout_selector->setCurrentIndex(m_old_layout_index);
                 });
 
+        connect(delete_button, &QPushButton::clicked, this, [layout_selector] {
+            auto current_index = layout_selector->currentIndex();
+            // TODO: get rid of magic comparisons
+            // check if the current item is one before "<Save Layout>" and prevent that being selected when the current
+            // item is removed
+            if (current_index == layout_selector->model()->rowCount() - 2) {
+                layout_selector->setCurrentIndex(current_index - 1);
+            }
+            layout_selector->removeItem(current_index);
+        });
+
         layout_selector->setModel(model);
-        layout->addWidget(layout_selector);
 
         return layout;
     }
@@ -204,7 +225,7 @@ namespace magnesia::activities::dataviewer {
                 }
             }
 
-            if (role == Qt::UserRole) {
+            if (role == LayoutRole) {
                 if (row < m_virtual_layouts.size()) {
                     return m_virtual_layouts[row].json_data;
                 }
@@ -214,24 +235,27 @@ namespace magnesia::activities::dataviewer {
                 }
             }
 
+            if (role == DeletableRole) {
+                return m_virtual_layouts.size() <= row && row < m_virtual_layouts.size() + m_layouts.size();
+            }
+
             return {};
         }
 
         bool LayoutSelectorModel::removeRows(int row, int count, const QModelIndex& parent) {
-            if (row < 0 || rowCount() <= row) {
-                return false;
-            }
             if (count != 1) {
                 return false;
             }
-            if (row == static_cast<int>(m_layouts.size())) {
+            if (!data(index(row, 0), DeletableRole).toBool()) {
                 return false;
             }
 
-            auto layout_id = m_layouts[static_cast<std::size_t>(row)].first;
+            auto layouts_index = static_cast<std::size_t>(row) - m_virtual_layouts.size();
+
+            auto layout_id = m_layouts[layouts_index].first;
 
             beginRemoveRows(parent, row, row);
-            m_layouts.erase(m_layouts.begin() + row);
+            m_layouts.erase(m_layouts.begin() + static_cast<std::ptrdiff_t>(layouts_index));
             Application::instance().getStorageManager().deleteLayout(layout_id, m_group, m_domain);
             endRemoveRows();
 
