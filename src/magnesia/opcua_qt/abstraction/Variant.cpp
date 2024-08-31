@@ -3,7 +3,6 @@
 #include "NodeId.hpp"
 
 #include <cstdint>
-#include <optional>
 #include <ranges>
 #include <utility>
 #include <vector>
@@ -28,32 +27,6 @@ namespace magnesia::opcua_qt::abstraction {
 
     bool Variant::isArray() const noexcept {
         return m_variant.isArray();
-    }
-
-    template<typename T>
-    std::optional<T> Variant::getScalar() const {
-        if (!m_variant.isScalar()) {
-            return std::nullopt;
-        }
-
-        return m_variant.getScalar<T>();
-    }
-
-    template<typename T>
-    std::optional<std::vector<T>> Variant::getArray() const {
-        if (!m_variant.isArray()) {
-            return std::nullopt;
-        }
-
-        auto span = m_variant.getArray<T>();
-        return {span.begin(), span.end()};
-    }
-
-    template<typename T>
-    std::vector<QVariant> Variant::getQVariantArray() const {
-        auto span = m_variant.getArray<T>();
-        auto res  = std::views::transform(span, [](const auto& val) { return QVariant::fromValue(val); });
-        return {res.begin(), res.end()};
     }
 
     NodeId Variant::getDataType() const noexcept {

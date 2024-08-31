@@ -91,6 +91,9 @@ namespace magnesia::opcua_qt::abstraction {
         void eventTriggered(Node* node, std::shared_ptr<std::vector<Variant>>);
 
       private:
+        static void updateNodeCache(Node* node, AttributeId attribute_id, const DataValue& value);
+
+      private:
         opcua::Subscription<opcua::Client> m_subscription;
     };
 } // namespace magnesia::opcua_qt::abstraction

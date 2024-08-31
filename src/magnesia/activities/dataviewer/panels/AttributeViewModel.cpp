@@ -29,6 +29,7 @@
 #include <QString>
 #include <QVariant>
 #include <Qt>
+#include <qtmetamacros.h>
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
@@ -49,6 +50,7 @@ using magnesia::opcua_qt::abstraction::node_class_to_string;
 using magnesia::opcua_qt::abstraction::NodeClass;
 using magnesia::opcua_qt::abstraction::NodeId;
 using magnesia::opcua_qt::abstraction::QualifiedName;
+using magnesia::opcua_qt::abstraction::Subscription;
 using magnesia::opcua_qt::abstraction::value_rank_to_string;
 using magnesia::opcua_qt::abstraction::ValueRank;
 using magnesia::opcua_qt::abstraction::write_mask_to_string;
@@ -281,21 +283,33 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         append_if(node->isExecutable().has_value(), AttributeId::EXECUTABLE, m_available_attributes);
         append_if(node->isUserExecutable().has_value(), AttributeId::USER_EXECUTABLE, m_available_attributes);
 
+        if (m_subscription != nullptr) {
+            m_subscription->deleteLater();
+        }
+
+        m_subscription = connection->createSubscription(node, m_available_attributes);
+        m_subscription->setPublishingMode(true);
+        connect(m_subscription, &Subscription::valueChanged, this, &AttributeViewModel::valueChanged);
+
         endResetModel();
     }
 
     QModelIndex AttributeViewModel::index(int row, int column, const QModelIndex& parent) const {
-        if (row < 1) {
+        if (row < 0 || column < 0) {
             return {};
         }
 
         std::uint32_t item = 0;
 
         if (!parent.isValid()) {
-            item = item_id(m_available_attributes[static_cast<std::size_t>(row - 1)], 0);
+            item = item_id(m_available_attributes[static_cast<std::size_t>(row)], 0);
+        } else if (row < 1) {
+            // Sub items start at index 1
+            return {};
         } else {
-            auto sub_item = static_cast<std::uint8_t>(row);
-            item          = item_id(m_available_attributes[static_cast<std::size_t>(parent.row() - 1)], sub_item);
+            auto sub_item  = static_cast<std::uint8_t>(row);
+            auto attribute = m_available_attributes[static_cast<std::size_t>(parent.row())];
+            item           = item_id(attribute, sub_item);
         }
 
         return createIndex(row, column, item);
@@ -313,15 +327,14 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         }
 
         auto attribute = attribute_id(item);
-        auto row =
-            std::distance(m_available_attributes.begin(), std::ranges::find(m_available_attributes, attribute)) + 1;
+        auto row = std::distance(m_available_attributes.begin(), std::ranges::find(m_available_attributes, attribute));
 
-        return createIndex(static_cast<int>(row), index.column(), static_cast<std::uint32_t>(attribute));
+        return createIndex(static_cast<int>(row), index.column(), item_id(attribute, 0));
     }
 
     int AttributeViewModel::rowCount(const QModelIndex& parent) const {
         if (!parent.isValid()) {
-            return static_cast<int>(m_available_attributes.size() + 1);
+            return static_cast<int>(m_available_attributes.size());
         }
 
         auto item      = item_id(parent);
@@ -473,5 +486,19 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
             }
         }
         return {};
+    }
+
+    void AttributeViewModel::valueChanged(Node* /*node*/, AttributeId attribute_id) {
+        auto iter = std::ranges::find(m_available_attributes, attribute_id);
+        if (iter == m_available_attributes.cend()) {
+            // TODO: Find out why this happens and put an assert here
+            return;
+        }
+
+        auto row         = static_cast<int>(std::distance(m_available_attributes.begin(), iter));
+        auto left_index  = index(row, 0);
+        auto right_index = index(row, columnCount() - 1);
+
+        Q_EMIT dataChanged(left_index, right_index, {Qt::DisplayRole});
     }
 } // namespace magnesia::activities::dataviewer::panels::attribute_view_panel
