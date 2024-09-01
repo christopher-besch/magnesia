@@ -11,9 +11,13 @@
 #include "settings.hpp"
 #include "terminate.hpp"
 
+#include <algorithm>
 #include <functional>
+#include <iterator>
+#include <map>
 #include <memory>
 #include <span>
+#include <utility>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -21,6 +25,7 @@
 #include <QObject>
 #include <QStandardPaths>
 #include <QString>
+#include <QStringBuilder>
 #include <QStyle>
 #include <QTabBar>
 #include <QTabWidget>
@@ -148,7 +153,8 @@ namespace magnesia {
         return *m_router;
     }
 
-    void Application::openActivity(Activity* activity, const QString& title, bool closable) {
+    void Application::openActivity(Activity* activity, const QString& title, const QString& disambiguator,
+                                   bool closable) {
         Q_ASSERT(activity != nullptr);
         Q_ASSERT(m_tab_widget != nullptr);
 
@@ -172,6 +178,9 @@ namespace magnesia {
         }
 
         m_tab_widget->setUpdatesEnabled(true);
+
+        m_activities.emplace(title, std::pair{activity, disambiguator});
+        updateDisambiguations(title);
     }
 
     void Application::closeActivity(Activity* activity) {
@@ -182,6 +191,15 @@ namespace magnesia {
         Q_ASSERT(idx != -1);
         m_tab_widget->removeTab(idx);
         activity->deleteLater();
+
+        auto entry = std::ranges::find_if(
+            m_activities, [activity](const std::pair<QString, std::pair<QPointer<Activity>, QString>>& pair) {
+                return pair.second.first == activity;
+            });
+        Q_ASSERT(entry != m_activities.cend());
+        auto title = entry->first;
+        m_activities.erase(entry);
+        updateDisambiguations(title);
     }
 
     void Application::focusActivity(Activity* activity) {
@@ -191,5 +209,22 @@ namespace magnesia {
         auto idx = m_tab_widget->indexOf(activity);
         Q_ASSERT(idx != -1);
         m_tab_widget->setCurrentIndex(idx);
+    }
+
+    void Application::updateDisambiguations(const QString& title) {
+        if (auto [it, end] = m_activities.equal_range(title); std::distance(it, end) > 1) {
+            for (; it != end; it++) {
+                auto activity      = it->second.first;
+                auto disambiguator = it->second.second;
+                Q_ASSERT(!activity.isNull());
+                m_tab_widget->setTabText(m_tab_widget->indexOf(activity), title % " - " % disambiguator);
+            }
+        } else {
+            for (; it != end; it++) {
+                auto activity = it->second.first;
+                Q_ASSERT(!activity.isNull());
+                m_tab_widget->setTabText(m_tab_widget->indexOf(activity), title);
+            }
+        }
     }
 } // namespace magnesia

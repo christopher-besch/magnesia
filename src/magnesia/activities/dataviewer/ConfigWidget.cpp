@@ -129,7 +129,8 @@ namespace magnesia::activities::dataviewer {
         }
 
         void open_dataviewer(Connection* connection, opcua_qt::Logger* logger) {
-            Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer");
+            Application::instance().openActivity(new DataViewer(connection, logger), "DataViewer",
+                                                 connection->getEndpointUrl().toString());
         }
     } // namespace
 
