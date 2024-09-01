@@ -11,7 +11,7 @@ namespace magnesia::opcua_qt::abstraction {
      *
      * See https://reference.opcfoundation.org/Core/Part3/v105/docs/8.59
      */
-    enum class EventNotifier : uint8_t {
+    enum class EventNotifier : std::uint8_t {
         SUBSCRIBE_TO_EVENTS = 1,
         HISTORY_READ        = 4,
         HISTORY_WRITE       = 8,

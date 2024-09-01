@@ -51,7 +51,8 @@ namespace magnesia::opcua_qt::abstraction {
     MonitoredItem Subscription::subscribeDataChanged(Node* node, AttributeId attribute_id) {
         return MonitoredItem(m_subscription.subscribeDataChange(
             node->getNodeId().handle(), static_cast<opcua::AttributeId>(attribute_id),
-            [this, node, attribute_id](uint32_t /*subId*/, uint32_t /*monId*/, const opcua::DataValue& value) {
+            [this, node, attribute_id](std::uint32_t /*subId*/, std::uint32_t /*monId*/,
+                                       const opcua::DataValue& value) {
                 if (attribute_id == opcua_qt::abstraction::AttributeId::DISPLAY_NAME) {
                     auto text = value.getValue().getScalar<opcua::LocalizedText>();
                     node->setCacheDisplayName(LocalizedText{std::move(text)});
@@ -66,7 +67,8 @@ namespace magnesia::opcua_qt::abstraction {
     MonitoredItem Subscription::subscribeEvent(Node* node) {
         return MonitoredItem(m_subscription.subscribeEvent(
             node->getNodeId().handle(), opcua::EventFilter(),
-            [this, node](uint32_t /*subId*/, uint32_t /*monId*/, opcua::Span<const opcua::Variant> event_fields) {
+            [this, node](std::uint32_t /*subId*/, std::uint32_t /*monId*/,
+                         opcua::Span<const opcua::Variant> event_fields) {
                 auto items = std::make_shared<std::vector<Variant>>(event_fields.begin(), event_fields.end());
                 Q_EMIT eventTriggered(node, std::move(items));
             }));

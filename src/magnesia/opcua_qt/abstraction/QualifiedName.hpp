@@ -26,12 +26,12 @@ namespace magnesia::opcua_qt::abstraction {
          * @param namespace_index   Index of the Namespace.
          * @param name              The name
          */
-        QualifiedName(uint16_t namespace_index, const QString& name);
+        QualifiedName(std::uint16_t namespace_index, const QString& name);
 
         /**
          * Get the namespace index.
          */
-        [[nodiscard]] uint16_t getNameSpaceIndex() const;
+        [[nodiscard]] std::uint16_t getNameSpaceIndex() const;
 
         /**
          * Get the name.

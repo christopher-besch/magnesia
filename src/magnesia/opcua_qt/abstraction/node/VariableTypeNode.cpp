@@ -43,7 +43,7 @@ namespace magnesia::opcua_qt::abstraction {
         return static_cast<ValueRank>(handle().readValueRank());
     }
 
-    std::optional<std::vector<uint32_t>> VariableTypeNode::getArrayDimensions() {
+    std::optional<std::vector<std::uint32_t>> VariableTypeNode::getArrayDimensions() {
         try {
             return handle().readArrayDimensions();
         } catch (opcua::BadStatus&) {
@@ -71,7 +71,7 @@ namespace magnesia::opcua_qt::abstraction {
         handle().writeValueRank(static_cast<opcua::ValueRank>(rank));
     }
 
-    void VariableTypeNode::setArrayDimensions(const std::vector<uint32_t>& dimensions) {
+    void VariableTypeNode::setArrayDimensions(const std::vector<std::uint32_t>& dimensions) {
         handle().writeArrayDimensions(dimensions);
     }
 

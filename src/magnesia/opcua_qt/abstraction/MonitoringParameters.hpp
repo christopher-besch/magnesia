@@ -32,7 +32,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @param size the new queue size
          */
-        void setQueueSize(uint32_t size) noexcept;
+        void setQueueSize(std::uint32_t size) noexcept;
 
         /**
          * Set the discard policy for when the queue is full. If true the oldest item will be discarded. Otherwise the
@@ -49,7 +49,7 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the queue size.
          */
-        [[nodiscard]] uint32_t getQueueSize() const noexcept;
+        [[nodiscard]] std::uint32_t getQueueSize() const noexcept;
 
         /**
          * Get the discard policy.

@@ -34,20 +34,20 @@ namespace magnesia::opcua_qt::abstraction {
          */
         explicit VariableNode(opcua::Node<opcua::Client> node, QObject* parent);
 
-        [[nodiscard]] std::optional<DataValue>             getDataValue() override;
-        [[nodiscard]] std::optional<NodeId>                getDataType() override;
-        [[nodiscard]] std::optional<ValueRank>             getValueRank() override;
-        [[nodiscard]] std::optional<std::vector<uint32_t>> getArrayDimensions() override;
-        [[nodiscard]] std::optional<AccessLevelBitmask>    getAccessLevel() override;
-        [[nodiscard]] std::optional<AccessLevelBitmask>    getUserAccessLevel() override;
-        [[nodiscard]] std::optional<double>                getMinimumSamplingInterval() override;
-        [[nodiscard]] std::optional<bool>                  isHistorizing() override;
+        [[nodiscard]] std::optional<DataValue>                  getDataValue() override;
+        [[nodiscard]] std::optional<NodeId>                     getDataType() override;
+        [[nodiscard]] std::optional<ValueRank>                  getValueRank() override;
+        [[nodiscard]] std::optional<std::vector<std::uint32_t>> getArrayDimensions() override;
+        [[nodiscard]] std::optional<AccessLevelBitmask>         getAccessLevel() override;
+        [[nodiscard]] std::optional<AccessLevelBitmask>         getUserAccessLevel() override;
+        [[nodiscard]] std::optional<double>                     getMinimumSamplingInterval() override;
+        [[nodiscard]] std::optional<bool>                       isHistorizing() override;
 
         void setDataValue(const DataValue& value) override;
         void setDataValue(const Variant& value) override;
         void setDataType(const NodeId& data_type) override;
         void setValueRank(ValueRank rank) override;
-        void setArrayDimensions(const std::vector<uint32_t>& dimensions) override;
+        void setArrayDimensions(const std::vector<std::uint32_t>& dimensions) override;
         void setAccessLevel(AccessLevelBitmask mask) override;
         void setUserAccessLevel(AccessLevelBitmask mask) override;
         void setHistorizing(bool historizing) override;

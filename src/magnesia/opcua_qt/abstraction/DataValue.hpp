@@ -31,7 +31,7 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the picoseconds for the source timestamp.
          */
-        [[nodiscard]] uint16_t getSourcePicoseconds() const noexcept;
+        [[nodiscard]] std::uint16_t getSourcePicoseconds() const noexcept;
 
         /**
          * Get the time when the server first knew of the new value.
@@ -41,7 +41,7 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the picoseconds for the server timestamp.
          */
-        [[nodiscard]] uint16_t getServerPicoseconds() const noexcept;
+        [[nodiscard]] std::uint16_t getServerPicoseconds() const noexcept;
 
         /**
          * Determines if the value can be used or if it's not good.

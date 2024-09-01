@@ -20,7 +20,7 @@ namespace magnesia::opcua_qt::abstraction {
         return timestamp;
     }
 
-    uint16_t DataValue::getSourcePicoseconds() const noexcept {
+    std::uint16_t DataValue::getSourcePicoseconds() const noexcept {
         return m_data_value.getSourcePicoseconds();
     }
 
@@ -30,7 +30,7 @@ namespace magnesia::opcua_qt::abstraction {
         return timestamp;
     }
 
-    uint16_t DataValue::getServerPicoseconds() const noexcept {
+    std::uint16_t DataValue::getServerPicoseconds() const noexcept {
         return m_data_value.getSourcePicoseconds();
     }
 

@@ -13,7 +13,7 @@ namespace magnesia::opcua_qt::abstraction {
         m_parameters.samplingInterval = interval;
     }
 
-    void MonitoringParameters::setQueueSize(uint32_t size) noexcept {
+    void MonitoringParameters::setQueueSize(std::uint32_t size) noexcept {
         m_parameters.queueSize = size;
     }
 
@@ -25,7 +25,7 @@ namespace magnesia::opcua_qt::abstraction {
         return m_parameters.samplingInterval;
     }
 
-    [[nodiscard]] uint32_t MonitoringParameters::getQueueSize() const noexcept {
+    [[nodiscard]] std::uint32_t MonitoringParameters::getQueueSize() const noexcept {
         return m_parameters.queueSize;
     }
 

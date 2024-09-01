@@ -78,7 +78,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         std::optional<opcua_qt::abstraction::ValueRank> value_rank;
 
         /// Stores the array dimensions of the node.
-        std::optional<std::vector<uint32_t>> array_dimensions;
+        std::optional<std::vector<std::uint32_t>> array_dimensions;
 
         /// Stores the access level for the node.
         std::optional<opcua_qt::abstraction::AccessLevelBitmask> access_level;
@@ -130,14 +130,14 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         void setNode(opcua_qt::abstraction::Node* node, opcua_qt::Connection* connection);
 
       private:
-        [[nodiscard]] static constexpr uint32_t itemId(opcua_qt::abstraction::AttributeId attribute,
-                                                       uint8_t                            sub_item) noexcept;
+        [[nodiscard]] static constexpr std::uint32_t itemId(opcua_qt::abstraction::AttributeId attribute,
+                                                            std::uint8_t                       sub_item) noexcept;
 
-        [[nodiscard]] static constexpr uint32_t itemId(uint32_t attribute, uint8_t sub_item) noexcept;
+        [[nodiscard]] static constexpr std::uint32_t itemId(std::uint32_t attribute, std::uint8_t sub_item) noexcept;
 
-        [[nodiscard]] static constexpr opcua_qt::abstraction::AttributeId attributeId(uint32_t item_id) noexcept;
-        [[nodiscard]] static constexpr uint8_t                            subId(uint32_t item_id) noexcept;
-        [[nodiscard]] static uint32_t                                     itemId(QModelIndex index) noexcept;
+        [[nodiscard]] static constexpr opcua_qt::abstraction::AttributeId attributeId(std::uint32_t item_id) noexcept;
+        [[nodiscard]] static constexpr std::uint8_t                       subId(std::uint32_t item_id) noexcept;
+        [[nodiscard]] static std::uint32_t                                itemId(QModelIndex index) noexcept;
 
       private:
         NodeProxy                                       m_node;
