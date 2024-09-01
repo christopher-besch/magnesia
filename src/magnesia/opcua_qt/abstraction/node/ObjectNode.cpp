@@ -15,10 +15,11 @@ namespace magnesia::opcua_qt::abstraction {
     ObjectNode::ObjectNode(opcua::Node<opcua::Client> node, QObject* parent) : Node(std::move(node), parent) {}
 
     std::optional<EventNotifierBitmask> ObjectNode::getEventNotifierType() {
-        return EventNotifierBitmask(handle().readEventNotifier());
+        return wrapCache(&Cache::event_notifier, [this] { return EventNotifierBitmask{handle().readEventNotifier()}; });
     }
 
     void ObjectNode::setEventNotifierType(EventNotifierBitmask type) {
         handle().writeEventNotifier(type.handle());
+        invalidateCache(&Cache::event_notifier);
     }
 } // namespace magnesia::opcua_qt::abstraction

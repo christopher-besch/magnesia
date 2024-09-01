@@ -14,10 +14,10 @@ namespace magnesia::opcua_qt::abstraction {
     MethodNode::MethodNode(opcua::Node<opcua::Client> node, QObject* parent) : Node(std::move(node), parent) {}
 
     std::optional<bool> MethodNode::isExecutable() {
-        return handle().readExecutable();
+        return wrapCache(&Cache::is_executable, [this] { return handle().readExecutable(); });
     }
 
     std::optional<bool> MethodNode::isUserExecutable() {
-        return handle().readUserExecutable();
+        return wrapCache(&Cache::is_user_executable, [this] { return handle().readUserExecutable(); });
     }
 } // namespace magnesia::opcua_qt::abstraction

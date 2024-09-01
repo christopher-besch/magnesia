@@ -23,59 +23,61 @@ namespace magnesia::opcua_qt::abstraction {
     VariableTypeNode::VariableTypeNode(opcua::Node<opcua::Client> node, QObject* parent)
         : Node(std::move(node), parent) {}
 
-    std::optional<DataValue> VariableTypeNode::getDataValue() {
-        if (const auto& cache = getCacheDataValue(); cache.has_value()) {
-            return cache;
-        }
-
+    const DataValue* VariableTypeNode::getDataValue() {
         try {
-            return setCacheDataValue(DataValue(handle().readDataValue()));
+            return &wrapCache(&Cache::data_value, [this] { return DataValue{handle().readDataValue()}; });
         } catch (opcua::BadStatus&) {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
     std::optional<NodeId> VariableTypeNode::getDataType() {
-        return NodeId(handle().readDataType());
+        return wrapCache(&Cache::data_type, [this] { return NodeId{handle().readDataType()}; });
     }
 
     std::optional<ValueRank> VariableTypeNode::getValueRank() {
-        return static_cast<ValueRank>(handle().readValueRank());
+        return wrapCache(&Cache::value_rank, [this] { return static_cast<ValueRank>(handle().readValueRank()); });
     }
 
-    std::optional<std::vector<std::uint32_t>> VariableTypeNode::getArrayDimensions() {
+    const std::vector<std::uint32_t>* VariableTypeNode::getArrayDimensions() {
         try {
-            return handle().readArrayDimensions();
+            return &wrapCache(&Cache::array_dimensions, [this] { return handle().readArrayDimensions(); });
         } catch (opcua::BadStatus&) {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
     std::optional<bool> VariableTypeNode::isAbstract() {
-        return handle().readIsAbstract();
+        return wrapCache(&Cache::is_abstract, [this] { return handle().readIsAbstract(); });
     }
 
     void VariableTypeNode::setDataValue(const DataValue& value) {
         handle().writeDataValue(value.handle());
+        invalidateCache(&Cache::data_value);
     }
 
     void VariableTypeNode::setDataValue(const Variant& value) {
         handle().writeValue(value.handle());
+        invalidateCache(&Cache::data_value);
     }
 
     void VariableTypeNode::setDataType(const NodeId& data_type) {
         handle().writeDataType(data_type.handle());
+        invalidateCache(&Cache::data_type);
     }
 
     void VariableTypeNode::setValueRank(ValueRank rank) {
         handle().writeValueRank(static_cast<opcua::ValueRank>(rank));
+        invalidateCache(&Cache::value_rank);
     }
 
     void VariableTypeNode::setArrayDimensions(const std::vector<std::uint32_t>& dimensions) {
         handle().writeArrayDimensions(dimensions);
+        invalidateCache(&Cache::array_dimensions);
     }
 
     void VariableTypeNode::setAbstract(bool abstract) {
         handle().writeIsAbstract(abstract);
+        invalidateCache(&Cache::is_abstract);
     }
 } // namespace magnesia::opcua_qt::abstraction

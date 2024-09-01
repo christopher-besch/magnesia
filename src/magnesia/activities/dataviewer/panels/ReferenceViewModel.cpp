@@ -69,8 +69,8 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
             QString reference_name;
 
             if (!is_forward) {
-                auto inverse_name = reference_type->getInverseName();
-                if (inverse_name.has_value()) {
+                const auto* inverse_name = reference_type->getInverseName();
+                if (inverse_name != nullptr) {
                     reference_name = inverse_name->getText();
                 }
             }

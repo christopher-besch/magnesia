@@ -34,14 +34,14 @@ namespace magnesia::opcua_qt::abstraction {
          */
         explicit VariableNode(opcua::Node<opcua::Client> node, QObject* parent);
 
-        [[nodiscard]] std::optional<DataValue>                  getDataValue() override;
-        [[nodiscard]] std::optional<NodeId>                     getDataType() override;
-        [[nodiscard]] std::optional<ValueRank>                  getValueRank() override;
-        [[nodiscard]] std::optional<std::vector<std::uint32_t>> getArrayDimensions() override;
-        [[nodiscard]] std::optional<AccessLevelBitmask>         getAccessLevel() override;
-        [[nodiscard]] std::optional<AccessLevelBitmask>         getUserAccessLevel() override;
-        [[nodiscard]] std::optional<double>                     getMinimumSamplingInterval() override;
-        [[nodiscard]] std::optional<bool>                       isHistorizing() override;
+        [[nodiscard]] const DataValue*                  getDataValue() override;
+        [[nodiscard]] std::optional<NodeId>             getDataType() override;
+        [[nodiscard]] std::optional<ValueRank>          getValueRank() override;
+        [[nodiscard]] const std::vector<std::uint32_t>* getArrayDimensions() override;
+        [[nodiscard]] std::optional<AccessLevelBitmask> getAccessLevel() override;
+        [[nodiscard]] std::optional<AccessLevelBitmask> getUserAccessLevel() override;
+        [[nodiscard]] std::optional<double>             getMinimumSamplingInterval() override;
+        [[nodiscard]] std::optional<bool>               isHistorizing() override;
 
         void setDataValue(const DataValue& value) override;
         void setDataValue(const Variant& value) override;

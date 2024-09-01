@@ -30,79 +30,85 @@
 namespace magnesia::opcua_qt::abstraction {
     VariableNode::VariableNode(opcua::Node<opcua::Client> node, QObject* parent) : Node(std::move(node), parent) {}
 
-    std::optional<DataValue> VariableNode::getDataValue() {
-        if (const auto& cache = getCacheDataValue(); cache.has_value()) {
-            return cache;
-        }
-
-        return setCacheDataValue(DataValue(handle().readDataValue()));
+    const DataValue* VariableNode::getDataValue() {
+        return &wrapCache(&Cache::data_value, [this] { return DataValue{handle().readDataValue()}; });
     }
 
     std::optional<NodeId> VariableNode::getDataType() {
-        return NodeId(handle().readDataType());
+        return wrapCache(&Cache::data_type, [this] { return NodeId{handle().readDataType()}; });
     }
 
     std::optional<ValueRank> VariableNode::getValueRank() {
-        return static_cast<ValueRank>(handle().readValueRank());
+        return wrapCache(&Cache::value_rank, [this] { return static_cast<ValueRank>(handle().readValueRank()); });
     }
 
-    std::optional<std::vector<std::uint32_t>> VariableNode::getArrayDimensions() {
+    const std::vector<std::uint32_t>* VariableNode::getArrayDimensions() {
         try {
-            return handle().readArrayDimensions();
+            return &wrapCache(&Cache::array_dimensions, [this] { return handle().readArrayDimensions(); });
         } catch (opcua::BadStatus&) {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
     std::optional<AccessLevelBitmask> VariableNode::getAccessLevel() {
-        return AccessLevelBitmask(handle().readAccessLevel());
+        return wrapCache(&Cache::access_level, [this] { return AccessLevelBitmask{handle().readAccessLevel()}; });
     }
 
     std::optional<AccessLevelBitmask> VariableNode::getUserAccessLevel() {
-        return AccessLevelBitmask(handle().readUserAccessLevel());
+        return wrapCache(&Cache::user_access_level,
+                         [this] { return AccessLevelBitmask{handle().readUserAccessLevel()}; });
     }
 
     std::optional<double> VariableNode::getMinimumSamplingInterval() {
         try {
-            return handle().readMinimumSamplingInterval();
+            return wrapCache(&Cache::minimum_sampling_interval,
+                             [this] { return handle().readMinimumSamplingInterval(); });
         } catch (opcua::BadStatus&) {
             return std::nullopt;
         }
     }
 
     std::optional<bool> VariableNode::isHistorizing() {
-        return handle().readHistorizing();
+        return wrapCache(&Cache::is_historizing, [this] { return handle().readHistorizing(); });
     }
 
     void VariableNode::setDataValue(const DataValue& value) {
         handle().writeDataValue(value.handle());
+        invalidateCache(&Cache::data_value);
     }
 
     void VariableNode::setDataValue(const Variant& value) {
         handle().writeValue(value.handle());
+        invalidateCache(&Cache::data_value);
     }
 
     void VariableNode::setDataType(const NodeId& data_type) {
         handle().writeDataType(data_type.handle());
+        invalidateCache(&Cache::data_type);
     }
 
     void VariableNode::setValueRank(ValueRank rank) {
         handle().writeValueRank(static_cast<opcua::ValueRank>(rank));
+        invalidateCache(&Cache::value_rank);
     }
 
     void VariableNode::setArrayDimensions(const std::vector<std::uint32_t>& dimensions) {
         handle().writeArrayDimensions(dimensions);
+        invalidateCache(&Cache::array_dimensions);
     }
 
     void VariableNode::setAccessLevel(AccessLevelBitmask mask) {
         handle().writeAccessLevel(mask.handle());
+        invalidateCache(&Cache::access_level);
     }
 
     void VariableNode::setUserAccessLevel(AccessLevelBitmask mask) {
         handle().writeUserAccessLevel(mask.handle());
+        invalidateCache(&Cache::user_access_level);
     }
 
     void VariableNode::setHistorizing(bool historizing) {
         handle().writeHistorizing(historizing);
+        invalidateCache(&Cache::is_historizing);
     }
 } // namespace magnesia::opcua_qt::abstraction

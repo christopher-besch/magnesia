@@ -14,10 +14,11 @@ namespace magnesia::opcua_qt::abstraction {
     ObjectTypeNode::ObjectTypeNode(opcua::Node<opcua::Client> node, QObject* parent) : Node(std::move(node), parent) {}
 
     std::optional<bool> ObjectTypeNode::isAbstract() {
-        return handle().readIsAbstract();
+        return wrapCache(&Cache::is_abstract, [this] { return handle().readIsAbstract(); });
     }
 
     void ObjectTypeNode::setAbstract(bool abstract) {
         handle().writeIsAbstract(abstract);
+        invalidateCache(&Cache::is_abstract);
     }
 } // namespace magnesia::opcua_qt::abstraction

@@ -240,6 +240,16 @@ namespace {
     }
 } // namespace
 
+namespace {
+    template<typename T>
+    std::optional<T> get_opt(T* val) {
+        if (val) {
+            return *val;
+        }
+        return std::nullopt;
+    }
+} // namespace
+
 namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
     AttributeViewModel::AttributeViewModel(QObject* parent) : QAbstractItemModel(parent), m_node() {}
 
@@ -258,18 +268,18 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
             .node_class                = node->getNodeClass(),
             .browse_name               = node->getBrowseName(),
             .display_name              = node->getDisplayName(),
-            .description               = node->getDescription(),
+            .description               = get_opt(node->getDescription()),
             .write_mask                = node->getWriteMask(),
             .user_write_mask           = node->getUserWriteMask(),
             .is_abstract               = node->isAbstract(),
             .is_symmetric              = node->isSymmetric(),
-            .inverse_name              = node->getInverseName(),
+            .inverse_name              = get_opt(node->getInverseName()),
             .contains_no_loops         = node->containsNoLoops(),
             .event_notifier            = node->getEventNotifierType(),
-            .data_value                = node->getDataValue(),
+            .data_value                = get_opt(node->getDataValue()),
             .data_type                 = type_node,
             .value_rank                = node->getValueRank(),
-            .array_dimensions          = node->getArrayDimensions(),
+            .array_dimensions          = get_opt(node->getArrayDimensions()),
             .access_level              = node->getAccessLevel(),
             .user_access_level         = node->getUserAccessLevel(),
             .minimum_sampling_interval = node->getMinimumSamplingInterval(),

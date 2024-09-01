@@ -41,33 +41,28 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     NodeClass Node::getNodeClass() {
-        return static_cast<NodeClass>(m_node.readNodeClass());
+        return wrapCache(&Cache::node_class, [this] { return static_cast<NodeClass>(m_node.readNodeClass()); });
     }
 
-    QualifiedName Node::getBrowseName() {
-        return QualifiedName(m_node.readBrowseName());
+    const QualifiedName& Node::getBrowseName() {
+        return wrapCache(&Cache::browse_name, [this] { return QualifiedName{m_node.readBrowseName()}; });
     }
 
-    LocalizedText Node::getDisplayName() {
-        if (m_cache_display_name.has_value()) {
-            return m_cache_display_name.value();
-        }
-
-        m_cache_display_name = LocalizedText(m_node.readDisplayName());
-        return m_cache_display_name.value();
+    const LocalizedText& Node::getDisplayName() {
+        return wrapCache(&Cache::display_name, [this] { return LocalizedText{m_node.readDisplayName()}; });
     }
 
-    std::optional<LocalizedText> Node::getDescription() {
+    const LocalizedText* Node::getDescription() {
         try {
-            return LocalizedText(m_node.readDescription());
+            return &wrapCache(&Cache::description, [this] { return LocalizedText{m_node.readDescription()}; });
         } catch (opcua::BadStatus&) {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
     std::optional<WriteMaskBitmask> Node::getWriteMask() {
         try {
-            return WriteMaskBitmask(m_node.readWriteMask());
+            return wrapCache(&Cache::write_mask, [this] { return WriteMaskBitmask{m_node.readWriteMask()}; });
         } catch (opcua::BadStatus&) {
             return std::nullopt;
         }
@@ -75,46 +70,40 @@ namespace magnesia::opcua_qt::abstraction {
 
     std::optional<WriteMaskBitmask> Node::getUserWriteMask() {
         try {
-            return WriteMaskBitmask(m_node.readUserWriteMask());
+            return wrapCache(&Cache::write_mask, [this] { return WriteMaskBitmask{m_node.readUserWriteMask()}; });
         } catch (opcua::BadStatus&) {
             return std::nullopt;
         }
     }
 
     Node* Node::getParent() {
-        if (m_cache_parent.has_value()) {
-            return m_cache_parent.value();
-        }
-
-        m_cache_parent = fromOPCUANode(m_node.browseParent(), parent());
-        return m_cache_parent.value();
+        return wrapCache(&Cache::parent, [this] { return fromOPCUANode(m_node.browseParent(), parent()); });
     }
 
-    std::vector<Node*> Node::getChildren() {
-        if (m_cache_children.has_value()) {
-            return m_cache_children.value();
-        }
+    const std::vector<Node*>& Node::getChildren() {
+        return wrapCache(&Cache::children, [this] {
+            std::vector<Node*> nodes;
 
-        std::vector<Node*> nodes{};
-
-        for (const auto& node : m_node.browseChildren()) {
-            if (auto* specific_node = Node::fromOPCUANode(node, parent()); specific_node != nullptr) {
-                specific_node->m_cache_parent = this;
-                nodes.push_back(specific_node);
+            for (const auto& node : m_node.browseChildren()) {
+                if (auto* specific_node = Node::fromOPCUANode(node, parent()); specific_node != nullptr) {
+                    specific_node->m_cache.parent = this;
+                    nodes.push_back(specific_node);
+                }
             }
-        }
 
-        m_cache_children = nodes;
-        return nodes;
+            return nodes;
+        });
     }
 
-    std::vector<ReferenceDescription> Node::getReferences() {
-        auto references = m_node.browseReferences();
-        return {references.begin(), references.end()};
+    const std::vector<ReferenceDescription>& Node::getReferences() {
+        return wrapCache(&Cache::references, [this]() -> std::vector<ReferenceDescription> {
+            auto references = m_node.browseReferences();
+            return {references.begin(), references.end()};
+        });
     }
 
-    std::optional<LocalizedText> Node::getInverseName() {
-        return std::nullopt;
+    const LocalizedText* Node::getInverseName() {
+        return nullptr;
     }
 
     std::optional<bool> Node::isAbstract() {
@@ -133,8 +122,8 @@ namespace magnesia::opcua_qt::abstraction {
         return std::nullopt;
     }
 
-    std::optional<DataValue> Node::getDataValue() {
-        return std::nullopt;
+    const DataValue* Node::getDataValue() {
+        return nullptr;
     }
 
     std::optional<NodeId> Node::getDataType() {
@@ -145,8 +134,8 @@ namespace magnesia::opcua_qt::abstraction {
         return std::nullopt;
     }
 
-    std::optional<std::vector<std::uint32_t>> Node::getArrayDimensions() {
-        return std::nullopt;
+    const std::vector<std::uint32_t>* Node::getArrayDimensions() {
+        return nullptr;
     }
 
     std::optional<AccessLevelBitmask> Node::getAccessLevel() {
@@ -175,18 +164,22 @@ namespace magnesia::opcua_qt::abstraction {
 
     void Node::setDisplayName(LocalizedText& name) {
         m_node.writeDisplayName(name.handle());
+        invalidateCache(&Cache::display_name);
     }
 
     void Node::setDescription(LocalizedText& description) {
         m_node.writeDescription(description.handle());
+        invalidateCache(&Cache::description);
     }
 
     void Node::setWriteMask(WriteMaskBitmask mask) {
         m_node.writeWriteMask(mask.handle());
+        invalidateCache(&Cache::write_mask);
     }
 
     void Node::setUserWriteMask(WriteMaskBitmask mask) {
         m_node.writeUserWriteMask(mask.handle());
+        invalidateCache(&Cache::user_write_mask);
     }
 
     void Node::setInverseName(const LocalizedText& /*name*/) {}
@@ -250,8 +243,8 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::optional<std::size_t> Node::childrenCountCached() const {
-        if (m_cache_children.has_value()) {
-            return m_cache_children->size();
+        if (m_cache.children.has_value()) {
+            return m_cache.children->size();
         }
         return std::nullopt;
     }
@@ -261,14 +254,10 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     const std::optional<LocalizedText>& Node::setCacheDisplayName(std::optional<LocalizedText> display_name) {
-        return m_cache_display_name = std::move(display_name);
+        return m_cache.display_name = std::move(display_name);
     }
 
     const std::optional<DataValue>& Node::setCacheDataValue(std::optional<DataValue> data_value) {
-        return m_cache_data_value = std::move(data_value);
-    }
-
-    const std::optional<DataValue>& Node::getCacheDataValue() {
-        return m_cache_data_value;
+        return m_cache.data_value = std::move(data_value);
     }
 } // namespace magnesia::opcua_qt::abstraction
