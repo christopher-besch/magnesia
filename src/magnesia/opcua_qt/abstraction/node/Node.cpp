@@ -1,6 +1,5 @@
 #include "Node.hpp"
 
-#include "../../../qt_version_check.hpp"
 #include "../AccessLevelBitmask.hpp"
 #include "../DataValue.hpp"
 #include "../EventNotifierBitmask.hpp"
@@ -21,6 +20,7 @@
 #include "VariableTypeNode.hpp"
 #include "ViewNode.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <utility>
@@ -32,12 +32,6 @@
 #include <open62541pp/Node.h>
 
 #include <QObject>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::opcua_qt::abstraction {
     Node::Node(opcua::Node<opcua::Client> node, QObject* parent) : QObject(parent), m_node(std::move(node)) {}
@@ -255,7 +249,7 @@ namespace magnesia::opcua_qt::abstraction {
         }
     }
 
-    std::optional<qsizetype> Node::childrenCountCached() const {
+    std::optional<std::size_t> Node::childrenCountCached() const {
         if (m_cache_children.has_value()) {
             return m_cache_children->size();
         }

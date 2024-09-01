@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../qt_version_check.hpp"
 #include "../AccessLevelBitmask.hpp"
 #include "../DataValue.hpp"
 #include "../EventNotifierBitmask.hpp"
@@ -13,6 +12,7 @@
 #include "../Variant.hpp"
 #include "../WriteMaskBitmask.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <vector>
@@ -22,12 +22,6 @@
 
 #include <QObject>
 #include <qtmetamacros.h>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::opcua_qt::abstraction {
     /**
@@ -352,7 +346,7 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Returns the children count that is cached in this node. Returns nullopt if nothing is cached.
          */
-        [[nodiscard]] std::optional<qsizetype> childrenCountCached() const;
+        [[nodiscard]] std::optional<std::size_t> childrenCountCached() const;
 
       protected:
         explicit Node(opcua::Node<opcua::Client> node, QObject* parent);
