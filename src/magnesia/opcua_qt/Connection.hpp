@@ -8,6 +8,7 @@
 #include "abstraction/Subscription.hpp"
 #include "abstraction/node/Node.hpp"
 
+#include <map>
 #include <optional>
 #include <span>
 
@@ -113,5 +114,8 @@ namespace magnesia::opcua_qt {
         opcua_qt::Endpoint          m_server_endpoint;
         std::optional<opcua::Login> m_login;
         QTimer                      m_timer;
+
+        abstraction::Node*                                m_root_node{};
+        std::map<abstraction::NodeId, abstraction::Node*> m_nodes;
     };
 } // namespace magnesia::opcua_qt
