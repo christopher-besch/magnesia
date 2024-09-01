@@ -25,12 +25,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
-
 namespace {
     Q_LOGGING_CATEGORY(lc_certificate_activity, "magnesia.certificate")
 } // namespace

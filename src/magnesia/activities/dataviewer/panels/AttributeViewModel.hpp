@@ -12,7 +12,6 @@
 #include "../../../opcua_qt/abstraction/ValueRank.hpp"
 #include "../../../opcua_qt/abstraction/WriteMaskBitmask.hpp"
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
-#include "../../../qt_version_check.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -23,12 +22,6 @@
 #include <QVariant>
 #include <Qt>
 #include <qtmetamacros.h>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
 
@@ -85,7 +78,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         std::optional<opcua_qt::abstraction::ValueRank> value_rank;
 
         /// Stores the array dimensions of the node.
-        std::optional<std::vector<quint32>> array_dimensions;
+        std::optional<std::vector<uint32_t>> array_dimensions;
 
         /// Stores the access level for the node.
         std::optional<opcua_qt::abstraction::AccessLevelBitmask> access_level;

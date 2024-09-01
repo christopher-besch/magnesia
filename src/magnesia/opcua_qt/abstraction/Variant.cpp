@@ -1,6 +1,5 @@
 #include "Variant.hpp"
 
-#include "../../qt_version_check.hpp"
 #include "NodeId.hpp"
 
 #include <cstdint>
@@ -19,12 +18,6 @@
 #include <QDateTime>
 #include <QString>
 #include <QVariant>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::opcua_qt::abstraction {
     Variant::Variant(opcua::Variant variant) : m_variant(std::move(variant)) {}

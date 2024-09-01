@@ -29,7 +29,6 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
-#include <QtTypes>
 #else
 #include <QtGlobal>
 #endif

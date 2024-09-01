@@ -13,6 +13,7 @@
 #include "../Variant.hpp"
 #include "../WriteMaskBitmask.hpp"
 
+#include <cstdint>
 #include <optional>
 #include <vector>
 
@@ -154,7 +155,7 @@ namespace magnesia::opcua_qt::abstraction {
          * Get the array dimensions of this variable or variable type if the value is an array.
          * Only applicable to Variable and VariableType.
          */
-        [[nodiscard]] virtual std::optional<std::vector<quint32>> getArrayDimensions();
+        [[nodiscard]] virtual std::optional<std::vector<uint32_t>> getArrayDimensions();
 
         /**
          * Get the access level of this variable for all users.
@@ -290,7 +291,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @param dimensions the new array dimensions
          */
-        virtual void setArrayDimensions(const std::vector<quint32>& dimensions);
+        virtual void setArrayDimensions(const std::vector<uint32_t>& dimensions);
 
         /**
          * Set the access level.

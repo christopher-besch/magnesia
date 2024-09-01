@@ -1,6 +1,5 @@
 #include "Subscription.hpp"
 
-#include "../../qt_version_check.hpp"
 #include "AttributeId.hpp"
 #include "DataValue.hpp"
 #include "LocalizedText.hpp"
@@ -28,12 +27,6 @@
 
 #include <QLoggingCategory>
 #include <qtmetamacros.h>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
 
 namespace {
     Q_LOGGING_CATEGORY(lc_opcua_subscription, "magnesia.opcua.subscription")

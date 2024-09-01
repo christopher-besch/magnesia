@@ -21,6 +21,7 @@
 #include "VariableTypeNode.hpp"
 #include "ViewNode.hpp"
 
+#include <cstdint>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -150,7 +151,7 @@ namespace magnesia::opcua_qt::abstraction {
         return std::nullopt;
     }
 
-    std::optional<std::vector<quint32>> Node::getArrayDimensions() {
+    std::optional<std::vector<uint32_t>> Node::getArrayDimensions() {
         return std::nullopt;
     }
 
@@ -210,7 +211,7 @@ namespace magnesia::opcua_qt::abstraction {
 
     void Node::setValueRank(ValueRank /*rank*/) {}
 
-    void Node::setArrayDimensions(const std::vector<quint32>& /*dimensions*/) {}
+    void Node::setArrayDimensions(const std::vector<uint32_t>& /*dimensions*/) {}
 
     void Node::setAccessLevel(AccessLevelBitmask /*mask*/) {}
 
