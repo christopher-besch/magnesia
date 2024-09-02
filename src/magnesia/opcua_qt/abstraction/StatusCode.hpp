@@ -23,7 +23,7 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the numeric value of the status.
          */
-        [[nodiscard]] uint32_t get() const;
+        [[nodiscard]] std::uint32_t get() const;
 
         /**
          * Get the name of the status code.

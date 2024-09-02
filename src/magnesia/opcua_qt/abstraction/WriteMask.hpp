@@ -11,7 +11,7 @@ namespace magnesia::opcua_qt::abstraction {
      *
      * See https://reference.opcfoundation.org/Core/Part3/v105/docs/8.60
      */
-    enum class WriteMask : uint32_t {
+    enum class WriteMask : std::uint32_t {
         NONE                      = 0U,
         ACCESS_LEVEL              = 1U << 0U,
         ARRAY_DIMENSIONS          = 1U << 1U,

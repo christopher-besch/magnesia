@@ -27,23 +27,23 @@ namespace magnesia::opcua_qt::abstraction {
          * Set the lifetime of the subscription. After the defined number of publishing cycles without sending any
          * notifications the subscription will be discarded.
          */
-        void setLifetimeCount(uint32_t count) noexcept;
+        void setLifetimeCount(std::uint32_t count) noexcept;
 
         /**
          * Set the max keep alive count. After the defined number of publishing cycles without sending any
          * notifications a keep alive message will be sent.
          */
-        void setMaxKeepAliveCount(uint32_t count) noexcept;
+        void setMaxKeepAliveCount(std::uint32_t count) noexcept;
 
         /**
          * Set the maximum number of notifications that will be sent per publish. 0 means unlimited.
          */
-        void setMaxNotificationsPerPublish(uint32_t count) noexcept;
+        void setMaxNotificationsPerPublish(std::uint32_t count) noexcept;
 
         /**
          * Set the priority of the subscription. Notifications with higher priority are sent first.
          */
-        void setPriority(uint8_t priority) noexcept;
+        void setPriority(std::uint8_t priority) noexcept;
 
         /**
          * Get the publishing interval.
@@ -53,22 +53,22 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the lifetime count.
          */
-        [[nodiscard]] uint32_t getLifetimeCount() const noexcept;
+        [[nodiscard]] std::uint32_t getLifetimeCount() const noexcept;
 
         /**
          * Get the maximum keep alive count.
          */
-        [[nodiscard]] uint32_t getMaxKeepAliveCount() const noexcept;
+        [[nodiscard]] std::uint32_t getMaxKeepAliveCount() const noexcept;
 
         /**
          * Get the maximum number of notifications per publish.
          */
-        [[nodiscard]] uint32_t getMaxNotificationsPerPublish() const noexcept;
+        [[nodiscard]] std::uint32_t getMaxNotificationsPerPublish() const noexcept;
 
         /**
          * Get the priority of the subscription.
          */
-        [[nodiscard]] uint8_t getPriority() const noexcept;
+        [[nodiscard]] std::uint8_t getPriority() const noexcept;
 
         /**
          * Get the underlying subscription parameters.

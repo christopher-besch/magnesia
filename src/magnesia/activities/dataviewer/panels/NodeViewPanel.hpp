@@ -26,15 +26,6 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
          */
         explicit NodeViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
 
-      signals:
-        /**
-         * Emitted when a node is selected.
-         *
-         * @param node Id of the node.
-         * @param recipients Panels effected by the signal.
-         */
-        void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::PanelTypes recipients);
-
       private slots:
         void selectNode(const opcua_qt::abstraction::NodeId& node) override;
         void onCurrentNodeChanged(const QModelIndex& current);

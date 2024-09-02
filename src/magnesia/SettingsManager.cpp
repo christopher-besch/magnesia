@@ -5,7 +5,6 @@
 #include "StorageManager.hpp"
 #include "database_types.hpp"
 #include "opcua_qt/ApplicationCertificate.hpp"
-#include "qt_version_check.hpp"
 #include "settings.hpp"
 #include "terminate.hpp"
 
@@ -23,12 +22,6 @@
 #include <QSslCertificate>
 #include <QSslKey>
 #include <qtmetamacros.h>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia {
     SettingsManager::SettingsManager(QPointer<StorageManager> storage_manager, QObject* parent)

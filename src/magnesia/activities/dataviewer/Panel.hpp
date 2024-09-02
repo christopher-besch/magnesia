@@ -38,6 +38,9 @@ namespace magnesia::activities::dataviewer {
          */
         [[nodiscard]] const PanelMetadata& metadata() const noexcept;
 
+      signals:
+        void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::PanelTypes recipients);
+
       protected:
         /**
          * @param dataviewer the `DataViewer` this panel belongs to.

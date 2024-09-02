@@ -8,6 +8,7 @@
 #include "../Variant.hpp"
 #include "Node.hpp"
 
+#include <cstdint>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -22,7 +23,6 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
-#include <QtTypes>
 #else
 #include <QtGlobal>
 #endif
@@ -46,7 +46,7 @@ namespace magnesia::opcua_qt::abstraction {
         return static_cast<ValueRank>(handle().readValueRank());
     }
 
-    std::optional<std::vector<quint32>> VariableNode::getArrayDimensions() {
+    std::optional<std::vector<std::uint32_t>> VariableNode::getArrayDimensions() {
         try {
             return handle().readArrayDimensions();
         } catch (opcua::BadStatus&) {
@@ -90,7 +90,7 @@ namespace magnesia::opcua_qt::abstraction {
         handle().writeValueRank(static_cast<opcua::ValueRank>(rank));
     }
 
-    void VariableNode::setArrayDimensions(const std::vector<quint32>& dimensions) {
+    void VariableNode::setArrayDimensions(const std::vector<std::uint32_t>& dimensions) {
         handle().writeArrayDimensions(dimensions);
     }
 

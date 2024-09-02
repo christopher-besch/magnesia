@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../opcua_qt/abstraction/NodeId.hpp"
 #include "../Panel.hpp"
 #include "../PanelMetadata.hpp"
 #include "../dataviewer_fwd.hpp"
@@ -28,15 +27,6 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
       private:
         void indexSelected(QModelIndex index, panels::PanelTypes recipients);
-
-      signals:
-        /**
-         * Emitted when a node is selected.
-         *
-         * @param node Id of the node.
-         * @param recipients Panels receiving the selection.
-         */
-        void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::PanelTypes recipients);
 
       private:
         QTreeView*     m_tree_view;

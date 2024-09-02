@@ -26,7 +26,7 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the namespace index.
          */
-        [[nodiscard]] uint16_t getNamespaceIndex() const noexcept;
+        [[nodiscard]] std::uint16_t getNamespaceIndex() const noexcept;
 
         /**
          * Get the Identifier.

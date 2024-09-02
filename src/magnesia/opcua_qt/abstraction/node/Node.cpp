@@ -1,6 +1,5 @@
 #include "Node.hpp"
 
-#include "../../../qt_version_check.hpp"
 #include "../AccessLevelBitmask.hpp"
 #include "../DataValue.hpp"
 #include "../EventNotifierBitmask.hpp"
@@ -21,6 +20,8 @@
 #include "VariableTypeNode.hpp"
 #include "ViewNode.hpp"
 
+#include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -31,12 +32,6 @@
 #include <open62541pp/Node.h>
 
 #include <QObject>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::opcua_qt::abstraction {
     Node::Node(opcua::Node<opcua::Client> node, QObject* parent) : QObject(parent), m_node(std::move(node)) {}
@@ -150,7 +145,7 @@ namespace magnesia::opcua_qt::abstraction {
         return std::nullopt;
     }
 
-    std::optional<std::vector<quint32>> Node::getArrayDimensions() {
+    std::optional<std::vector<std::uint32_t>> Node::getArrayDimensions() {
         return std::nullopt;
     }
 
@@ -210,7 +205,7 @@ namespace magnesia::opcua_qt::abstraction {
 
     void Node::setValueRank(ValueRank /*rank*/) {}
 
-    void Node::setArrayDimensions(const std::vector<quint32>& /*dimensions*/) {}
+    void Node::setArrayDimensions(const std::vector<std::uint32_t>& /*dimensions*/) {}
 
     void Node::setAccessLevel(AccessLevelBitmask /*mask*/) {}
 
@@ -254,7 +249,7 @@ namespace magnesia::opcua_qt::abstraction {
         }
     }
 
-    std::optional<qsizetype> Node::childrenCountCached() const {
+    std::optional<std::size_t> Node::childrenCountCached() const {
         if (m_cache_children.has_value()) {
             return m_cache_children->size();
         }

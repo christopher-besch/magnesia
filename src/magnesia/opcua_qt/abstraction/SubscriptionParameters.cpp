@@ -13,19 +13,19 @@ namespace magnesia::opcua_qt::abstraction {
         m_parameters.publishingInterval = interval;
     }
 
-    void SubscriptionParameters::setLifetimeCount(uint32_t count) noexcept {
+    void SubscriptionParameters::setLifetimeCount(std::uint32_t count) noexcept {
         m_parameters.lifetimeCount = count;
     }
 
-    void SubscriptionParameters::setMaxKeepAliveCount(uint32_t count) noexcept {
+    void SubscriptionParameters::setMaxKeepAliveCount(std::uint32_t count) noexcept {
         m_parameters.maxKeepAliveCount = count;
     }
 
-    void SubscriptionParameters::setMaxNotificationsPerPublish(uint32_t count) noexcept {
+    void SubscriptionParameters::setMaxNotificationsPerPublish(std::uint32_t count) noexcept {
         m_parameters.maxNotificationsPerPublish = count;
     }
 
-    void SubscriptionParameters::setPriority(uint8_t priority) noexcept {
+    void SubscriptionParameters::setPriority(std::uint8_t priority) noexcept {
         m_parameters.priority = priority;
     }
 
@@ -33,19 +33,19 @@ namespace magnesia::opcua_qt::abstraction {
         return m_parameters.publishingInterval;
     }
 
-    [[nodiscard]] uint32_t SubscriptionParameters::getLifetimeCount() const noexcept {
+    [[nodiscard]] std::uint32_t SubscriptionParameters::getLifetimeCount() const noexcept {
         return m_parameters.lifetimeCount;
     }
 
-    [[nodiscard]] uint32_t SubscriptionParameters::getMaxKeepAliveCount() const noexcept {
+    [[nodiscard]] std::uint32_t SubscriptionParameters::getMaxKeepAliveCount() const noexcept {
         return m_parameters.maxKeepAliveCount;
     }
 
-    [[nodiscard]] uint32_t SubscriptionParameters::getMaxNotificationsPerPublish() const noexcept {
+    [[nodiscard]] std::uint32_t SubscriptionParameters::getMaxNotificationsPerPublish() const noexcept {
         return m_parameters.maxNotificationsPerPublish;
     }
 
-    [[nodiscard]] uint8_t SubscriptionParameters::getPriority() const noexcept {
+    [[nodiscard]] std::uint8_t SubscriptionParameters::getPriority() const noexcept {
         return m_parameters.priority;
     }
 

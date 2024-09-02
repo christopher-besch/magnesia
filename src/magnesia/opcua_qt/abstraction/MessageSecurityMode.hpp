@@ -9,7 +9,7 @@ namespace magnesia::opcua_qt {
      *
      * @see Connection
      */
-    enum class MessageSecurityMode : uint32_t {
+    enum class MessageSecurityMode : std::uint32_t {
         INVALID,
         NONE,
         SIGN,

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../qt_version_check.hpp"
 #include "../AccessLevelBitmask.hpp"
 #include "../DataValue.hpp"
 #include "../EventNotifierBitmask.hpp"
@@ -13,6 +12,8 @@
 #include "../Variant.hpp"
 #include "../WriteMaskBitmask.hpp"
 
+#include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <vector>
 
@@ -21,12 +22,6 @@
 
 #include <QObject>
 #include <qtmetamacros.h>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::opcua_qt::abstraction {
     /**
@@ -154,7 +149,7 @@ namespace magnesia::opcua_qt::abstraction {
          * Get the array dimensions of this variable or variable type if the value is an array.
          * Only applicable to Variable and VariableType.
          */
-        [[nodiscard]] virtual std::optional<std::vector<quint32>> getArrayDimensions();
+        [[nodiscard]] virtual std::optional<std::vector<std::uint32_t>> getArrayDimensions();
 
         /**
          * Get the access level of this variable for all users.
@@ -290,7 +285,7 @@ namespace magnesia::opcua_qt::abstraction {
          *
          * @param dimensions the new array dimensions
          */
-        virtual void setArrayDimensions(const std::vector<quint32>& dimensions);
+        virtual void setArrayDimensions(const std::vector<std::uint32_t>& dimensions);
 
         /**
          * Set the access level.
@@ -351,7 +346,7 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Returns the children count that is cached in this node. Returns nullopt if nothing is cached.
          */
-        [[nodiscard]] std::optional<qsizetype> childrenCountCached() const;
+        [[nodiscard]] std::optional<std::size_t> childrenCountCached() const;
 
       protected:
         explicit Node(opcua::Node<opcua::Client> node, QObject* parent);

@@ -37,8 +37,6 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
 
         setLayout(layout);
 
-        connect(this, &TreeViewPanel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
-
         connect(m_tree_view, &QTreeView::clicked, this, [this](QModelIndex index) {
             indexSelected(index, PanelType::attributeview | PanelType::referenceview);
         });

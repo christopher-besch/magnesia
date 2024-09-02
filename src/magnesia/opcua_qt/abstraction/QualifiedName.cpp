@@ -11,11 +11,11 @@
 namespace magnesia::opcua_qt::abstraction {
     QualifiedName::QualifiedName(opcua::QualifiedName qualified_name) : m_qualified_name(std::move(qualified_name)) {}
 
-    QualifiedName::QualifiedName(uint16_t namespace_index, const QString& name) {
+    QualifiedName::QualifiedName(std::uint16_t namespace_index, const QString& name) {
         m_qualified_name = opcua::QualifiedName(namespace_index, name.toStdString());
     }
 
-    uint16_t QualifiedName::getNameSpaceIndex() const {
+    std::uint16_t QualifiedName::getNameSpaceIndex() const {
         return m_qualified_name.getNamespaceIndex();
     }
 

@@ -169,12 +169,12 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
             return {};
         }
 
-        uint32_t item_id = 0;
+        std::uint32_t item_id = 0;
 
         if (!parent.isValid()) {
             item_id = itemId(m_available_attributes[static_cast<std::size_t>(row - 1)], 0);
         } else {
-            auto sub_item = static_cast<uint8_t>(row);
+            auto sub_item = static_cast<std::uint8_t>(row);
             item_id       = itemId(m_available_attributes[static_cast<std::size_t>(parent.row() - 1)], sub_item);
         }
 
@@ -196,7 +196,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         auto row =
             std::distance(m_available_attributes.begin(), std::ranges::find(m_available_attributes, attribute)) + 1;
 
-        return createIndex(static_cast<int>(row), index.column(), static_cast<uint32_t>(attribute));
+        return createIndex(static_cast<int>(row), index.column(), static_cast<std::uint32_t>(attribute));
     }
 
     int AttributeViewModel::rowCount(const QModelIndex& parent) const {
@@ -273,10 +273,10 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
             return {};
         }
 
-        const uint32_t    item_id      = itemId(index);
-        const AttributeId attribute_id = attributeId(item_id);
-        const uint8_t     sub_item     = subId(item_id);
-        const bool        title        = index.column() == 0;
+        const std::uint32_t item_id      = itemId(index);
+        const AttributeId   attribute_id = attributeId(item_id);
+        const std::uint8_t  sub_item     = subId(item_id);
+        const bool          title        = index.column() == 0;
 
         if (item_id == itemId(AttributeId::NODE_ID, 0) && m_node.node_id.has_value()) {
             return title ? "Node Id" : m_node.node_id.value().toString();
@@ -429,30 +429,30 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         return {};
     }
 
-    uint32_t AttributeViewModel::itemId(QModelIndex index) noexcept {
-        return static_cast<uint32_t>(index.internalId());
+    std::uint32_t AttributeViewModel::itemId(QModelIndex index) noexcept {
+        return static_cast<std::uint32_t>(index.internalId());
     }
 
-    constexpr uint32_t AttributeViewModel::itemId(opcua_qt::abstraction::AttributeId attribute,
-                                                  uint8_t                            sub_item) noexcept {
-        return itemId(static_cast<uint32_t>(attribute), sub_item);
+    constexpr std::uint32_t AttributeViewModel::itemId(opcua_qt::abstraction::AttributeId attribute,
+                                                       std::uint8_t                       sub_item) noexcept {
+        return itemId(static_cast<std::uint32_t>(attribute), sub_item);
     }
 
-    constexpr uint32_t AttributeViewModel::itemId(uint32_t attribute, uint8_t sub_item) noexcept {
-        uint32_t sub_item_byte = sub_item;
+    constexpr std::uint32_t AttributeViewModel::itemId(std::uint32_t attribute, std::uint8_t sub_item) noexcept {
+        std::uint32_t sub_item_byte = sub_item;
         sub_item_byte = sub_item_byte << 8; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
         return attribute | sub_item_byte;
     }
 
-    constexpr opcua_qt::abstraction::AttributeId AttributeViewModel::attributeId(uint32_t item_id) noexcept {
+    constexpr opcua_qt::abstraction::AttributeId AttributeViewModel::attributeId(std::uint32_t item_id) noexcept {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         return static_cast<AttributeId>(item_id & 0xFFU);
     }
 
-    constexpr uint8_t AttributeViewModel::subId(uint32_t item_id) noexcept {
+    constexpr std::uint8_t AttributeViewModel::subId(std::uint32_t item_id) noexcept {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-        return static_cast<uint8_t>(item_id >> 8);
+        return static_cast<std::uint8_t>(item_id >> 8);
     }
 
 } // namespace magnesia::activities::dataviewer::panels::attribute_view_panel

@@ -1,12 +1,12 @@
 #include "VariableTypeNode.hpp"
 
-#include "../../../qt_version_check.hpp"
 #include "../DataValue.hpp"
 #include "../NodeId.hpp"
 #include "../ValueRank.hpp"
 #include "../Variant.hpp"
 #include "Node.hpp"
 
+#include <cstdint>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -18,13 +18,6 @@
 #include <open62541pp/Span.h>
 
 #include <QObject>
-
-#ifdef MAGNESIA_HAS_QT_6_5
-#include <QtAssert>
-#include <QtTypes>
-#else
-#include <QtGlobal>
-#endif
 
 namespace magnesia::opcua_qt::abstraction {
     VariableTypeNode::VariableTypeNode(opcua::Node<opcua::Client> node, QObject* parent)
@@ -50,7 +43,7 @@ namespace magnesia::opcua_qt::abstraction {
         return static_cast<ValueRank>(handle().readValueRank());
     }
 
-    std::optional<std::vector<quint32>> VariableTypeNode::getArrayDimensions() {
+    std::optional<std::vector<std::uint32_t>> VariableTypeNode::getArrayDimensions() {
         try {
             return handle().readArrayDimensions();
         } catch (opcua::BadStatus&) {
@@ -78,7 +71,7 @@ namespace magnesia::opcua_qt::abstraction {
         handle().writeValueRank(static_cast<opcua::ValueRank>(rank));
     }
 
-    void VariableTypeNode::setArrayDimensions(const std::vector<quint32>& dimensions) {
+    void VariableTypeNode::setArrayDimensions(const std::vector<std::uint32_t>& dimensions) {
         handle().writeArrayDimensions(dimensions);
     }
 

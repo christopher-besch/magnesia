@@ -12,6 +12,7 @@
 namespace magnesia::activities::dataviewer {
     Panel::Panel(DataViewer* dataviewer, panels::PanelType panel, PanelMetadata metadata, QWidget* parent)
         : QWidget(parent), m_panel_type(panel), m_metadata(metadata), m_dataviewer(dataviewer) {
+        connect(this, &Panel::nodeSelected, dataviewer, &DataViewer::nodeSelected);
         connect(m_dataviewer, &DataViewer::nodeSelected, this, &Panel::selectNodeAll);
     }
 

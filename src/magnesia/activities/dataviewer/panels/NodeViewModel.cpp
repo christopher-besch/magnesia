@@ -15,12 +15,12 @@
 #include <iterator>
 #include <optional>
 #include <span>
+#include <stack>
 #include <vector>
 
 #include <QAbstractTableModel>
 #include <QModelIndex>
 #include <QObject>
-#include <QStack>
 #include <QString>
 #include <QVariant>
 #include <Qt>
@@ -29,7 +29,6 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
-#include <QtTypes>
 #else
 #include <QtGlobal>
 #endif
@@ -152,11 +151,12 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         }
 
         std::vector<Node*> leaf_nodes;
-        QStack<Node*>      stack;
+        std::stack<Node*>  stack;
         stack.push(node);
 
-        while (!stack.isEmpty()) {
-            auto*      current  = stack.pop();
+        while (!stack.empty()) {
+            auto* current = stack.top();
+            stack.pop();
             const auto children = current->getChildren();
 
             for (const auto& child : children) {

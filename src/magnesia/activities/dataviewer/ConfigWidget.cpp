@@ -188,6 +188,7 @@ namespace magnesia::activities::dataviewer {
 
             connect(m_endpoint_selector->selectionModel(), &QItemSelectionModel::selectionChanged, this,
                     [this] { m_connect_button->setEnabled(true); });
+            connect(m_endpoint_selector, &QTableView::activated, this, &ConfigWidget::onConnect);
             layout->addRow(m_endpoint_selector);
         }
         {

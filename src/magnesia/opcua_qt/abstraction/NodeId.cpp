@@ -10,7 +10,7 @@
 namespace magnesia::opcua_qt::abstraction {
     NodeId::NodeId(opcua::NodeId node_id) : m_node_id(std::move(node_id)) {}
 
-    uint16_t NodeId::getNamespaceIndex() const noexcept {
+    std::uint16_t NodeId::getNamespaceIndex() const noexcept {
         return m_node_id.getNamespaceIndex();
     }
 

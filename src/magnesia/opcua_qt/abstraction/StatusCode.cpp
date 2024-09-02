@@ -10,7 +10,7 @@ namespace magnesia::opcua_qt::abstraction {
 
     StatusCode::StatusCode(opcua::StatusCode status) : m_status(status) {}
 
-    uint32_t StatusCode::get() const {
+    std::uint32_t StatusCode::get() const {
         return m_status.get();
     }
 
