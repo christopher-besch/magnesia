@@ -2,6 +2,23 @@ stages:
   - lint
   - build
 
+lint:
+  stage: lint
+  tags: [ubuntu]
+  parallel:
+    matrix:
+      - job:
+        - cmake-format
+        - clang-format
+        - codespell
+        - qt_headers
+        - shellcheck
+        - shfmt
+        - cppcheck
+        - clang-tidy
+  before_script: .ci/setup.sh nix
+  script: nix develop -ic .ci/lint.sh "$job"
+
 build_linux: &build_linux
   stage: build
   tags: [ubuntu]
@@ -26,20 +43,3 @@ build_linux_nix:
       TMPDIR=$(mktemp -d)
       trap 'rm -rf "'"$TMPDIR"'"' EXIT
       nix develop -ic env "XDG_CACHE_HOME=$TMPDIR" "CC=$CC" "CXX=$CXX" "BUILD_TYPE=$BUILD_TYPE" .ci/build.sh
-
-lint:
-  stage: lint
-  tags: [ubuntu]
-  parallel:
-    matrix:
-      - job:
-        - cmake-format
-        - clang-format
-        - codespell
-        - qt_headers
-        - shellcheck
-        - shfmt
-        - cppcheck
-        - clang-tidy
-  before_script: .ci/setup.sh nix
-  script: nix develop -ic .ci/lint.sh "$job"
