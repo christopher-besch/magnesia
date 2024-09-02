@@ -3,10 +3,11 @@
 ### Install Prerequisites
 #### Debian
 - `sudo apt-get update`
-- `sudo apt-get install -y git python3 cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen libssl-dev`
+- `sudo apt-get install -y git python3 cmake build-essential libgl1-mesa-dev qt6-base-dev ninja-build clang doxygen libssl-dev python3-sphinx`
+- `pip install sphinx-rtd-theme`
 
 #### Arch Linux
-- `pacman -S python git cmake base-devel clang qt6-base ninja doxygen`
+- `pacman -S python git cmake base-devel clang qt6-base ninja doxygen python-sphinx python-sphinx_rtd_theme`
 
 #### Nix
 This repository contains a nix flake. Make sure you have flakes enabled and run `nix develop`. You can also use
@@ -37,6 +38,10 @@ This repository contains a nix flake. Make sure you have flakes enabled and run 
 - `cmake --build build --config Release`
 - `cmake --install build --prefix C:\somepath --config Release` Adjust the path to your liking.
 - `C:\somepath\bin\magnesia.exe` Adjust the path.
+
+### Build User-docs
+- `cd docs/`
+- `make html`
 
 ### CMake Options
 - `MAGNESIA_BUILD_DOCS` (default: `ON`): Whether to build code documentation with doxygen
