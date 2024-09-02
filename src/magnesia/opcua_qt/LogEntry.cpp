@@ -27,7 +27,7 @@ namespace magnesia::opcua_qt {
         return m_category;
     }
 
-    QString LogEntry::getMessage() const noexcept {
+    const QString& LogEntry::getMessage() const noexcept {
         return m_message;
     }
 } // namespace magnesia::opcua_qt

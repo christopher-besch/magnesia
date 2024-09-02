@@ -39,6 +39,7 @@ lint:
         - qt_headers
         - shellcheck
         - shfmt
+        - cppcheck
         - clang-tidy
   before_script: .ci/setup.sh nix
   script: nix develop -ic .ci/lint.sh "$job"

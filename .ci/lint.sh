@@ -9,18 +9,9 @@ fail() {
 "
 }
 
-run_cmake_format() {
-    find . \( -name 'CMakeLists.txt' -or -name '*.cmake' \) -and -not -path './build/*' -print0 \
-        | xargs -0 cmake-format --check || fail cmake-format $?
-}
-
-run_clang_format() {
-    find src -name '*.[ch]pp' -print0 | xargs -0 clang-format -Werror --dry-run --verbose || fail clang-format $?
-}
-
-run_clang_tidy() {
+generate_cmake() {
     mkdir -p build
-    BUILD_DIR="$(mktemp -dp build clang-tidy.XXXXXXXXX)"
+    BUILD_DIR="$(mktemp -dp build "$1.XXXXXXXXX")"
     trap 'rm -rf "'"$BUILD_DIR"'"' EXIT
 
     cmake --fresh -G Ninja -B "$BUILD_DIR" . \
@@ -35,6 +26,19 @@ run_clang_tidy() {
     # includes if using CMake's FetchContent to build it. This is not an issue if the library is provided by the system,
     # so ignore if the target doesn't exist.
     cmake --build "$BUILD_DIR" --target libopen62541.a || true
+}
+
+run_cmake_format() {
+    find . \( -name 'CMakeLists.txt' -or -name '*.cmake' \) -and -not -path './build/*' -print0 \
+        | xargs -0 cmake-format --check || fail cmake-format $?
+}
+
+run_clang_format() {
+    find src -name '*.[ch]pp' -print0 | xargs -0 clang-format -Werror --dry-run --verbose || fail clang-format $?
+}
+
+run_clang_tidy() {
+    generate_cmake clang-tidy
 
     # TODO: use run-clang-tidy -source-filter
     find src -name '*.cpp' -print0 \
@@ -81,6 +85,28 @@ run_shfmt() {
         || fail shfmt $?
 }
 
+run_cppcheck() {
+    generate_cmake cppcheck
+    cmake --build "$BUILD_DIR" --target magnesia_autogen
+
+    mkdir "$BUILD_DIR/cppcheck"
+    cppcheck \
+        --error-exitcode=2 \
+        --cppcheck-build-dir="$BUILD_DIR/cppcheck" \
+        --project="$BUILD_DIR/compile_commands.json" \
+        -i build `# ignore generated code` \
+        --library=qt \
+        -D Q_DISABLE_COPY_MOVE `# missing from qt.cfg` \
+        --check-level=exhaustive \
+        --enable=all \
+        --disable=unusedFunction \
+        --suppress=ignoredReturnErrorCode \
+        --suppress=missingIncludeSystem \
+        --inline-suppr \
+        --force \
+        || fail cppcheck $?
+}
+
 fast() {
     run_cmake_format
     run_clang_format
@@ -91,6 +117,7 @@ fast() {
 }
 
 slow() {
+    run_cppcheck
     run_clang_tidy
 }
 

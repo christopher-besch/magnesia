@@ -125,6 +125,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         if (node != nullptr) {
             auto leaf_nodes = findLeafNodes(node);
             subscribeNodes(leaf_nodes, connection);
+            // cppcheck-suppress danglingLifetime
             m_nodes.insert(m_nodes.end(), leaf_nodes.begin(), leaf_nodes.end());
         }
 

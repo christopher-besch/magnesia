@@ -2,8 +2,9 @@
 
 #include "MonitoringMode.hpp"
 #include "MonitoringParameters.hpp"
-#include "open62541pp/Client.h"
-#include "open62541pp/MonitoredItem.h"
+
+#include <open62541pp/Client.h>
+#include <open62541pp/MonitoredItem.h>
 
 namespace magnesia::opcua_qt::abstraction {
     /**

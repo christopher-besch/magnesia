@@ -8,15 +8,15 @@
 #include <utility>
 
 namespace magnesia {
-    QString Setting::getName() const {
+    const QString& Setting::getName() const {
         return m_name;
     }
 
-    QString Setting::getHumanReadableName() const {
+    const QString& Setting::getHumanReadableName() const {
         return m_human_readable_name;
     }
 
-    QString Setting::getDescription() const {
+    const QString& Setting::getDescription() const {
         return m_description;
     }
 
@@ -36,7 +36,7 @@ namespace magnesia {
         : Setting{std::move(name), std::move(human_readable_name), std::move(description)},
           m_default_value{default_value} {}
 
-    QString StringSetting::getDefault() const {
+    const QString& StringSetting::getDefault() const {
         return m_default_value;
     }
 
@@ -98,7 +98,7 @@ namespace magnesia {
         }
     }
 
-    EnumSettingValue EnumSetting::getDefault() const {
+    const EnumSettingValue& EnumSetting::getDefault() const {
         return m_default_value;
     }
 
@@ -149,7 +149,7 @@ namespace magnesia {
     KeySetting::KeySetting(QString name, QString human_readable_name, QString description)
         : Setting{std::move(name), std::move(human_readable_name), std::move(description)} {}
 
-    LayoutGroup LayoutSetting::getGroup() const {
+    const LayoutGroup& LayoutSetting::getGroup() const {
         return m_layout_group;
     }
 

@@ -88,5 +88,13 @@ if(MAGNESIA_BUILD_DOCS)
     find_package(Doxygen REQUIRED)
 endif()
 
+add_library(magnesia_resources STATIC)
+add_library(magnesia::resources ALIAS magnesia_resources)
+qt_add_resources(
+    magnesia_resources licenses
+    PREFIX /licenses
+    FILES LICENSE
+)
+
 add_subdirectory(configured_files)
 add_subdirectory(src/magnesia)

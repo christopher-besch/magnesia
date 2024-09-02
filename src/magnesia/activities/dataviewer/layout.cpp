@@ -78,7 +78,7 @@ namespace magnesia::activities::dataviewer::layout {
         panel_selector->setCurrentIndex(-1);
 
         QStringView target_id;
-        if (auto* panel = get(); panel != nullptr) {
+        if (const auto* panel = get(); panel != nullptr) {
             const auto& metadata = panel->metadata();
             target_id            = metadata.id;
         }
