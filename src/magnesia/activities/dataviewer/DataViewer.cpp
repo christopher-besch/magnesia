@@ -21,6 +21,7 @@
 #include <QLayout>
 #include <QLineEdit>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QModelIndex>
 #include <QObject>
 #include <QPushButton>
@@ -157,7 +158,13 @@ namespace magnesia::activities::dataviewer {
                     layout_selector->setCurrentIndex(m_old_layout_index);
                 });
 
-        connect(delete_button, &QPushButton::clicked, this, [layout_selector] {
+        connect(delete_button, &QPushButton::clicked, this, [this, layout_selector] {
+            auto text = QString("Do you really want to delete the currently selected layout '%1' ?")
+                            .arg(layout_selector->currentText());
+            if (QMessageBox::Yes != QMessageBox::question(this, "Delete current layout?", text)) {
+                return;
+            }
+
             auto current_index = layout_selector->currentIndex();
             // TODO: get rid of magic comparisons
             // check if the current item is one before "<Save Layout>" and prevent that being selected when the current
