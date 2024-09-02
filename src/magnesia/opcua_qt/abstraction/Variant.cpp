@@ -150,8 +150,9 @@ namespace magnesia::opcua_qt::abstraction {
                     return QVariant::fromValue(std::vector<QVariant>{res.begin(), res.end()});
                 }
                 default:
-                    return QString{"<array(size: %1, type kind: %2)>"}.arg(m_variant.getArrayLength(),
-                                                                           m_variant.getDataType()->typeKind);
+                    return QString{"<array(size: %1, type kind: %2)>"}
+                        .arg(m_variant.getArrayLength())
+                        .arg(m_variant.getDataType()->typeKind);
             }
         }
 
