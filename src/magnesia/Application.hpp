@@ -7,7 +7,9 @@
 #include "StorageManager.hpp"
 #include "qt_version_check.hpp"
 
+#include <map>
 #include <span>
+#include <utility>
 
 #include <QDir>
 #include <QMainWindow>
@@ -99,9 +101,12 @@ namespace magnesia {
          *
          * @param activity the activity to display
          * @param title the title of the new tab
+         * @param disambiguator a disambiguator appended to the title if multiple activities with the same title are
+         * open
          * @param closable whether a close button should be shown next to the tab title
          */
-        void openActivity(Activity* activity, const QString& title, bool closable = true);
+        void openActivity(Activity* activity, const QString& title, const QString& disambiguator = {},
+                          bool closable = true);
 
         /**
          * Closes the tab that contains the activity.
@@ -123,6 +128,9 @@ namespace magnesia {
         void focusActivity(Activity* activity);
 
       private:
+        void updateDisambiguations(const QString& title);
+
+      private:
         QDir m_data_dir;
 
         StorageManager*  m_storage_manager{nullptr};
@@ -134,5 +142,7 @@ namespace magnesia {
         /// tries to access instance().
         QMainWindow m_main_window;
         QTabWidget* m_tab_widget{nullptr};
+
+        std::multimap<QString, std::pair<QPointer<Activity>, QString>> m_activities;
     };
 } // namespace magnesia

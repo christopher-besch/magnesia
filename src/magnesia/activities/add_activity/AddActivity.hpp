@@ -28,6 +28,6 @@ namespace magnesia::activities::add_activity {
 
     inline constexpr ActivityMetadata metadata{
         .name        = u"Add Activity",
-        .global_init = [] { Application::instance().openActivity(new AddActivity, "+", false); },
+        .global_init = [] { Application::instance().openActivity(new AddActivity, "+", {}, false); },
     };
 } // namespace magnesia::activities::add_activity
