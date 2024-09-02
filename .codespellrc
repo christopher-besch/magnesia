@@ -1,4 +1,4 @@
 ; vim:ft=dosini
 
 [codespell]
-skip = ./build
+skip = ./build,./docs/_build

@@ -61,7 +61,8 @@
             # doc generation
             doxygen
             graphviz
-            sphinx
+            python3Packages.sphinx
+            python3Packages.sphinx-rtd-theme
 
             # spell checking
             codespell

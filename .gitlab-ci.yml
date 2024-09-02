@@ -43,3 +43,10 @@ build_linux_nix:
       TMPDIR=$(mktemp -d)
       trap 'rm -rf "'"$TMPDIR"'"' EXIT
       nix develop -ic env "XDG_CACHE_HOME=$TMPDIR" "CC=$CC" "CXX=$CXX" "BUILD_TYPE=$BUILD_TYPE" .ci/build.sh
+
+build_docs:
+  stage: build
+  tags: [ubuntu]
+  before_script: .ci/setup.sh nix
+  script: nix develop -ic make -C docs html
+  when: always
