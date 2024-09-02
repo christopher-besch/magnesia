@@ -30,7 +30,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Abstract base class for all Nodes.
+     * @class Node
+     * @brief Abstract base class for all Nodes.
      *
      * @see NodeClass
      * @see VariableNode
@@ -333,8 +334,17 @@ namespace magnesia::opcua_qt::abstraction {
          */
         [[nodiscard]] static Node* fromOPCUANode(opcua::Node<opcua::Client> node, QObject* parent);
 
+        /**
+         * Retrieves the underlying node.
+         * @return underlying node.
+         */
         [[nodiscard]] const opcua::Node<opcua::Client>& handle() const noexcept;
-        [[nodiscard]] opcua::Node<opcua::Client>&       handle() noexcept;
+
+        /**
+         * Retrieves the underlying node.
+         * @return underlying node.
+         */
+        [[nodiscard]] opcua::Node<opcua::Client>& handle() noexcept;
 
         [[nodiscard]] bool operator==(const Node& other) const;
 

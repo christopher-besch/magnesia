@@ -24,6 +24,10 @@
 
 namespace magnesia {
     /**
+     * @class Application
+     * @brief A sort-of singleton managing the application state and main window and providing the necessary APIs to the
+     * activities.
+     *
      * A sort-of singleton managing the application state and main window and providing the necessary APIs to the
      * activities. The singleton design is similar to Qt's `QCoreApplication` with the user creating and owning an
      * instance, but that instance being available globally using the `Application::instance()` function. This allows to
@@ -125,9 +129,9 @@ namespace magnesia {
         SettingsManager* m_settings_manager{nullptr};
         Router*          m_router{nullptr};
 
-        // Not a pointer to maintain ownership. QMainWindow doesn't accept a QObject pointer (this) as parent so the
-        // QObject tree doesn't destruct this when the Application is destroyed, leaving a bunch of stuff behind that
-        // tries to access instance().
+        /// Not a pointer to maintain ownership. QMainWindow doesn't accept a QObject pointer (this) as parent so the
+        /// QObject tree doesn't destruct this when the Application is destroyed, leaving a bunch of stuff behind that
+        /// tries to access instance().
         QMainWindow m_main_window;
         QTabWidget* m_tab_widget{nullptr};
     };

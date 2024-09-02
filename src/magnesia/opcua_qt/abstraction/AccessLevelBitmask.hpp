@@ -10,7 +10,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * A bitmaks for AccessLevels.
+     * @class AccessLevelBitmask
+     * @brief A bitmask for AccessLevels.
      *
      * @see AccessLevel
      */

@@ -6,6 +6,10 @@
 #include <QWidget>
 
 namespace magnesia::activities::dataviewer {
+    /**
+     * @class PanelMetadata
+     * @brief Metadata for panels
+     */
     struct PanelMetadata {
         /**
          * Internal id used for layout (de-)serialization. Must be unique across the lifetime of persisted layouts (also
@@ -24,6 +28,11 @@ namespace magnesia::activities::dataviewer {
         Panel* (*create)(DataViewer*){};
     };
 
+    /**
+     * Helper function for creating panels.
+     *
+     * @param dataviewer DataViewer of the panel.
+     */
     template<typename PanelType>
     constexpr Panel* create_helper(DataViewer* dataviewer) {
         return new PanelType(dataviewer);

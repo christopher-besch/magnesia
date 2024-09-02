@@ -7,7 +7,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Represents an attribute or an event that was subscribed to.
+     * @class MonitoredItem
+     * @brief Represents an attribute or an event that was subscribed to.
      *
      * @see Subscription
      *
@@ -15,6 +16,9 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class MonitoredItem {
       public:
+        /**
+         * @param item Client to be monitored
+         */
         explicit MonitoredItem(opcua::MonitoredItem<opcua::Client> item);
 
         /**

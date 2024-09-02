@@ -36,12 +36,16 @@ namespace magnesia::activities::dataviewer {
     } // namespace detail
 
     /**
-     * `magnesia::ConfigWidget` for the `DataViewer` activity.
+     * @class ConfigWidget
+     * @brief `magnesia::ConfigWidget` for the `DataViewer` activity.
      */
     class ConfigWidget : public magnesia::ConfigWidget {
         Q_OBJECT
 
       public:
+        /**
+         * @param parent Parent widget for the widget.
+         */
         explicit ConfigWidget(QWidget* parent = nullptr);
 
       private:
@@ -73,6 +77,11 @@ namespace magnesia::activities::dataviewer {
     };
 
     namespace detail {
+
+        /**
+         * @class EndpointTableModel
+         * @brief Model for the EndpointTable in the ConfigWidget
+         */
         class EndpointTableModel : public QAbstractTableModel {
             Q_OBJECT
 
@@ -86,7 +95,16 @@ namespace magnesia::activities::dataviewer {
                                               int role = Qt::DisplayRole) const override;
 
           public:
+            /**
+             * Sets the Endpoints of the endpoints of the table.
+             *
+             * @param endpoints List of endpoints.
+             */
             void setEndpoints(std::vector<opcua_qt::Endpoint> endpoints);
+
+            /**
+             * Clears the table.
+             */
             void clear();
 
           private:
@@ -116,10 +134,17 @@ namespace magnesia::activities::dataviewer {
             std::vector<std::pair<StorageId, opcua_qt::ApplicationCertificate>> m_certificates;
         };
 
+        /**
+         * @class HistoricServerConnectionModel
+         * @brief Model for a HistoricServerConnection in the ConfigWidget.
+         */
         class HistoricServerConnectionModel : public QAbstractTableModel {
             Q_OBJECT
 
           public:
+            /**
+             * @param parent Parent of the Model.
+             */
             explicit HistoricServerConnectionModel(QObject* parent = nullptr);
 
             [[nodiscard]] int      rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -143,6 +168,7 @@ namespace magnesia::activities::dataviewer {
             [[nodiscard]] int rowIndex(StorageId connection_id) const;
 
           private slots:
+
             void onHistoricServerConnectionChanged(StorageId connection_id, StorageChange type);
 
           private:

@@ -6,7 +6,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Indicates if a node can be used to subscribe to events or read/write historic events.
+     * @class EventNotifier
+     * @brief Indicates if a node can be used to subscribe to events or read/write historic events.
      *
      * See https://reference.opcfoundation.org/Core/Part3/v105/docs/8.59
      */

@@ -6,8 +6,9 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Indicates how the value of a variable can be accessed (read/write) and if it contains current and/or historic
-     * data.
+     * @class AccessLevel
+     * @brief Indicates how the value of a variable can be accessed (read/write) and if it contains current and/or
+     * historic data.
      *
      * See https://reference.opcfoundation.org/Core/Part3/v104/docs/8.57
      */

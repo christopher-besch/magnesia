@@ -4,7 +4,8 @@
 
 namespace magnesia::opcua_qt {
     /**
-     * The category of a log entry.
+     * @class LogCategory
+     * @brief The category of a log entry.
      *
      * @see LogEntry
      */

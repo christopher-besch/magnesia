@@ -10,10 +10,17 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::dataviewer::panels::treeview_panel {
+    /**
+     * @class TreeViewModel
+     * @brief Model for the TreeViewPanel.
+     */
     class TreeViewModel : public QAbstractItemModel {
         Q_OBJECT
 
       public:
+        /**
+         * @param parent Parent of the model.
+         */
         explicit TreeViewModel(QObject* parent = nullptr);
 
         [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -26,8 +33,18 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         [[nodiscard]] bool        canFetchMore(const QModelIndex& parent) const override;
         [[nodiscard]] bool        hasChildren(const QModelIndex& parent) const override;
 
+        /**
+         * Retrieves the node in the treeview.
+         * @param index Index inside the view.
+         * @return Node inside the treeview.
+         */
         [[nodiscard]] static opcua_qt::abstraction::Node* getNode(const QModelIndex& index);
-        void                                              setRootNode(opcua_qt::abstraction::Node* root);
+
+        /**
+         * Sets the root node inside the TreeViewPanel.
+         * @param root new root node of the panel.
+         */
+        void setRootNode(opcua_qt::abstraction::Node* root);
 
       private:
         [[nodiscard]] static int getChildIndexOf(opcua_qt::abstraction::Node* parent,

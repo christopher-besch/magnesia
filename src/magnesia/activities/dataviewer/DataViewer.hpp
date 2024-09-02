@@ -23,7 +23,8 @@
 
 namespace magnesia::activities::dataviewer {
     /**
-     * Main activity that allows to inspect and interact with OPC UA servers.
+     * @class DataViewer
+     * @brief Main activity that allows to inspect and interact with OPC UA servers.
      */
     class DataViewer : public Activity {
         Q_OBJECT
@@ -32,10 +33,26 @@ namespace magnesia::activities::dataviewer {
         static constexpr auto s_layout_group   = "main";
 
       public:
+        /**
+         * @param connection Connection to an OPC UA server.
+         * @param logger     Logger of the OPC UA connection.
+         * @param parent     Parent of the activity.
+         */
         explicit DataViewer(opcua_qt::Connection* connection, opcua_qt::Logger* logger, QWidget* parent = nullptr);
 
+        /**
+         * Retrieves the OPC UA server connection.
+         *
+         * @return The connection.
+         */
         [[nodiscard]] opcua_qt::Connection* getConnection() const;
-        [[nodiscard]] opcua_qt::Logger*     getLogger() const;
+
+        /**
+         * Retrieves the logger of the connection.
+         *
+         * @return The logger.
+         */
+        [[nodiscard]] opcua_qt::Logger* getLogger() const;
 
       signals:
         /**
@@ -56,10 +73,19 @@ namespace magnesia::activities::dataviewer {
     };
 
     namespace detail {
+        /**
+         * @class LayoutSelectorModel
+         * @brief Class for managing the current layout inside a DataViewer.
+         */
         class LayoutSelectorModel : public QAbstractListModel {
             Q_OBJECT
 
           public:
+            /**
+             * @param domain Domain of the Layouts.
+             * @param group Group containing the layout.
+             * @param parent Parent of the widget.
+             */
             explicit LayoutSelectorModel(Domain domain, LayoutGroup group, QObject* parent = nullptr);
 
             [[nodiscard]] int      rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -80,6 +106,13 @@ namespace magnesia::activities::dataviewer {
             [[nodiscard]] int rowIndex(StorageId layout_id) const;
 
           private slots:
+            /**
+             * Updates the Layout.
+             * @param layout_id Id of the layout.
+             * @param group Group of the layout.
+             * @param domain Domain of the layout.
+             * @param type Type of the change.
+             */
             void onLayoutChanged(StorageId layout_id, const LayoutGroup& group, const Domain& domain,
                                  StorageChange type);
 

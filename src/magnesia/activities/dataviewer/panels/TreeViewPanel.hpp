@@ -12,16 +12,30 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::dataviewer::panels::treeview_panel {
+    /**
+     * @class TreeViewPanel
+     * @brief Panel for displaying nodes in a tree structure.
+     */
     class TreeViewPanel : public Panel {
         Q_OBJECT
 
       public:
+        /**
+         * @param dataviewer DataViewer
+         * @param parent Parent of the panel.
+         */
         explicit TreeViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
 
       private:
         void indexSelected(QModelIndex index, panels::PanelTypes recipients);
 
       signals:
+        /**
+         * Emitted when a node is selected.
+         *
+         * @param node Id of the node.
+         * @param recipients Panels receiving the selection.
+         */
         void nodeSelected(const opcua_qt::abstraction::NodeId& node, panels::PanelTypes recipients);
 
       private:

@@ -128,14 +128,45 @@ namespace magnesia::opcua_qt {
          */
         void findEndpoints();
 
-        [[nodiscard]] const std::optional<QUrl>&      getUrl() const;
-        [[nodiscard]] const std::optional<Endpoint>&  getEndpoint() const;
-        [[nodiscard]] Logger*                         getLogger() const;
-        [[nodiscard]] const std::optional<QString>&   getUsername() const;
-        [[nodiscard]] const std::optional<QString>&   getPassword() const;
+        /**
+         * @return Retrieves the URL if it exists, nullopt if not.
+         */
+        [[nodiscard]] const std::optional<QUrl>& getUrl() const;
+
+        /**
+         * @return Retrieves the endpoint if they exists, nullopt if not.
+         */
+        [[nodiscard]] const std::optional<Endpoint>& getEndpoint() const;
+
+        /**
+         * @return Retrieves the logger.
+         */
+        [[nodiscard]] Logger* getLogger() const;
+
+        /**
+         * @return Retrieves the username if it exists, nullopt if not.
+         */
+        [[nodiscard]] const std::optional<QString>& getUsername() const;
+
+        /**
+         * @return Retrieves the password if it exists, nullopt if not.
+         */
+        [[nodiscard]] const std::optional<QString>& getPassword() const;
+
+        /**
+         * @return Retrieves the id of the certificate if it exists, nullopt if not.
+         */
         [[nodiscard]] const std::optional<StorageId>& getCertificate() const;
-        [[nodiscard]] const std::vector<StorageId>&   getTrustList() const;
-        [[nodiscard]] const std::vector<StorageId>&   getRevokedList() const;
+
+        /**
+         * @return Retrieves the list of trusted certificates.
+         */
+        [[nodiscard]] const std::vector<StorageId>& getTrustList() const;
+
+        /**
+         * @return Retrieves the list of revoked certificates.
+         */
+        [[nodiscard]] const std::vector<StorageId>& getRevokedList() const;
 
       signals:
         /**

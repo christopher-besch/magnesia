@@ -6,7 +6,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Indicates whether the value attribute of the variable is an array and how many dimensions the array has.
+     * @class ValueRank
+     * @brief Indicates whether the value attribute of the variable is an array and how many dimensions the array has.
      *
      * @see VariableNode
      *

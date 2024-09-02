@@ -4,7 +4,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * The mode a MonitoredItem works under.
+     * @class MonitoringMode
+     * @brief The mode a MonitoredItem works under.
      *
      * @see MonitoredItem
      *

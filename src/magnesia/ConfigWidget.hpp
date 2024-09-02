@@ -6,7 +6,8 @@
 
 namespace magnesia {
     /**
-     * Activity configuration UI shown in the AddActivity Activity Tab.
+     * @class ConfigWidget
+     * @brief Activity configuration Widget shown in the AddActivity Activity Tab.
      *
      * @see Activity
      * @see ActivityMetadata

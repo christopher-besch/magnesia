@@ -11,10 +11,18 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::dataviewer::panels::reference_view_panel {
+    /**
+     * @class ReferenceViewPanel
+     * @brief Panel for displaying references of a node.
+     */
     class ReferenceViewPanel : public Panel {
         Q_OBJECT
 
       public:
+        /**
+         * @param data_viewer DataViewer displaying the panel.
+         * @param parent of the panel
+         */
         explicit ReferenceViewPanel(DataViewer* data_viewer, QWidget* parent = nullptr);
 
       private slots:

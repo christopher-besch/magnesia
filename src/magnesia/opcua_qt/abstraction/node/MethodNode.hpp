@@ -11,7 +11,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Subclass of Node for Method NodeClass.
+     * @class MethodNode
+     * @brief Subclass of Node for Method NodeClass.
      *
      * @see Node
      * @see NodeClass
@@ -20,6 +21,10 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class MethodNode : public Node {
       public:
+        /**
+         * @param node Node
+         * @param parent Parent of the MethodNode.
+         */
         explicit MethodNode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] std::optional<bool> isExecutable() override;

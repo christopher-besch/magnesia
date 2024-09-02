@@ -13,12 +13,32 @@
 
 namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
 
+    /**
+     * @class AttributeViewPanel
+     * @brief Panel displaying the attributes of a node.
+     */
     class AttributeViewPanel : public Panel {
       public:
+        /**
+         * @param dataviewer Dataviewer in which the panel is embedded.
+         * @param parent Parent of the panel.
+         */
         explicit AttributeViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
 
       signals:
+
+        /**
+         * Is emitted when a node is selected.
+         *
+         * @param node_id Id of the selected node.
+         */
         void nodeSelected(const opcua_qt::abstraction::NodeId& node_id);
+
+        /**
+         * Is emitted when a node is selected with the wish to display its children recursively (e.g., in other panels).
+         *
+         * @param node_id Id of the selected node.
+         */
         void nodeSelectedRecursive(const opcua_qt::abstraction::NodeId& node_id);
 
       private slots:

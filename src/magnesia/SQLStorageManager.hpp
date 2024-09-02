@@ -22,6 +22,9 @@
 
 namespace magnesia {
     /**
+     * @class SQLStorageManager
+     * @brief Class managing the interactions with the database.
+     *
      * The SQLStorageManager uses an SQLite database to store data.
      * Deletion triggers are used to get notified about cascading deletions.
      * Settings are implemented as a total partition.
@@ -57,6 +60,12 @@ namespace magnesia {
         };
 
       public:
+        /**
+         * Constructs an SQLStorageManager Object.
+         *
+         * @param db_location location of the database used by the manager.
+         * @param parent parent of the QObject.
+         */
         explicit SQLStorageManager(const QString& db_location, QObject* parent = nullptr);
 
         StorageId storeCertificate(const QSslCertificate& cert) override;
@@ -64,11 +73,10 @@ namespace magnesia {
         StorageId storeApplicationCertificate(const opcua_qt::ApplicationCertificate& cert) override;
         StorageId storeHistoricServerConnection(const HistoricServerConnection& historic_server_connection) override;
         StorageId storeLayout(const Layout& layout, const LayoutGroup& group, const Domain& domain) override;
-
         [[nodiscard]] std::optional<QSslCertificate> getCertificate(StorageId cert_id) const override;
-        [[nodiscard]] std::optional<QSslKey>         getKey(StorageId key_id) const override;
         [[nodiscard]] std::optional<opcua_qt::ApplicationCertificate>
-        getApplicationCertificate(StorageId cert_id) const override;
+                                             getApplicationCertificate(StorageId cert_id) const override;
+        [[nodiscard]] std::optional<QSslKey> getKey(StorageId key_id) const override;
         [[nodiscard]] std::optional<HistoricServerConnection>
         getHistoricServerConnection(StorageId historic_server_connection_id) const override;
         [[nodiscard]] std::optional<Layout> getLayout(StorageId layout_id, const LayoutGroup& group,
@@ -88,7 +96,6 @@ namespace magnesia {
         void deleteApplicationCertificate(StorageId cert_id) override;
         void deleteHistoricServerConnection(StorageId historic_server_connection_id) override;
         void deleteLayout(StorageId layout_id, const LayoutGroup& group, const Domain& domain) override;
-
         void setKV(const QString& key, const Domain& domain, const QString& value) override;
         [[nodiscard]] std::optional<QString> getKV(const QString& key, const Domain& domain) const override;
         void                                 deleteKV(const QString& key, const Domain& domain) override;
@@ -153,9 +160,9 @@ namespace magnesia {
                                                   std::span<const StorageId> certificates);
         void setHistoricServerConnectionRevokedList(StorageId                  historic_server_connection_id,
                                                     std::span<const StorageId> certificates);
-
         [[nodiscard]] HistoricServerConnection
         queryToHistoricServerConnection(const QSqlQuery& query, StorageId historic_server_connection_id) const;
+
         [[nodiscard]] HistoricServerConnection queryToHistoricServerConnection(const QSqlQuery& query) const;
 
       private:

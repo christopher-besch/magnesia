@@ -20,16 +20,20 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::certificate {
-    /*
-     * A widget representing a CertificateProperty.
+    /**
+     * @class CertificateProperty
+     * @brief A widget representing a CertificateProperty.
      */
     struct CertificateProperty {
-        QLabel*    name;
+        /// Name of the property.
+        QLabel* name;
+        /// Line edit of the property.
         QLineEdit* lineedit;
     };
 
     /**
-     * Class for the Certificate Activity
+     * @class Certificate
+     * @brief Class for the Certificate Activity
      */
     class Certificate : public Activity {
         Q_OBJECT

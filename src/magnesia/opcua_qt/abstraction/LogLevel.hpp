@@ -4,7 +4,8 @@
 
 namespace magnesia::opcua_qt {
     /**
-     * The severity level of a log entry.
+     * @class LogLevel
+     * @brief The severity level of a log entry.
      *
      * @see LogEntry
      */

@@ -21,7 +21,8 @@
 
 namespace magnesia {
     /**
-     * Settings layer on top of StorageManager.
+     * @class SettingsManager
+     * @brief Settings layer on top of StorageManager.
      */
     class SettingsManager : public QObject {
         Q_OBJECT

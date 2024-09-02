@@ -12,7 +12,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * Subclass of Node for View NodeClass.
+     * @class ViewNode
+     * @brief Subclass of Node for View NodeClass.
      *
      * @see Node
      * @see NodeClass
@@ -21,11 +22,28 @@ namespace magnesia::opcua_qt::abstraction {
      */
     class ViewNode : public Node {
       public:
+        /**
+         * @param node Node
+         * @param parent Parent of the ViewNode.
+         */
         explicit ViewNode(opcua::Node<opcua::Client> node, QObject* parent);
 
-        [[nodiscard]] std::optional<bool>                 containsNoLoops() override;
+        /**
+         * Retrieves weather the ViewNode contains loops or not.
+         * @return true, if node contains loops, false if not. nullopt if Node is not a ViewNode.
+         */
+        [[nodiscard]] std::optional<bool> containsNoLoops() override;
+
+        /**
+         * Retrieves the EventNotifierBitmask
+         * @return EventNotifierBitmask of the node if it exists, nullopt otherwise.
+         */
         [[nodiscard]] std::optional<EventNotifierBitmask> getEventNotifierType() override;
 
+        /**
+         * Sets the EventNotifierType of the node.
+         * @param type EventNotifierType
+         */
         void setEventNotifierType(EventNotifierBitmask type) override;
     };
 } // namespace magnesia::opcua_qt::abstraction

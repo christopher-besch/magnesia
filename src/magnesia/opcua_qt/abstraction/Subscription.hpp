@@ -25,7 +25,8 @@
 
 namespace magnesia::opcua_qt::abstraction {
     /**
-     * A class for subscribing to events and attribute changes.
+     * @class Subscription
+     * @brief A class to model substribtions to events and attribute changes.
      *
      * @see MonitoredItem
      *
@@ -36,6 +37,9 @@ namespace magnesia::opcua_qt::abstraction {
         Q_DISABLE_COPY_MOVE(Subscription)
 
       public:
+        /**
+         * @param subscription Subscription to a client.
+         */
         explicit Subscription(opcua::Subscription<opcua::Client> subscription);
         ~Subscription() override;
 

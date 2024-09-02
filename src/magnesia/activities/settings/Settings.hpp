@@ -24,11 +24,17 @@
 
 namespace magnesia::activities::settings {
     /**
+     * @class Settings
+     * @brief Settings activity for the application.
+     *
      * The Settings activity allows the user to view and alter settings, certificates and keys.
      * It is unclosable, launched at application initialization and not manually creatable by the user.
      */
     class Settings : public Activity {
       public:
+        /**
+         * @param parent Parent of the setting.
+         */
         explicit Settings(QWidget* parent = nullptr);
 
         /**

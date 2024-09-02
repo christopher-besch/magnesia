@@ -8,10 +8,17 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::about {
+    /**
+     * @class About
+     * @brief About activity for the application.
+     */
     class About : public Activity {
         Q_OBJECT
 
       public:
+        /**
+         * @param parent Parent of the about page.
+         */
         explicit About(QWidget* parent = nullptr);
 
       private:
@@ -20,7 +27,8 @@ namespace magnesia::activities::about {
     };
 
     /**
-     * `magnesia::ConfigWidget` for the `About` activity.
+     * @class ConfigWidget
+     * @brief `magnesia::ConfigWidget` for the `About` activity.
      */
     class ConfigWidget : public magnesia::ConfigWidget {
         Q_OBJECT

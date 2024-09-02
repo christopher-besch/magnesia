@@ -10,15 +10,32 @@
 
 namespace magnesia::activities::dataviewer {
     /**
-     * Base class for implementing panels for the `DataViewer`. Provides an abstraction for inter-panel communication.
+     * @class Panel
+     * @brief Base class for implementing panels for the `DataViewer`. Provides an abstraction for inter-panel
+     * communication.
      */
     class Panel : public QWidget {
         Q_OBJECT
 
       public:
+        /**
+         * Saves the current panel state.
+         *
+         * @return JSON object containing the state of the panel.
+         */
         [[nodiscard]] virtual QJsonObject saveState() const;
-        [[nodiscard]] virtual bool        restoreState(const QJsonObject& data);
 
+        /**
+         * Restores the state of the panel from a former layout.
+         *
+         * @param data JSON string containing the state.
+         * @return whether or not the restore succeeded.
+         */
+        [[nodiscard]] virtual bool restoreState(const QJsonObject& data);
+
+        /**
+         * Retrieves the metadata of the panel.
+         */
         [[nodiscard]] const PanelMetadata& metadata() const noexcept;
 
       protected:
@@ -31,6 +48,11 @@ namespace magnesia::activities::dataviewer {
         explicit Panel(DataViewer* dataviewer, panels::PanelType panel, PanelMetadata metadata,
                        QWidget* parent = nullptr);
 
+        /**
+         * Retrieves the Dataviewer displaying the panel.
+         *
+         * @return DataViewer displaying the panel.
+         */
         [[nodiscard]] DataViewer* getDataViewer() const noexcept;
 
       protected slots:

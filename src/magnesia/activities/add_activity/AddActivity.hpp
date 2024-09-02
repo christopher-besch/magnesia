@@ -8,7 +8,10 @@
 
 namespace magnesia::activities::add_activity {
     /**
-     * The main entry point in the GUI for the user. Provides a list of activities the user can create and the framework
+     * @class AddActivity
+     * @brief The entry activity in the GUI for the user.
+     *
+     * Provides a list of activities the user can create and the framework
      * to configure them. All the activity-specific details are provided by the activity developers through the
      * respective `ActivityMetadata` instance.
      *
@@ -17,6 +20,9 @@ namespace magnesia::activities::add_activity {
      */
     class AddActivity : public Activity {
       public:
+        /**
+         * @param parent Parent of the AddActivity.
+         */
         explicit AddActivity(QWidget* parent = nullptr);
     };
 

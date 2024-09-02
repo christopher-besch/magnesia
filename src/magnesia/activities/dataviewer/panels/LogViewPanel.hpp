@@ -18,16 +18,43 @@
 #include <qtmetamacros.h>
 
 namespace magnesia::activities::dataviewer::panels::log_view_panel {
+    /**
+     * @class LogViewPanel
+     * @brief Panel for displaying the log of a node.
+     */
     class LogViewPanel : public Panel {
         Q_OBJECT
 
       public:
+        /**
+         * @param dataviewer Dataviewer in which the panel is embedded.
+         * @param parent Parent of the panel.
+         */
         explicit LogViewPanel(DataViewer* dataviewer, QWidget* parent = nullptr);
 
       private slots:
+        /**
+         * Changes the log level.
+         *
+         * @param level New log level.
+         */
         void changedLogLevel(opcua_qt::LogLevel level);
+
+        /**
+         * Adds a log entry.
+         *
+         * @param entry Log entry.
+         */
         void log(const opcua_qt::LogEntry& entry);
+
+        /**
+         * Saves the log.
+         */
         void saveLog();
+
+        /**
+         * Filters the log entries to the current log level.
+         */
         void filterLogs();
 
       private:
