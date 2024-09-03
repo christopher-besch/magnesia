@@ -103,6 +103,14 @@ namespace magnesia::activities::dataviewer {
              */
             int addLayout(const Layout& layout);
 
+          public:
+            enum {
+                /// data role to get the actual layout data
+                LayoutRole = Qt::UserRole,
+                /// data role to check if a layout can be deleted
+                DeletableRole,
+            };
+
           private:
             void              addLayout(StorageId layout_id);
             [[nodiscard]] int rowIndex(StorageId layout_id) const;
