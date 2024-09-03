@@ -20,7 +20,8 @@ generate_cmake() {
         -D CMAKE_C_COMPILER=clang \
         -D CMAKE_CXX_COMPILER=clang++ \
         -D MAGNESIA_WARNINGS_AS_ERRORS=ON \
-        -D MAGNESIA_BUILD_DOCS=OFF
+        -D MAGNESIA_BUILD_DOCS=OFF \
+        -D BUILD_TESTING=ON
 
     # NOTE: open62541 generates headers during build. This means we have to build open62541 for clang-tidy to find all
     # includes if using CMake's FetchContent to build it. This is not an issue if the library is provided by the system,
@@ -34,14 +35,14 @@ run_cmake_format() {
 }
 
 run_clang_format() {
-    find src -name '*.[ch]pp' -print0 | xargs -0 clang-format -Werror --dry-run --verbose || fail clang-format $?
+    find src test -name '*.[ch]pp' -print0 | xargs -0 clang-format -Werror --dry-run --verbose || fail clang-format $?
 }
 
 run_clang_tidy() {
     generate_cmake clang-tidy
 
     # TODO: use run-clang-tidy -source-filter
-    find src -name '*.cpp' -print0 \
+    find src test -name '*.cpp' -print0 \
         | xargs -0 run-clang-tidy \
             -warnings-as-errors='*' \
             -use-color \
@@ -51,7 +52,7 @@ run_clang_tidy() {
 
     # Manually run include-cleaner on header files, see https://github.com/llvm/llvm-project/issues/67550 for details
     # why this is necessary.
-    find src -name '*.hpp' -print0 \
+    find src test -name '*.hpp' -print0 \
         | parallel -v0 clang-tidy \
             --warnings-as-errors='*' \
             --use-color \
@@ -66,7 +67,7 @@ run_codespell() {
 }
 
 run_qt_headers() {
-    find src -name '*.[ch]pp' -print0 \
+    find src test -name '*.[ch]pp' -print0 \
         | xargs -0 grep -nE '#include <q.*\.h>' | grep -vF '#include <qtmetamacros.h>' && fail "qt_headers" $?
     true
 }
