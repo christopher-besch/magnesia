@@ -29,7 +29,7 @@ generate_cmake() {
 }
 
 run_cmake_format() {
-    find . \( -name 'CMakeLists.txt' -or -name '*.cmake' \) -and -not -path './build/*' -print0 \
+    find . -path ./build -prune -o \( -name 'CMakeLists.txt' -o -name '*.cmake' \) -print0 \
         | xargs -0 cmake-format --check || fail cmake-format $?
 }
 
@@ -72,11 +72,11 @@ run_qt_headers() {
 }
 
 run_shellcheck() {
-    find . -name '*.sh' -print0 | xargs -0 shellcheck || fail shellcheck $?
+    find . -path ./build -prune -o -name '*.sh' -print0 | xargs -0 shellcheck || fail shellcheck $?
 }
 
 run_shfmt() {
-    find . -name '*.sh' -print0 | xargs -0 shfmt \
+    find . -path ./build -prune -o -name '*.sh' -print0 | xargs -0 shfmt \
         --indent 4 \
         --space-redirects \
         --case-indent \
