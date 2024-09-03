@@ -18,6 +18,7 @@
 #include <vector>
 
 #include <QAbstractItemModel>
+#include <QModelIndex>
 #include <QObject>
 #include <QVariant>
 #include <Qt>
@@ -117,9 +118,8 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         [[nodiscard]] int         rowCount(const QModelIndex& parent = QModelIndex()) const override;
         [[nodiscard]] int         columnCount(const QModelIndex& parent = QModelIndex()) const override;
         [[nodiscard]] QVariant    data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-
-        [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation,
-                                          int role = Qt::DisplayRole) const override;
+        [[nodiscard]] QVariant    headerData(int section, Qt::Orientation orientation,
+                                             int role = Qt::DisplayRole) const override;
 
         /**
          * Set the view to a specific Node.
@@ -128,16 +128,6 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
          * @param connection Connection to the node.
          */
         void setNode(opcua_qt::abstraction::Node* node, opcua_qt::Connection* connection);
-
-      private:
-        [[nodiscard]] static constexpr std::uint32_t itemId(opcua_qt::abstraction::AttributeId attribute,
-                                                            std::uint8_t                       sub_item) noexcept;
-
-        [[nodiscard]] static constexpr std::uint32_t itemId(std::uint32_t attribute, std::uint8_t sub_item) noexcept;
-
-        [[nodiscard]] static constexpr opcua_qt::abstraction::AttributeId attributeId(std::uint32_t item_id) noexcept;
-        [[nodiscard]] static constexpr std::uint8_t                       subId(std::uint32_t item_id) noexcept;
-        [[nodiscard]] static std::uint32_t                                itemId(QModelIndex index) noexcept;
 
       private:
         NodeProxy                                       m_node;

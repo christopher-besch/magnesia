@@ -6,7 +6,6 @@
 #include "../dataviewer_fwd.hpp"
 #include "AttributeViewModel.hpp"
 
-#include <QLabel>
 #include <QTreeView>
 #include <QWidget>
 #include <qtmetamacros.h>
@@ -38,7 +37,4 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         .name   = u"AttributeView",
         .create = create_helper<AttributeViewPanel>,
     };
-
 } // namespace magnesia::activities::dataviewer::panels::attribute_view_panel
-
-#pragma once
