@@ -99,6 +99,7 @@ run_cppcheck() {
         -i build `# ignore generated code` \
         --library=qt \
         -D Q_DISABLE_COPY_MOVE `# missing from qt.cfg` \
+        --library=googletest \
         --check-level=exhaustive \
         --enable=all \
         --disable=unusedFunction \
