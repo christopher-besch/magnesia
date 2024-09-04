@@ -57,7 +57,6 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
 
     void ReferenceViewModel::nodeSelected(opcua_qt::abstraction::Node* node) {
         beginResetModel();
-        m_references.clear();
         auto references = node->getReferences();
         m_references.clear();
 
