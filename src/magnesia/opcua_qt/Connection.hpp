@@ -28,6 +28,7 @@ namespace magnesia::opcua_qt {
      */
     class Connection : public QObject {
         Q_OBJECT
+
       public:
         ~Connection() override;
         Connection(const Connection&)            = delete;
