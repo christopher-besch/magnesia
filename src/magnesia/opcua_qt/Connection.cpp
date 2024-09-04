@@ -107,11 +107,17 @@ namespace magnesia::opcua_qt {
     }
 
     abstraction::Node* Connection::getRootNode() {
-        return abstraction::Node::fromOPCUANode(m_client.getRootNode(), this);
+        if (m_root_node == nullptr) {
+            m_root_node = abstraction::Node::fromOPCUANode(m_client.getRootNode(), this);
+        }
+        return m_root_node;
     }
 
     abstraction::Node* Connection::getNode(const abstraction::NodeId& node_id) {
-        return abstraction::Node::fromOPCUANode(m_client.getNode(node_id.handle()), this);
+        if (auto node = m_nodes.find(node_id); node != m_nodes.end()) {
+            return node->second;
+        }
+        return m_nodes[node_id] = abstraction::Node::fromOPCUANode(m_client.getNode(node_id.handle()), this);
     }
 
     abstraction::Subscription* Connection::createSubscription(abstraction::Node*                        node,

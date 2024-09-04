@@ -16,31 +16,34 @@ namespace magnesia::opcua_qt::abstraction {
     ReferenceTypeNode::ReferenceTypeNode(opcua::Node<opcua::Client> node, QObject* parent)
         : Node(std::move(node), parent) {}
 
-    std::optional<LocalizedText> ReferenceTypeNode::getInverseName() {
+    const LocalizedText* ReferenceTypeNode::getInverseName() {
         try {
-            return LocalizedText(handle().readInverseName());
+            return &wrapCache(&Cache::inverse_name, [this] { return LocalizedText{handle().readInverseName()}; });
         } catch (opcua::BadStatus&) {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
     std::optional<bool> ReferenceTypeNode::isAbstract() {
-        return handle().readIsAbstract();
+        return wrapCache(&Cache::is_abstract, [this] { return handle().readIsAbstract(); });
     }
 
     std::optional<bool> ReferenceTypeNode::isSymmetric() {
-        return handle().readSymmetric();
+        return wrapCache(&Cache::is_symmetric, [this] { return handle().readSymmetric(); });
     }
 
     void ReferenceTypeNode::setInverseName(const LocalizedText& name) {
         handle().writeInverseName(name.handle());
+        invalidateCache(&Cache::inverse_name);
     }
 
     void ReferenceTypeNode::setAbstract(bool abstract) {
         handle().writeIsAbstract(abstract);
+        invalidateCache(&Cache::is_abstract);
     }
 
     void ReferenceTypeNode::setSymmetric(bool symmetric) {
         handle().writeSymmetric(symmetric);
+        invalidateCache(&Cache::is_symmetric);
     }
 } // namespace magnesia::opcua_qt::abstraction

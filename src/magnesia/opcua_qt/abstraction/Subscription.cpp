@@ -11,7 +11,6 @@
 
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <utility>
 #include <vector>
 
@@ -55,9 +54,9 @@ namespace magnesia::opcua_qt::abstraction {
                                        const opcua::DataValue& value) {
                 if (attribute_id == opcua_qt::abstraction::AttributeId::DISPLAY_NAME) {
                     auto text = value.getValue().getScalar<opcua::LocalizedText>();
-                    node->setCacheDisplayName(LocalizedText{std::move(text)});
+                    node->setCache(&Node::Cache::display_name, LocalizedText{std::move(text)});
                 } else if (attribute_id == opcua_qt::abstraction::AttributeId::VALUE) {
-                    node->setCacheDataValue(DataValue(value));
+                    node->setCache(&Node::Cache::data_value, DataValue(value));
                 }
 
                 Q_EMIT valueChanged(node, attribute_id, std::make_shared<DataValue>(value));

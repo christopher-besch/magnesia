@@ -33,4 +33,8 @@ namespace magnesia::opcua_qt::abstraction {
     bool NodeId::operator==(const NodeId& other) const {
         return m_node_id == other.m_node_id;
     }
+
+    bool NodeId::operator<(const NodeId& other) const {
+        return m_node_id < other.m_node_id;
+    }
 } // namespace magnesia::opcua_qt::abstraction

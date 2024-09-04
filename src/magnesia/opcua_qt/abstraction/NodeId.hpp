@@ -49,6 +49,7 @@ namespace magnesia::opcua_qt::abstraction {
         [[nodiscard]] opcua::NodeId& handle() noexcept;
 
         bool operator==(const NodeId& other) const;
+        bool operator<(const NodeId& other) const;
 
       private:
         opcua::NodeId m_node_id;

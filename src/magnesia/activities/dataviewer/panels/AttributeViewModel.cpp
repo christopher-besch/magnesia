@@ -130,9 +130,8 @@ namespace {
         }
     }
 
-    QVariant localized_text_data(bool title, std::uint8_t sub_id, const std::optional<LocalizedText>& value,
-                                 const QString& name) {
-        if (!value.has_value()) {
+    QVariant localized_text_data(bool title, std::uint8_t sub_id, const LocalizedText* value, const QString& name) {
+        if (value == nullptr) {
             return {};
         }
 
@@ -149,9 +148,8 @@ namespace {
         }
     }
 
-    QVariant qualified_name_data(bool title, std::uint8_t sub_id, const std::optional<QualifiedName>& value,
-                                 const QString& name) {
-        if (!value.has_value()) {
+    QVariant qualified_name_data(bool title, std::uint8_t sub_id, const QualifiedName* value, const QString& name) {
+        if (value == nullptr) {
             return {};
         }
 
@@ -210,9 +208,9 @@ namespace {
         return title ? event_notifier_to_string(pair.first) : QVariant::fromValue(pair.second);
     }
 
-    QVariant array_dimensions_data(bool title, std::uint8_t sub_id,
-                                   const std::optional<std::vector<std::uint32_t>>& value, const QString& name) {
-        if (!value.has_value()) {
+    QVariant array_dimensions_data(bool title, std::uint8_t sub_id, const std::vector<std::uint32_t>* value,
+                                   const QString& name) {
+        if (value == nullptr) {
             return {};
         }
 
@@ -223,28 +221,32 @@ namespace {
         return title ? QString("[%1]").arg(sub_id - 1) : QVariant::fromValue(value->at(sub_id - 1));
     }
 
-    QVariant value_data(bool title, const std::optional<DataValue>& value, const QString& name) {
-        if (!value.has_value()) {
+    QVariant value_data(bool title, const DataValue* value, const QString& name) {
+        if (value == nullptr) {
             return {};
         }
 
         return title ? name : value->getValue().toQVariant();
     }
 
-    QVariant data_type_data(bool title, std::optional<Node*> value, const QString& name) {
-        if (!value.has_value()) {
+    QVariant data_type_data(bool title, const std::optional<NodeId>& value, Connection* connection,
+                            const QString& name) {
+        if (!value.has_value() || connection == nullptr) {
             return {};
         }
 
-        return title ? name : (*value)->getDisplayName().getText();
+        return title ? name : connection->getNode(*value)->getDisplayName().getText();
     }
 } // namespace
 
 namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
-    AttributeViewModel::AttributeViewModel(QObject* parent) : QAbstractItemModel(parent), m_node() {}
+    AttributeViewModel::AttributeViewModel(QObject* parent) : QAbstractItemModel(parent) {}
 
     void AttributeViewModel::setNode(Node* node, Connection* connection) {
         beginResetModel();
+
+        m_connection = connection;
+        m_node       = node;
 
         std::optional<Node*> type_node = std::nullopt;
         auto                 type_id   = node->getDataType();
@@ -253,56 +255,31 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
             type_node = connection->getNode(*type_id);
         }
 
-        m_node = {
-            .node_id                   = node->getNodeId(),
-            .node_class                = node->getNodeClass(),
-            .browse_name               = node->getBrowseName(),
-            .display_name              = node->getDisplayName(),
-            .description               = node->getDescription(),
-            .write_mask                = node->getWriteMask(),
-            .user_write_mask           = node->getUserWriteMask(),
-            .is_abstract               = node->isAbstract(),
-            .is_symmetric              = node->isSymmetric(),
-            .inverse_name              = node->getInverseName(),
-            .contains_no_loops         = node->containsNoLoops(),
-            .event_notifier            = node->getEventNotifierType(),
-            .data_value                = node->getDataValue(),
-            .data_type                 = type_node,
-            .value_rank                = node->getValueRank(),
-            .array_dimensions          = node->getArrayDimensions(),
-            .access_level              = node->getAccessLevel(),
-            .user_access_level         = node->getUserAccessLevel(),
-            .minimum_sampling_interval = node->getMinimumSamplingInterval(),
-            .is_historizing            = node->isHistorizing(),
-            .is_executable             = node->isExecutable(),
-            .is_user_executable        = node->isUserExecutable(),
-        };
-
         m_available_attributes.clear();
 
-        append_if(m_node.node_id.has_value(), AttributeId::NODE_ID, m_available_attributes);
-        append_if(m_node.node_class.has_value(), AttributeId::NODE_CLASS, m_available_attributes);
-        append_if(m_node.browse_name.has_value(), AttributeId::BROWSE_NAME, m_available_attributes);
-        append_if(m_node.display_name.has_value(), AttributeId::DISPLAY_NAME, m_available_attributes);
-        append_if(m_node.description.has_value(), AttributeId::DESCRIPTION, m_available_attributes);
-        append_if(m_node.write_mask.has_value(), AttributeId::WRITE_MASK, m_available_attributes);
-        append_if(m_node.user_write_mask.has_value(), AttributeId::USER_WRITE_MASK, m_available_attributes);
-        append_if(m_node.is_abstract.has_value(), AttributeId::IS_ABSTRACT, m_available_attributes);
-        append_if(m_node.is_symmetric.has_value(), AttributeId::SYMMETRIC, m_available_attributes);
-        append_if(m_node.inverse_name.has_value(), AttributeId::INVERSE_NAME, m_available_attributes);
-        append_if(m_node.contains_no_loops.has_value(), AttributeId::CONTAINS_NO_LOOPS, m_available_attributes);
-        append_if(m_node.event_notifier.has_value(), AttributeId::EVENT_NOTFIER, m_available_attributes);
-        append_if(m_node.data_value.has_value(), AttributeId::VALUE, m_available_attributes);
-        append_if(m_node.data_type.has_value(), AttributeId::DATA_TYPE, m_available_attributes);
-        append_if(m_node.value_rank.has_value(), AttributeId::VALUE_RANK, m_available_attributes);
-        append_if(m_node.array_dimensions.has_value(), AttributeId::ARRAY_DIMENSIONS, m_available_attributes);
-        append_if(m_node.access_level.has_value(), AttributeId::ACCESS_LEVEL, m_available_attributes);
-        append_if(m_node.user_access_level.has_value(), AttributeId::USER_ACCESS_LEVEL, m_available_attributes);
-        append_if(m_node.minimum_sampling_interval.has_value(), AttributeId::MINIMUM_SAMPLING_INTERVAL,
+        m_available_attributes.push_back(AttributeId::NODE_ID);
+        m_available_attributes.push_back(AttributeId::NODE_CLASS);
+        m_available_attributes.push_back(AttributeId::BROWSE_NAME);
+        m_available_attributes.push_back(AttributeId::DISPLAY_NAME);
+        append_if(node->getDescription() != nullptr, AttributeId::DESCRIPTION, m_available_attributes);
+        append_if(node->getWriteMask().has_value(), AttributeId::WRITE_MASK, m_available_attributes);
+        append_if(node->getUserWriteMask().has_value(), AttributeId::USER_WRITE_MASK, m_available_attributes);
+        append_if(node->isAbstract().has_value(), AttributeId::IS_ABSTRACT, m_available_attributes);
+        append_if(node->isSymmetric().has_value(), AttributeId::SYMMETRIC, m_available_attributes);
+        append_if(node->getInverseName() != nullptr, AttributeId::INVERSE_NAME, m_available_attributes);
+        append_if(node->containsNoLoops().has_value(), AttributeId::CONTAINS_NO_LOOPS, m_available_attributes);
+        append_if(node->getEventNotifierType().has_value(), AttributeId::EVENT_NOTFIER, m_available_attributes);
+        append_if(node->getDataValue() != nullptr, AttributeId::VALUE, m_available_attributes);
+        append_if(type_node.has_value(), AttributeId::DATA_TYPE, m_available_attributes);
+        append_if(node->getValueRank().has_value(), AttributeId::VALUE_RANK, m_available_attributes);
+        append_if(node->getArrayDimensions() != nullptr, AttributeId::ARRAY_DIMENSIONS, m_available_attributes);
+        append_if(node->getAccessLevel().has_value(), AttributeId::ACCESS_LEVEL, m_available_attributes);
+        append_if(node->getUserAccessLevel().has_value(), AttributeId::USER_ACCESS_LEVEL, m_available_attributes);
+        append_if(node->getMinimumSamplingInterval().has_value(), AttributeId::MINIMUM_SAMPLING_INTERVAL,
                   m_available_attributes);
-        append_if(m_node.is_historizing.has_value(), AttributeId::HISTORIZING, m_available_attributes);
-        append_if(m_node.is_executable.has_value(), AttributeId::EXECUTABLE, m_available_attributes);
-        append_if(m_node.is_user_executable.has_value(), AttributeId::USER_EXECUTABLE, m_available_attributes);
+        append_if(node->isHistorizing().has_value(), AttributeId::HISTORIZING, m_available_attributes);
+        append_if(node->isExecutable().has_value(), AttributeId::EXECUTABLE, m_available_attributes);
+        append_if(node->isUserExecutable().has_value(), AttributeId::USER_EXECUTABLE, m_available_attributes);
 
         endResetModel();
     }
@@ -386,11 +363,11 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
                 return c_write_mask_count;
 
             case AttributeId::ARRAY_DIMENSIONS:
-                if (!m_node.array_dimensions.has_value()) {
-                    return 0;
+                if (const auto* dimensions = m_node->getArrayDimensions()) {
+                    return static_cast<int>(dimensions->size() + 1);
                 }
 
-                return static_cast<int>(m_node.array_dimensions->size() + 1);
+                return 0;
 
             case AttributeId::VALUE:
             case AttributeId::DATA_TYPE:
@@ -427,49 +404,49 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
 
         switch (attribute) {
             case AttributeId::NODE_ID:
-                return node_id_data(title, sub_item, m_node.node_id, "Node Id");
+                return node_id_data(title, sub_item, m_node->getNodeId(), "Node Id");
             case AttributeId::NODE_CLASS:
-                return node_class_data(title, m_node.node_class, "Node Class");
+                return node_class_data(title, m_node->getNodeClass(), "Node Class");
             case AttributeId::BROWSE_NAME:
-                return qualified_name_data(title, sub_item, m_node.browse_name, "Browse Name");
+                return qualified_name_data(title, sub_item, &m_node->getBrowseName(), "Browse Name");
             case AttributeId::DISPLAY_NAME:
-                return localized_text_data(title, sub_item, m_node.display_name, "Display Name");
+                return localized_text_data(title, sub_item, &m_node->getDisplayName(), "Display Name");
             case AttributeId::DESCRIPTION:
-                return localized_text_data(title, sub_item, m_node.description, "Description");
+                return localized_text_data(title, sub_item, m_node->getDescription(), "Description");
             case AttributeId::WRITE_MASK:
-                return write_mask_data(title, sub_item, m_node.write_mask, "Write Mask");
+                return write_mask_data(title, sub_item, m_node->getWriteMask(), "Write Mask");
             case AttributeId::USER_WRITE_MASK:
-                return write_mask_data(title, sub_item, m_node.user_write_mask, "User Write Mask");
+                return write_mask_data(title, sub_item, m_node->getUserWriteMask(), "User Write Mask");
             case AttributeId::IS_ABSTRACT:
-                return scalar_data(title, m_node.is_abstract, "Is Abstract");
+                return scalar_data(title, m_node->isAbstract(), "Is Abstract");
             case AttributeId::SYMMETRIC:
-                return scalar_data(title, m_node.is_symmetric, "Is Symmetric");
+                return scalar_data(title, m_node->isSymmetric(), "Is Symmetric");
             case AttributeId::INVERSE_NAME:
-                return localized_text_data(title, sub_item, m_node.inverse_name, "Inverse Name");
+                return localized_text_data(title, sub_item, m_node->getInverseName(), "Inverse Name");
             case AttributeId::CONTAINS_NO_LOOPS:
-                return scalar_data(title, m_node.contains_no_loops, "Contains no loops");
+                return scalar_data(title, m_node->containsNoLoops(), "Contains no loops");
             case AttributeId::EVENT_NOTFIER:
-                return event_notifier_data(title, sub_item, m_node.event_notifier, "Event Notifier");
+                return event_notifier_data(title, sub_item, m_node->getEventNotifierType(), "Event Notifier");
             case AttributeId::VALUE:
-                return value_data(title, m_node.data_value, "Value");
+                return value_data(title, m_node->getDataValue(), "Value");
             case AttributeId::DATA_TYPE:
-                return data_type_data(title, m_node.data_type, "Data Type");
+                return data_type_data(title, m_node->getDataType(), m_connection, "Data Type");
             case AttributeId::VALUE_RANK:
-                return value_rank_data(title, m_node.value_rank, "Value Rank");
+                return value_rank_data(title, m_node->getValueRank(), "Value Rank");
             case AttributeId::ARRAY_DIMENSIONS:
-                return array_dimensions_data(title, sub_item, m_node.array_dimensions, "Array Dimensions");
+                return array_dimensions_data(title, sub_item, m_node->getArrayDimensions(), "Array Dimensions");
             case AttributeId::ACCESS_LEVEL:
-                return access_level_data(title, sub_item, m_node.access_level, "Access Level");
+                return access_level_data(title, sub_item, m_node->getAccessLevel(), "Access Level");
             case AttributeId::USER_ACCESS_LEVEL:
-                return access_level_data(title, sub_item, m_node.user_access_level, "User Access Level");
+                return access_level_data(title, sub_item, m_node->getUserAccessLevel(), "User Access Level");
             case AttributeId::MINIMUM_SAMPLING_INTERVAL:
-                return scalar_data(title, m_node.minimum_sampling_interval, "Minimum Sampling Interval");
+                return scalar_data(title, m_node->getMinimumSamplingInterval(), "Minimum Sampling Interval");
             case AttributeId::HISTORIZING:
-                return scalar_data(title, m_node.is_historizing, "Is Historizing");
+                return scalar_data(title, m_node->isHistorizing(), "Is Historizing");
             case AttributeId::EXECUTABLE:
-                return scalar_data(title, m_node.is_executable, "Is Executable");
+                return scalar_data(title, m_node->isExecutable(), "Is Executable");
             case AttributeId::USER_EXECUTABLE:
-                return scalar_data(title, m_node.is_user_executable, "Is User Executable");
+                return scalar_data(title, m_node->isUserExecutable(), "Is User Executable");
 
             case AttributeId::ACCESS_RESTRICTIONS:
             case AttributeId::ROLE_PERMISSIONS:

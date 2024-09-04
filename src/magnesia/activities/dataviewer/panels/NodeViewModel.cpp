@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
-#include <optional>
 #include <span>
 #include <stack>
 #include <vector>
@@ -68,8 +67,8 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
                 break;
         }
 
-        auto data_value = node->getDataValue();
-        if (!data_value.has_value()) {
+        const auto* data_value = node->getDataValue();
+        if (data_value == nullptr) {
             return {};
         }
 
@@ -164,7 +163,7 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
             }
 
             if (current->getNodeClass() == NodeClass::VARIABLE
-                || (current->getNodeClass() == NodeClass::VARIABLE_TYPE && current->getDataValue().has_value())) {
+                || (current->getNodeClass() == NodeClass::VARIABLE_TYPE && current->getDataValue() != nullptr)) {
                 leaf_nodes.push_back(current);
             }
         }

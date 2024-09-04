@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <type_traits>
 #include <vector>
 
 #include <open62541pp/Client.h>
@@ -57,17 +58,17 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the browse name of this node. It's a unique identifier within the namespace.
          */
-        [[nodiscard]] QualifiedName getBrowseName();
+        [[nodiscard]] const QualifiedName& getBrowseName();
 
         /**
          * Get the display name of this node. This is for a user to see.
          */
-        [[nodiscard]] LocalizedText getDisplayName();
+        [[nodiscard]] const LocalizedText& getDisplayName();
 
         /**
          * Get the description of this node. This is for a user to see.
          */
-        [[nodiscard]] std::optional<LocalizedText> getDescription();
+        [[nodiscard]] const LocalizedText* getDescription();
 
         /**
          * Get the write mask of this node. It tells, what attributes can be written to.
@@ -87,12 +88,12 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the child nodes of this node.
          */
-        [[nodiscard]] std::vector<Node*> getChildren();
+        [[nodiscard]] const std::vector<Node*>& getChildren();
 
         /**
          * Get all references to and from this node.
          */
-        [[nodiscard]] std::vector<ReferenceDescription> getReferences();
+        [[nodiscard]] const std::vector<ReferenceDescription>& getReferences();
 
         // TODO: RolePermissions, UserRolePermissions, AccessRestrictions
         // These are optional
@@ -101,7 +102,7 @@ namespace magnesia::opcua_qt::abstraction {
          * Get the inverse name of this reference type.
          * Only applicable to RefrenceType.
          */
-        [[nodiscard]] virtual std::optional<LocalizedText> getInverseName();
+        [[nodiscard]] virtual const LocalizedText* getInverseName();
 
         /**
          * Get if this type is abstract.
@@ -131,7 +132,7 @@ namespace magnesia::opcua_qt::abstraction {
          * Get the data value for this variable or variable type.
          * Only applicable to Variable and VariableType.
          */
-        [[nodiscard]] virtual std::optional<DataValue> getDataValue();
+        [[nodiscard]] virtual const DataValue* getDataValue();
 
         /**
          * Get the data type of this variable or variable type.
@@ -149,7 +150,7 @@ namespace magnesia::opcua_qt::abstraction {
          * Get the array dimensions of this variable or variable type if the value is an array.
          * Only applicable to Variable and VariableType.
          */
-        [[nodiscard]] virtual std::optional<std::vector<std::uint32_t>> getArrayDimensions();
+        [[nodiscard]] virtual const std::vector<std::uint32_t>* getArrayDimensions();
 
         /**
          * Get the access level of this variable for all users.
@@ -351,19 +352,62 @@ namespace magnesia::opcua_qt::abstraction {
       protected:
         explicit Node(opcua::Node<opcua::Client> node, QObject* parent);
 
-        const std::optional<LocalizedText>& setCacheDisplayName(std::optional<LocalizedText> display_name);
-        const std::optional<DataValue>&     setCacheDataValue(std::optional<DataValue> data_value);
+        struct Cache {
+            template<typename T>
+            using CacheType = std::optional<T>;
 
-        [[nodiscard]] const std::optional<DataValue>& getCacheDataValue();
+            CacheType<DataValue>                         data_value;
+            CacheType<LocalizedText>                     display_name;
+            CacheType<LocalizedText>                     description;
+            CacheType<LocalizedText>                     inverse_name;
+            CacheType<QualifiedName>                     browse_name;
+            CacheType<std::vector<Node*>>                children;
+            CacheType<std::vector<ReferenceDescription>> references;
+            CacheType<std::vector<std::uint32_t>>        array_dimensions;
+            CacheType<NodeId>                            data_type;
+            CacheType<Node*>                             parent;
+            CacheType<double>                            minimum_sampling_interval;
+            CacheType<NodeClass>                         node_class;
+            CacheType<WriteMaskBitmask>                  write_mask;
+            CacheType<WriteMaskBitmask>                  user_write_mask;
+            CacheType<ValueRank>                         value_rank;
+            CacheType<bool>                              is_abstract;
+            CacheType<bool>                              is_symmetric;
+            CacheType<bool>                              contains_no_loops;
+            CacheType<EventNotifierBitmask>              event_notifier;
+            CacheType<AccessLevelBitmask>                access_level;
+            CacheType<AccessLevelBitmask>                user_access_level;
+            CacheType<bool>                              is_historizing;
+            CacheType<bool>                              is_executable;
+            CacheType<bool>                              is_user_executable;
+        };
+
+        template<typename CacheEntry, typename ValueType>
+        void setCache(CacheEntry&& cache_entry, ValueType&& value) {
+            std::invoke(std::forward<CacheEntry>(cache_entry), m_cache) = std::forward<ValueType>(value);
+        }
+
+        template<typename CacheEntry, typename Getter,
+                 typename TargetType = std::remove_cvref_t<std::invoke_result_t<CacheEntry, Cache>>::value_type>
+        const TargetType& wrapCache(CacheEntry&& cache_entry, Getter&& getter) {
+            auto& entry = std::invoke(std::forward<CacheEntry>(cache_entry), m_cache);
+            if (!entry.has_value()) {
+                entry = std::invoke(std::forward<Getter>(getter));
+            }
+
+            return *entry;
+        }
+
+        template<typename CacheEntry>
+        void invalidateCache(CacheEntry&& cache_entry) {
+            std::invoke(std::forward<CacheEntry>(cache_entry), m_cache) = std::nullopt;
+        }
 
       private:
         // Subscription updates the cache directly to reduce network round-trips
         friend class Subscription;
+        Cache m_cache;
 
-        opcua::Node<opcua::Client>        m_node;
-        std::optional<Node*>              m_cache_parent;
-        std::optional<std::vector<Node*>> m_cache_children;
-        std::optional<LocalizedText>      m_cache_display_name;
-        std::optional<DataValue>          m_cache_data_value;
+        opcua::Node<opcua::Client> m_node;
     };
 } // namespace magnesia::opcua_qt::abstraction
