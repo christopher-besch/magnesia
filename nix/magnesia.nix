@@ -4,8 +4,9 @@
   cmake,
   qt6,
   open62541pp,
+  gtest,
 }:
-stdenv.mkDerivation {
+stdenv.mkDerivation (finalAttrs: {
   pname = "magnesia";
   version = "trunk";
 
@@ -25,10 +26,17 @@ stdenv.mkDerivation {
       qt6.qtwayland
     ];
 
+  checkInputs = [
+    gtest
+  ];
+
+  doCheck = true;
+
   cmakeFlags = [
     (lib.cmakeBool "MAGNESIA_BUILD_DOCS" false)
+    (lib.cmakeBool "BUILD_TESTING" finalAttrs.doCheck)
   ];
 
   # Qt's deploy script on macOS produces an app bundle that is independent of the nix store and wrapping fails
   dontWrapQtApps = stdenv.isDarwin;
-}
+})

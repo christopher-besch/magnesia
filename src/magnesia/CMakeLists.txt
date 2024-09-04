@@ -79,20 +79,21 @@ set(SOURCES
     StorageManager.cpp
     terminate.cpp
 )
-qt_add_executable(magnesia main.cpp ${SOURCES})
-
-target_include_directories(magnesia PRIVATE ${MAGNESIA_CONFIGURED_INCLUDES})
-
+add_library(magnesia_lib STATIC ${SOURCES})
+target_include_directories(magnesia_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${MAGNESIA_CONFIGURED_INCLUDES})
 target_link_libraries(
-    magnesia
-    PRIVATE magnesia::project_options
-            magnesia::resources
-            Qt::Core
-            Qt::Widgets
-            Qt::Sql
-            Qt::Network
-            open62541pp::open62541pp
+    magnesia_lib
+    PUBLIC magnesia::project_options
+           magnesia::resources
+           Qt::Core
+           Qt::Widgets
+           Qt::Sql
+           Qt::Network
+           open62541pp::open62541pp
 )
+
+qt_add_executable(magnesia main.cpp)
+target_link_libraries(magnesia PRIVATE magnesia_lib)
 
 set_target_properties(
     magnesia

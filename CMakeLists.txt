@@ -24,6 +24,9 @@ else()
     set(EXCLUDE_FROM_ALL)
 endif()
 
+option(BUILD_TESTING "Build tests" ON)
+
+message(STATUS "Fetching dependencies. This may take a while...")
 include(FetchContent)
 set(UA_ENABLE_ENCRYPTION
     OPENSSL
@@ -40,8 +43,21 @@ FetchContent_Declare(
     FIND_PACKAGE_ARGS 0.13
     # cmake-format: on
 )
-message(STATUS "Fetching dependencies. This may take a while...")
 FetchContent_MakeAvailable(open62541pp)
+if(BUILD_TESTING)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG f8d7d77c06936315286eb55f8de22cd23c188571 # v1.14.0
+        GIT_SHALLOW ON
+        SYSTEM
+        ${EXCLUDE_FROM_ALL}
+        # cmake-format: off
+        FIND_PACKAGE_ARGS 1.14 NAMES GTest
+        # cmake-format: on
+    )
+    FetchContent_MakeAvailable(googletest)
+endif()
 
 # qt6-base-dev in current debian stable (bookworm) is at least 6.4.2
 find_package(
@@ -52,6 +68,8 @@ find_package(
                Network
 )
 qt_standard_project_setup()
+set(CMAKE_GLOBAL_AUTOGEN_TARGET ON)
+set(CMAKE_AUTOGEN_ORIGIN_DEPENDS OFF)
 
 message(STATUS "Using cmake ${CMAKE_VERSION}")
 message(STATUS "Using open62541 ${open62541_VERSION}")
@@ -100,3 +118,8 @@ qt_add_resources(
 
 add_subdirectory(configured_files)
 add_subdirectory(src/magnesia)
+
+if(BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(test)
+endif()
