@@ -46,6 +46,9 @@ This repository contains a nix flake. Make sure you have flakes enabled and run 
 ### CMake Options
 - `MAGNESIA_BUILD_DOCS` (default: `ON`): Whether to build code documentation with doxygen
 
+### Run Unit Tests
+- `ctest --test-dir build --build-config Release`
+
 ## Dependencies
 - compiler:
     - gcc 12.2.0 or newer
