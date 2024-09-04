@@ -352,9 +352,6 @@ namespace magnesia::opcua_qt::abstraction {
       protected:
         explicit Node(opcua::Node<opcua::Client> node, QObject* parent);
 
-        const std::optional<LocalizedText>& setCacheDisplayName(std::optional<LocalizedText> display_name);
-        const std::optional<DataValue>&     setCacheDataValue(std::optional<DataValue> data_value);
-
         struct Cache {
             template<typename T>
             using CacheType = std::optional<T>;
@@ -384,6 +381,11 @@ namespace magnesia::opcua_qt::abstraction {
             CacheType<bool>                              is_executable;
             CacheType<bool>                              is_user_executable;
         };
+
+        template<typename CacheEntry, typename ValueType>
+        void setCache(CacheEntry&& cache_entry, ValueType&& value) {
+            std::invoke(std::forward<CacheEntry>(cache_entry), m_cache) = std::forward<ValueType>(value);
+        }
 
         template<typename CacheEntry, typename Getter,
                  typename TargetType = std::remove_cvref_t<std::invoke_result_t<CacheEntry, Cache>>::value_type>
