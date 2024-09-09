@@ -17,11 +17,14 @@
 #include <utility>
 #include <vector>
 
+#include <open62541/types.h>
 #include <open62541pp/AccessControl.h>
 #include <open62541pp/Client.h>
 #include <open62541pp/Common.h>
+#include <open62541pp/ErrorHandling.h>
 #include <open62541pp/types/Builtin.h>
 
+#include <QLoggingCategory>
 #include <QObject>
 #include <QSslCertificate>
 #include <QThreadPool>
@@ -31,9 +34,14 @@
 
 #ifdef MAGNESIA_HAS_QT_6_5
 #include <QtAssert>
+#include <QtTypeTraits>
 #else
 #include <QtGlobal>
 #endif
+
+namespace {
+    Q_LOGGING_CATEGORY(lc_opcua_connection, "magnesia.opcua.connection")
+} // namespace
 
 namespace magnesia::opcua_qt {
     opcua::Client Connection::constructClient(const std::optional<ApplicationCertificate>& certificate,
@@ -124,7 +132,17 @@ namespace magnesia::opcua_qt {
                                                               std::span<const abstraction::AttributeId> attribute_ids) {
         auto* subscription = new abstraction::Subscription(m_client.createSubscription());
         for (const abstraction::AttributeId attribute_id : attribute_ids) {
-            subscription->subscribeDataChanged(node, attribute_id);
+            try {
+                subscription->subscribeDataChanged(node, attribute_id);
+            } catch (opcua::BadStatus& exception) {
+                if (exception.code() == UA_STATUSCODE_BADNOTSUPPORTED) {
+                    qCInfo(lc_opcua_connection) << "Failed to subscribe to attribute" << qToUnderlying(attribute_id)
+                                                << "reason:" << exception.what();
+                } else {
+                    qCWarning(lc_opcua_connection) << "Failed to subscribe to attribute" << qToUnderlying(attribute_id)
+                                                   << "reason:" << exception.what();
+                }
+            }
         }
         return subscription;
     }

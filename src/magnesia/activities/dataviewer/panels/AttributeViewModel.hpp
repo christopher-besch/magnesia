@@ -43,9 +43,13 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
          */
         void setNode(opcua_qt::abstraction::Node* node, opcua_qt::Connection* connection);
 
+      private slots:
+        void valueChanged(opcua_qt::abstraction::Node* node, opcua_qt::abstraction::AttributeId attribute_id);
+
       private:
         std::vector<opcua_qt::abstraction::AttributeId> m_available_attributes;
-        opcua_qt::abstraction::Node*                    m_node{};
-        opcua_qt::Connection*                           m_connection{};
+        opcua_qt::abstraction::Node*                    m_node{nullptr};
+        opcua_qt::Connection*                           m_connection{nullptr};
+        opcua_qt::abstraction::Subscription*            m_subscription{nullptr};
     };
 } // namespace magnesia::activities::dataviewer::panels::attribute_view_panel
