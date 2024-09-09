@@ -53,17 +53,17 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the node class of this node.
          */
-        [[nodiscard]] NodeClass getNodeClass();
+        [[nodiscard]] std::optional<NodeClass> getNodeClass();
 
         /**
          * Get the browse name of this node. It's a unique identifier within the namespace.
          */
-        [[nodiscard]] const QualifiedName& getBrowseName();
+        [[nodiscard]] const QualifiedName* getBrowseName();
 
         /**
          * Get the display name of this node. This is for a user to see.
          */
-        [[nodiscard]] const LocalizedText& getDisplayName();
+        [[nodiscard]] const LocalizedText* getDisplayName();
 
         /**
          * Get the description of this node. This is for a user to see.
@@ -88,12 +88,12 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Get the child nodes of this node.
          */
-        [[nodiscard]] const std::vector<Node*>& getChildren();
+        [[nodiscard]] const std::vector<Node*>* getChildren();
 
         /**
          * Get all references to and from this node.
          */
-        [[nodiscard]] const std::vector<ReferenceDescription>& getReferences();
+        [[nodiscard]] const std::vector<ReferenceDescription>* getReferences();
 
         // TODO: RolePermissions, UserRolePermissions, AccessRestrictions
         // These are optional

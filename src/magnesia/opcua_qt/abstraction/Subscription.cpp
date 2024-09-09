@@ -14,9 +14,11 @@
 #include "WriteMaskBitmask.hpp"
 #include "node/Node.hpp"
 #include "opcua_qt/abstraction/ValueRank.hpp"
+#include "qt_version_check.hpp"
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -31,6 +33,12 @@
 
 #include <QLoggingCategory>
 #include <qtmetamacros.h>
+
+#ifdef MAGNESIA_HAS_QT_6_5
+#include <QtTypeTraits>
+#else
+#include <QtGlobal>
+#endif
 
 namespace {
     Q_LOGGING_CATEGORY(lc_opcua_subscription, "magnesia.opcua.subscription")
@@ -52,15 +60,21 @@ namespace magnesia::opcua_qt::abstraction {
         return {vector.begin(), vector.end()};
     }
 
-    MonitoredItem Subscription::subscribeDataChanged(Node* node, AttributeId attribute_id) {
-        return MonitoredItem(m_subscription.subscribeDataChange(
-            node->getNodeId().handle(), static_cast<opcua::AttributeId>(attribute_id),
-            [this, node, attribute_id](std::uint32_t /*subId*/, std::uint32_t /*monId*/,
-                                       const opcua::DataValue& value) {
-                auto data_value = std::make_shared<DataValue>(value);
-                updateNodeCache(node, attribute_id, *data_value);
-                Q_EMIT valueChanged(node, attribute_id, std::move(data_value));
-            }));
+    std::optional<MonitoredItem> Subscription::subscribeDataChanged(Node* node, AttributeId attribute_id) {
+        try {
+            return MonitoredItem(m_subscription.subscribeDataChange(
+                node->getNodeId().handle(), static_cast<opcua::AttributeId>(attribute_id),
+                [this, node, attribute_id](std::uint32_t /*subId*/, std::uint32_t /*monId*/,
+                                           const opcua::DataValue& value) {
+                    auto data_value = std::make_shared<DataValue>(value);
+                    updateNodeCache(node, attribute_id, *data_value);
+                    Q_EMIT valueChanged(node, attribute_id, std::move(data_value));
+                }));
+        } catch (const opcua::BadStatus& status) {
+            qCWarning(lc_opcua_subscription)
+                << "Failed to subscribe to attribute" << qToUnderlying(attribute_id) << "reason:" << status.what();
+            return std::nullopt;
+        }
     }
 
     MonitoredItem Subscription::subscribeEvent(Node* node) {
@@ -166,8 +180,8 @@ namespace magnesia::opcua_qt::abstraction {
     Subscription::~Subscription() {
         try {
             m_subscription.deleteSubscription();
-        } catch (const opcua::BadStatus& exception) {
-            qCWarning(lc_opcua_subscription) << "Error while deleting Subscription" << exception.what();
+        } catch (const opcua::BadStatus& status) {
+            qCWarning(lc_opcua_subscription) << "Error while deleting Subscription" << status.what();
         }
     }
 } // namespace magnesia::opcua_qt::abstraction

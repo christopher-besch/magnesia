@@ -28,15 +28,27 @@ namespace magnesia::opcua_qt::abstraction {
     VariableNode::VariableNode(opcua::Node<opcua::Client> node, QObject* parent) : Node(std::move(node), parent) {}
 
     const DataValue* VariableNode::getDataValue() {
-        return &wrapCache(&Cache::data_value, [this] { return DataValue{handle().readDataValue()}; });
+        try {
+            return &wrapCache(&Cache::data_value, [this] { return DataValue{handle().readDataValue()}; });
+        } catch (const opcua::BadStatus&) {
+            return nullptr;
+        }
     }
 
     std::optional<NodeId> VariableNode::getDataType() {
-        return wrapCache(&Cache::data_type, [this] { return NodeId{handle().readDataType()}; });
+        try {
+            return wrapCache(&Cache::data_type, [this] { return NodeId{handle().readDataType()}; });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     std::optional<ValueRank> VariableNode::getValueRank() {
-        return wrapCache(&Cache::value_rank, [this] { return static_cast<ValueRank>(handle().readValueRank()); });
+        try {
+            return wrapCache(&Cache::value_rank, [this] { return static_cast<ValueRank>(handle().readValueRank()); });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     const std::vector<std::uint32_t>* VariableNode::getArrayDimensions() {
@@ -48,12 +60,20 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::optional<AccessLevelBitmask> VariableNode::getAccessLevel() {
-        return wrapCache(&Cache::access_level, [this] { return AccessLevelBitmask{handle().readAccessLevel()}; });
+        try {
+            return wrapCache(&Cache::access_level, [this] { return AccessLevelBitmask{handle().readAccessLevel()}; });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     std::optional<AccessLevelBitmask> VariableNode::getUserAccessLevel() {
-        return wrapCache(&Cache::user_access_level,
-                         [this] { return AccessLevelBitmask{handle().readUserAccessLevel()}; });
+        try {
+            return wrapCache(&Cache::user_access_level,
+                             [this] { return AccessLevelBitmask{handle().readUserAccessLevel()}; });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     std::optional<double> VariableNode::getMinimumSamplingInterval() {
@@ -66,6 +86,10 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::optional<bool> VariableNode::isHistorizing() {
-        return wrapCache(&Cache::is_historizing, [this] { return handle().readHistorizing(); });
+        try {
+            return wrapCache(&Cache::is_historizing, [this] { return handle().readHistorizing(); });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 } // namespace magnesia::opcua_qt::abstraction

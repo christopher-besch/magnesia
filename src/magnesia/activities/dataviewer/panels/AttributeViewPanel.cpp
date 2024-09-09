@@ -6,6 +6,8 @@
 #include "../panels.hpp"
 #include "AttributeViewModel.hpp"
 
+#include <optional>
+
 #include <QDebug>
 #include <QFrame>
 #include <QHeaderView>
@@ -35,6 +37,8 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
 
     void AttributeViewPanel::selectNode(const NodeId& node_id) {
         auto* connection = getDataViewer()->getConnection();
-        m_model->setNode(connection->getNode(node_id), connection);
+        if (auto node = connection->getNode(node_id); node.has_value()) {
+            m_model->setNode(*node, connection);
+        }
     }
 } // namespace magnesia::activities::dataviewer::panels::attribute_view_panel

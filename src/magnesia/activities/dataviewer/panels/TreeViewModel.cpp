@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
+#include <optional>
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
@@ -29,8 +30,8 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         // Start tree with root node
         if (parent_node == nullptr) {
             node = m_root_node;
-        } else {
-            node = parent_node->getChildren()[static_cast<std::size_t>(row)];
+        } else if (const auto* children = parent_node->getChildren(); children != nullptr) {
+            node = (*children)[static_cast<std::size_t>(row)];
         }
 
         return node != nullptr ? createIndex(row, column, node) : QModelIndex();
@@ -67,8 +68,11 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
         if (node == nullptr) {
             return 1;
         }
-
-        return static_cast<int>(node->getChildren().size());
+        const auto* children = node->getChildren();
+        if (children == nullptr) {
+            return 0;
+        }
+        return static_cast<int>(children->size());
     }
 
     int TreeViewModel::columnCount(const QModelIndex& /*parent*/) const {
@@ -80,7 +84,10 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
             return {};
         }
 
-        return getNode(index)->getDisplayName().getText();
+        if (const auto* display_name = getNode(index)->getDisplayName(); display_name != nullptr) {
+            return display_name->getText();
+        }
+        return {};
     }
 
     QVariant TreeViewModel::headerData(int section, Qt::Orientation orientation, int role) const {
@@ -126,10 +133,11 @@ namespace magnesia::activities::dataviewer::panels::treeview_panel {
     }
 
     int TreeViewModel::getChildIndexOf(Node* parent, Node* child) {
-        auto children = parent->getChildren();
-
-        auto iter = std::ranges::find(children, child);
-        return iter != children.end() ? static_cast<int>(std::distance(children.begin(), iter)) : -1;
+        if (const auto* children = parent->getChildren(); children != nullptr) {
+            auto iter = std::ranges::find(*children, child);
+            return iter != children->end() ? static_cast<int>(std::distance(children->begin(), iter)) : -1;
+        }
+        return -1;
     }
 
 } // namespace magnesia::activities::dataviewer::panels::treeview_panel

@@ -61,7 +61,10 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
             case NodeIdColumn:
                 return node->getNodeId().toString();
             case DisplayNameColumn:
-                return node->getDisplayName().getText();
+                if (const auto* display_name = node->getDisplayName(); display_name != nullptr) {
+                    return display_name->getText();
+                }
+                return {};
             default:
                 // Other case checked below
                 break;
@@ -156,9 +159,12 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         while (!stack.empty()) {
             auto* current = stack.top();
             stack.pop();
-            const auto children = current->getChildren();
+            const auto* children = current->getChildren();
+            if (children == nullptr) {
+                continue;
+            }
 
-            for (const auto& child : children) {
+            for (const auto& child : *children) {
                 stack.push(child);
             }
 
@@ -179,6 +185,9 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
 
         for (auto* node : nodes) {
             auto* subscription = connection->createSubscription(node, attribute_ids);
+            if (subscription == nullptr) {
+                return;
+            }
             connect(subscription, &Subscription::valueChanged, this, [this](Node* subscribed_node) {
                 auto node_it = std::ranges::find(m_nodes, subscribed_node);
                 Q_ASSERT(node_it != m_nodes.cend());
