@@ -133,7 +133,7 @@ namespace magnesia::opcua_qt {
         for (const abstraction::AttributeId attribute_id : attribute_ids) {
             try {
                 subscription->subscribeDataChanged(node, attribute_id);
-            } catch (opcua::BadStatus& exception) {
+            } catch (const opcua::BadStatus& exception) {
                 if (exception.code() == UA_STATUSCODE_BADNOTSUPPORTED) {
                     qCInfo(lc_opcua_connection) << "Failed to subscribe to attribute" << qToUnderlying(attribute_id)
                                                 << "reason:" << exception.what();

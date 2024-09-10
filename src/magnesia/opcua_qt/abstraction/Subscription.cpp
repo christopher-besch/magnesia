@@ -166,7 +166,7 @@ namespace magnesia::opcua_qt::abstraction {
     Subscription::~Subscription() {
         try {
             m_subscription.deleteSubscription();
-        } catch (opcua::BadStatus& exception) {
+        } catch (const opcua::BadStatus& exception) {
             qCWarning(lc_opcua_subscription) << "Error while deleting Subscription" << exception.what();
         }
     }
