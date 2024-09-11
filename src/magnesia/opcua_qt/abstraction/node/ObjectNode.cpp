@@ -17,9 +17,4 @@ namespace magnesia::opcua_qt::abstraction {
     std::optional<EventNotifierBitmask> ObjectNode::getEventNotifierType() {
         return wrapCache(&Cache::event_notifier, [this] { return EventNotifierBitmask{handle().readEventNotifier()}; });
     }
-
-    void ObjectNode::setEventNotifierType(EventNotifierBitmask type) {
-        handle().writeEventNotifier(type.handle());
-        invalidateCache(&Cache::event_notifier);
-    }
 } // namespace magnesia::opcua_qt::abstraction

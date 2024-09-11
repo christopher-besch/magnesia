@@ -5,7 +5,6 @@
 #include "../DataValue.hpp"
 #include "../NodeId.hpp"
 #include "../ValueRank.hpp"
-#include "../Variant.hpp"
 #include "Node.hpp"
 
 #include <cstdint>
@@ -14,10 +13,8 @@
 #include <vector>
 
 #include <open62541pp/Client.h>
-#include <open62541pp/Common.h>
 #include <open62541pp/ErrorHandling.h>
 #include <open62541pp/Node.h>
-#include <open62541pp/Span.h>
 
 #include <QObject>
 
@@ -70,45 +67,5 @@ namespace magnesia::opcua_qt::abstraction {
 
     std::optional<bool> VariableNode::isHistorizing() {
         return wrapCache(&Cache::is_historizing, [this] { return handle().readHistorizing(); });
-    }
-
-    void VariableNode::setDataValue(const DataValue& value) {
-        handle().writeDataValue(value.handle());
-        invalidateCache(&Cache::data_value);
-    }
-
-    void VariableNode::setDataValue(const Variant& value) {
-        handle().writeValue(value.handle());
-        invalidateCache(&Cache::data_value);
-    }
-
-    void VariableNode::setDataType(const NodeId& data_type) {
-        handle().writeDataType(data_type.handle());
-        invalidateCache(&Cache::data_type);
-    }
-
-    void VariableNode::setValueRank(ValueRank rank) {
-        handle().writeValueRank(static_cast<opcua::ValueRank>(rank));
-        invalidateCache(&Cache::value_rank);
-    }
-
-    void VariableNode::setArrayDimensions(const std::vector<std::uint32_t>& dimensions) {
-        handle().writeArrayDimensions(dimensions);
-        invalidateCache(&Cache::array_dimensions);
-    }
-
-    void VariableNode::setAccessLevel(AccessLevelBitmask mask) {
-        handle().writeAccessLevel(mask.handle());
-        invalidateCache(&Cache::access_level);
-    }
-
-    void VariableNode::setUserAccessLevel(AccessLevelBitmask mask) {
-        handle().writeUserAccessLevel(mask.handle());
-        invalidateCache(&Cache::user_access_level);
-    }
-
-    void VariableNode::setHistorizing(bool historizing) {
-        handle().writeHistorizing(historizing);
-        invalidateCache(&Cache::is_historizing);
     }
 } // namespace magnesia::opcua_qt::abstraction

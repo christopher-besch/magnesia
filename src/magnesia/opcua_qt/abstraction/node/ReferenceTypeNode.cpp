@@ -31,19 +31,4 @@ namespace magnesia::opcua_qt::abstraction {
     std::optional<bool> ReferenceTypeNode::isSymmetric() {
         return wrapCache(&Cache::is_symmetric, [this] { return handle().readSymmetric(); });
     }
-
-    void ReferenceTypeNode::setInverseName(const LocalizedText& name) {
-        handle().writeInverseName(name.handle());
-        invalidateCache(&Cache::inverse_name);
-    }
-
-    void ReferenceTypeNode::setAbstract(bool abstract) {
-        handle().writeIsAbstract(abstract);
-        invalidateCache(&Cache::is_abstract);
-    }
-
-    void ReferenceTypeNode::setSymmetric(bool symmetric) {
-        handle().writeSymmetric(symmetric);
-        invalidateCache(&Cache::is_symmetric);
-    }
 } // namespace magnesia::opcua_qt::abstraction

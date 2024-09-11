@@ -39,11 +39,5 @@ namespace magnesia::opcua_qt::abstraction {
          * @return EventNotifierBitmask of the node if it exists, nullopt otherwise.
          */
         [[nodiscard]] std::optional<EventNotifierBitmask> getEventNotifierType() override;
-
-        /**
-         * Sets the EventNotifierType of the node.
-         * @param type EventNotifierType
-         */
-        void setEventNotifierType(EventNotifierBitmask type) override;
     };
 } // namespace magnesia::opcua_qt::abstraction

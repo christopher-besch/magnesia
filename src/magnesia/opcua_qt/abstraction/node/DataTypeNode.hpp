@@ -28,7 +28,5 @@ namespace magnesia::opcua_qt::abstraction {
         explicit DataTypeNode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] std::optional<bool> isAbstract() override;
-
-        void setAbstract(bool abstract) override;
     };
 } // namespace magnesia::opcua_qt::abstraction
