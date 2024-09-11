@@ -48,6 +48,7 @@ Only the following Scope are allowed to use:
 - **linux**: changes to the linux ci configuration
 - **storage**: e.g. StorageManager and SQLStorageManger
 - **opcua**: OPC UA backend
+- test: for testing related commits, can be combined with other scopes e.g. test/storage
 - ...
 
 To define a new scope add it above.
