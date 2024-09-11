@@ -29,7 +29,5 @@ namespace magnesia::opcua_qt::abstraction {
         explicit ObjectNode(opcua::Node<opcua::Client> node, QObject* parent);
 
         [[nodiscard]] std::optional<EventNotifierBitmask> getEventNotifierType() override;
-
-        void setEventNotifierType(EventNotifierBitmask type) override;
     };
 } // namespace magnesia::opcua_qt::abstraction

@@ -31,9 +31,5 @@ namespace magnesia::opcua_qt::abstraction {
         [[nodiscard]] const LocalizedText* getInverseName() override;
         [[nodiscard]] std::optional<bool>  isAbstract() override;
         [[nodiscard]] std::optional<bool>  isSymmetric() override;
-
-        void setAbstract(bool abstract) override;
-        void setInverseName(const LocalizedText& name) override;
-        void setSymmetric(bool symmetric) override;
     };
 } // namespace magnesia::opcua_qt::abstraction

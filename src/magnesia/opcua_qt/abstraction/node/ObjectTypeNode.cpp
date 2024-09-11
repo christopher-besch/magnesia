@@ -16,9 +16,4 @@ namespace magnesia::opcua_qt::abstraction {
     std::optional<bool> ObjectTypeNode::isAbstract() {
         return wrapCache(&Cache::is_abstract, [this] { return handle().readIsAbstract(); });
     }
-
-    void ObjectTypeNode::setAbstract(bool abstract) {
-        handle().writeIsAbstract(abstract);
-        invalidateCache(&Cache::is_abstract);
-    }
 } // namespace magnesia::opcua_qt::abstraction
