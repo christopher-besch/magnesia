@@ -45,7 +45,7 @@ namespace magnesia {
 
     bool SettingsManager::resetSetting(const SettingKey& key) {
         auto setting = findSettingDefinition(key);
-        if (setting == std::nullopt) {
+        if (!setting.has_value()) {
             return false;
         }
         if (m_storage_manager.isNull()) {
@@ -127,7 +127,7 @@ namespace magnesia {
     template<typename SettingType, typename T>
     std::optional<T> SettingsManager::getSetting(const SettingKey& key, auto&& getter) const {
         auto setting = findSettingDefinition(key);
-        if (setting == std::nullopt) {
+        if (!setting.has_value()) {
             return std::nullopt;
         }
         auto* setting_type = dynamic_cast<SettingType*>(setting.value().get());
@@ -235,7 +235,7 @@ namespace magnesia {
     template<typename SettingsType, typename ValueType>
     SettingsType* SettingsManager::validate(const SettingKey& key, const ValueType& value) const {
         auto setting = findSettingDefinition(key);
-        if (setting == std::nullopt) {
+        if (!setting.has_value()) {
             return nullptr;
         }
         auto* specific_setting = dynamic_cast<SettingsType*>(setting.value().get());
