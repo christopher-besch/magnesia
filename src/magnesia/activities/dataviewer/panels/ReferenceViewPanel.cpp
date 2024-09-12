@@ -23,6 +23,7 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
         m_table_view->horizontalHeader()->setStretchLastSection(true);
         m_table_view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
         m_table_view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        m_table_view->verticalHeader()->setVisible(false);
         m_table_view->setFrameShape(QFrame::Shape::NoFrame);
 
         auto* toplayout = new QVBoxLayout;

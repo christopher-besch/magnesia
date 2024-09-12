@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include <QAbstractItemView>
+#include <QFrame>
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QModelIndex>
@@ -28,8 +29,10 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
         m_table_view->horizontalHeader()->setStretchLastSection(true);
         m_table_view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
         m_table_view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        m_table_view->verticalHeader()->setVisible(false);
         m_table_view->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_table_view->setSelectionMode(QAbstractItemView::ContiguousSelection);
+        m_table_view->setFrameShape(QFrame::Shape::NoFrame);
 
         auto* layout = new QVBoxLayout;
         layout->addWidget(m_table_view);
