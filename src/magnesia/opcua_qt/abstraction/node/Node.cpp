@@ -40,16 +40,28 @@ namespace magnesia::opcua_qt::abstraction {
         return NodeId(m_node.id());
     }
 
-    NodeClass Node::getNodeClass() {
-        return wrapCache(&Cache::node_class, [this] { return static_cast<NodeClass>(m_node.readNodeClass()); });
+    std::optional<NodeClass> Node::getNodeClass() {
+        try {
+            return wrapCache(&Cache::node_class, [this] { return static_cast<NodeClass>(m_node.readNodeClass()); });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
-    const QualifiedName& Node::getBrowseName() {
-        return wrapCache(&Cache::browse_name, [this] { return QualifiedName{m_node.readBrowseName()}; });
+    const QualifiedName* Node::getBrowseName() {
+        try {
+            return &wrapCache(&Cache::browse_name, [this] { return QualifiedName{m_node.readBrowseName()}; });
+        } catch (const opcua::BadStatus&) {
+            return nullptr;
+        }
     }
 
-    const LocalizedText& Node::getDisplayName() {
-        return wrapCache(&Cache::display_name, [this] { return LocalizedText{m_node.readDisplayName()}; });
+    const LocalizedText* Node::getDisplayName() {
+        try {
+            return &wrapCache(&Cache::display_name, [this] { return LocalizedText{m_node.readDisplayName()}; });
+        } catch (const opcua::BadStatus&) {
+            return nullptr;
+        }
     }
 
     const LocalizedText* Node::getDescription() {
@@ -77,29 +89,40 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     Node* Node::getParent() {
-        return wrapCache(&Cache::parent, [this] { return fromOPCUANode(m_node.browseParent(), parent()); });
+        try {
+            return wrapCache(&Cache::parent, [this] { return fromOPCUANode(m_node.browseParent(), parent()); });
+        } catch (const opcua::BadStatus&) {
+            return nullptr;
+        }
     }
 
-    const std::vector<Node*>& Node::getChildren() {
-        return wrapCache(&Cache::children, [this] {
-            std::vector<Node*> nodes;
+    const std::vector<Node*>* Node::getChildren() {
+        try {
+            return &wrapCache(&Cache::children, [this] {
+                std::vector<Node*> nodes;
 
-            for (const auto& node : m_node.browseChildren()) {
-                if (auto* specific_node = Node::fromOPCUANode(node, parent()); specific_node != nullptr) {
-                    specific_node->m_cache.parent = this;
-                    nodes.push_back(specific_node);
+                for (const auto& node : m_node.browseChildren()) {
+                    if (auto* specific_node = Node::fromOPCUANode(node, parent()); specific_node != nullptr) {
+                        specific_node->m_cache.parent = this;
+                        nodes.push_back(specific_node);
+                    }
                 }
-            }
-
-            return nodes;
-        });
+                return nodes;
+            });
+        } catch (const opcua::BadStatus&) {
+            return nullptr;
+        }
     }
 
-    const std::vector<ReferenceDescription>& Node::getReferences() {
-        return wrapCache(&Cache::references, [this]() -> std::vector<ReferenceDescription> {
-            auto references = m_node.browseReferences();
-            return {references.begin(), references.end()};
-        });
+    const std::vector<ReferenceDescription>* Node::getReferences() {
+        try {
+            return &wrapCache(&Cache::references, [this]() -> std::vector<ReferenceDescription> {
+                auto references = m_node.browseReferences();
+                return {references.begin(), references.end()};
+            });
+        } catch (const opcua::BadStatus&) {
+            return nullptr;
+        }
     }
 
     const LocalizedText* Node::getInverseName() {

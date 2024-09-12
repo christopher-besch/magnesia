@@ -25,10 +25,18 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::optional<bool> ReferenceTypeNode::isAbstract() {
-        return wrapCache(&Cache::is_abstract, [this] { return handle().readIsAbstract(); });
+        try {
+            return wrapCache(&Cache::is_abstract, [this] { return handle().readIsAbstract(); });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     std::optional<bool> ReferenceTypeNode::isSymmetric() {
-        return wrapCache(&Cache::is_symmetric, [this] { return handle().readSymmetric(); });
+        try {
+            return wrapCache(&Cache::is_symmetric, [this] { return handle().readSymmetric(); });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 } // namespace magnesia::opcua_qt::abstraction

@@ -6,6 +6,8 @@
 #include "../panels.hpp"
 #include "ReferenceViewModel.hpp"
 
+#include <optional>
+
 #include <QComboBox>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -34,7 +36,8 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
     }
 
     void ReferenceViewPanel::selectNode(const opcua_qt::abstraction::NodeId& node_id) {
-        auto* node = getDataViewer()->getConnection()->getNode(node_id);
-        m_reference_view_model->nodeSelected(node);
+        if (auto node = getDataViewer()->getConnection()->getNode(node_id); node.has_value()) {
+            m_reference_view_model->nodeSelected(*node);
+        }
     }
 } // namespace magnesia::activities::dataviewer::panels::reference_view_panel

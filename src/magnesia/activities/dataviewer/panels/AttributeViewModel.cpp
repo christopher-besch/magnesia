@@ -237,7 +237,17 @@ namespace {
             return {};
         }
 
-        return title ? name : connection->getNode(*value)->getDisplayName().getText();
+        if (title) {
+            return name;
+        }
+
+        if (auto node = connection->getNode(*value); node.has_value()) {
+            if (const auto* display_name = (*node)->getDisplayName(); display_name != nullptr) {
+                return display_name->getText();
+            }
+        }
+
+        return {};
     }
 } // namespace
 
@@ -280,9 +290,12 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
             m_subscription->deleteLater();
         }
 
-        m_subscription = connection->createSubscription(node, m_available_attributes);
-        m_subscription->setPublishingMode(true);
-        connect(m_subscription, &Subscription::valueChanged, this, &AttributeViewModel::valueChanged);
+        auto* subscription = connection->createSubscription(node, m_available_attributes);
+        if (subscription != nullptr) {
+            m_subscription = subscription;
+            m_subscription->setPublishingMode(true);
+            connect(m_subscription, &Subscription::valueChanged, this, &AttributeViewModel::valueChanged);
+        }
 
         endResetModel();
     }
@@ -414,9 +427,9 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
             case AttributeId::NODE_CLASS:
                 return node_class_data(title, m_node->getNodeClass(), "Node Class");
             case AttributeId::BROWSE_NAME:
-                return qualified_name_data(title, sub_item, &m_node->getBrowseName(), "Browse Name");
+                return qualified_name_data(title, sub_item, m_node->getBrowseName(), "Browse Name");
             case AttributeId::DISPLAY_NAME:
-                return localized_text_data(title, sub_item, &m_node->getDisplayName(), "Display Name");
+                return localized_text_data(title, sub_item, m_node->getDisplayName(), "Display Name");
             case AttributeId::DESCRIPTION:
                 return localized_text_data(title, sub_item, m_node->getDescription(), "Description");
             case AttributeId::WRITE_MASK:

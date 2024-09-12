@@ -73,17 +73,17 @@ namespace magnesia::opcua_qt {
         /**
          * @brief Returns the Root Node from the server
          *
-         * @return Returns a Node Wrapper
+         * @return Returns a Node Wrapper or nullopt if an error occurs
          */
-        [[nodiscard]] abstraction::Node* getRootNode();
+        [[nodiscard]] std::optional<abstraction::Node*> getRootNode();
         /**
          * @brief Gets a Node from a NodeId
          *
          * @param node_id NodeId that points to a Node
          *
-         * @return Returns a Node Wrapper
+         * @return Returns a Node Wrapper or nullopt if an error occurs
          */
-        [[nodiscard]] abstraction::Node* getNode(const abstraction::NodeId& node_id);
+        [[nodiscard]] std::optional<abstraction::Node*> getNode(const abstraction::NodeId& node_id);
         /**
          * @brief Creates a Subscription Object
          *

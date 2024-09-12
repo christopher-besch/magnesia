@@ -29,11 +29,19 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::optional<NodeId> VariableTypeNode::getDataType() {
-        return wrapCache(&Cache::data_type, [this] { return NodeId{handle().readDataType()}; });
+        try {
+            return wrapCache(&Cache::data_type, [this] { return NodeId{handle().readDataType()}; });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     std::optional<ValueRank> VariableTypeNode::getValueRank() {
-        return wrapCache(&Cache::value_rank, [this] { return static_cast<ValueRank>(handle().readValueRank()); });
+        try {
+            return wrapCache(&Cache::value_rank, [this] { return static_cast<ValueRank>(handle().readValueRank()); });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 
     const std::vector<std::uint32_t>* VariableTypeNode::getArrayDimensions() {
@@ -45,6 +53,10 @@ namespace magnesia::opcua_qt::abstraction {
     }
 
     std::optional<bool> VariableTypeNode::isAbstract() {
-        return wrapCache(&Cache::is_abstract, [this] { return handle().readIsAbstract(); });
+        try {
+            return wrapCache(&Cache::is_abstract, [this] { return handle().readIsAbstract(); });
+        } catch (const opcua::BadStatus&) {
+            return std::nullopt;
+        }
     }
 } // namespace magnesia::opcua_qt::abstraction

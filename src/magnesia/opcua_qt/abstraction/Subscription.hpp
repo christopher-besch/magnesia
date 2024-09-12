@@ -9,6 +9,7 @@
 #include "node/Node.hpp"
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include <open62541pp/Client.h>
@@ -69,7 +70,7 @@ namespace magnesia::opcua_qt::abstraction {
         /**
          * Subscribe to an attribute. When it changes value, the valueChanged signal will be emitted.
          */
-        MonitoredItem subscribeDataChanged(Node* node_id, AttributeId attribute_id);
+        std::optional<MonitoredItem> subscribeDataChanged(Node* node_id, AttributeId attribute_id);
 
         /**
          * Subscribe to an event. When it changes value, the eventTriggered signal will be emitted.

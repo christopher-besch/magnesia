@@ -8,6 +8,7 @@
 #include "../panels/NodeViewModel.hpp"
 
 #include <algorithm>
+#include <optional>
 
 #include <QAbstractItemView>
 #include <QFrame>
@@ -68,7 +69,9 @@ namespace magnesia::activities::dataviewer::panels::node_view_panel {
 
     void NodeViewPanel::selectNode(const opcua_qt::abstraction::NodeId& node_id) {
         auto* connection = getDataViewer()->getConnection();
-        auto* node       = connection->getNode(node_id);
-        m_model->appendNode(node, connection);
+
+        if (auto node = connection->getNode(node_id); node.has_value()) {
+            m_model->appendNode(*node, connection);
+        }
     }
 } // namespace magnesia::activities::dataviewer::panels::node_view_panel

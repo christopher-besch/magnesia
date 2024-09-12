@@ -90,11 +90,17 @@ namespace magnesia::opcua_qt {
         }
 
         Q_ASSERT(!m_client.isRunning());
-        m_client.setSecurityMode(static_cast<opcua::MessageSecurityMode>(m_server_endpoint.getSecurityMode()));
-        if (m_login.has_value()) {
-            m_client.connect(m_server_endpoint.getEndpointUrl().toString().toStdString(), m_login.value());
-        } else {
-            m_client.connect(m_server_endpoint.getEndpointUrl().toString().toStdString());
+
+        try {
+            m_client.setSecurityMode(static_cast<opcua::MessageSecurityMode>(m_server_endpoint.getSecurityMode()));
+            if (m_login.has_value()) {
+                m_client.connect(m_server_endpoint.getEndpointUrl().toString().toStdString(), m_login.value());
+            } else {
+                m_client.connect(m_server_endpoint.getEndpointUrl().toString().toStdString());
+            }
+        } catch (const opcua::BadStatus& status) {
+            qCWarning(lc_opcua_connection) << "Failed to connect to server:" << status.what();
+            return;
         }
 
         const auto interval = Application::instance().getSettingsManager().getIntSetting(
@@ -113,33 +119,48 @@ namespace magnesia::opcua_qt {
         return m_server_endpoint.getEndpointUrl();
     }
 
-    abstraction::Node* Connection::getRootNode() {
+    std::optional<abstraction::Node*> Connection::getRootNode() {
         if (m_root_node == nullptr) {
-            m_root_node = abstraction::Node::fromOPCUANode(m_client.getRootNode(), this);
+            try {
+                m_root_node = abstraction::Node::fromOPCUANode(m_client.getRootNode(), this);
+            } catch (const opcua::BadStatus& status) {
+                qCWarning(lc_opcua_connection) << "Failed to get root node:" << status.what();
+                return std::nullopt;
+            }
         }
         return m_root_node;
     }
 
-    abstraction::Node* Connection::getNode(const abstraction::NodeId& node_id) {
+    std::optional<abstraction::Node*> Connection::getNode(const abstraction::NodeId& node_id) {
         if (auto node = m_nodes.find(node_id); node != m_nodes.end()) {
             return node->second;
         }
-        return m_nodes[node_id] = abstraction::Node::fromOPCUANode(m_client.getNode(node_id.handle()), this);
+        try {
+            return m_nodes[node_id] = abstraction::Node::fromOPCUANode(m_client.getNode(node_id.handle()), this);
+        } catch (const opcua::BadStatus& status) {
+            qCWarning(lc_opcua_connection) << "Failed to get node:" << status.what();
+            return std::nullopt;
+        }
     }
 
     abstraction::Subscription* Connection::createSubscription(abstraction::Node*                        node,
                                                               std::span<const abstraction::AttributeId> attribute_ids) {
-        auto* subscription = new abstraction::Subscription(m_client.createSubscription());
+        abstraction::Subscription* subscription{};
+        try {
+            subscription = new abstraction::Subscription(m_client.createSubscription());
+        } catch (const opcua::BadStatus&) {
+            return nullptr;
+        }
         for (const abstraction::AttributeId attribute_id : attribute_ids) {
             try {
                 subscription->subscribeDataChanged(node, attribute_id);
-            } catch (const opcua::BadStatus& exception) {
-                if (exception.code() == UA_STATUSCODE_BADNOTSUPPORTED) {
+            } catch (const opcua::BadStatus& status) {
+                if (status.code() == UA_STATUSCODE_BADNOTSUPPORTED) {
                     qCInfo(lc_opcua_connection) << "Failed to subscribe to attribute" << qToUnderlying(attribute_id)
-                                                << "reason:" << exception.what();
+                                                << "reason:" << status.what();
                 } else {
                     qCWarning(lc_opcua_connection) << "Failed to subscribe to attribute" << qToUnderlying(attribute_id)
-                                                   << "reason:" << exception.what();
+                                                   << "reason:" << status.what();
                 }
             }
         }

@@ -4,6 +4,7 @@
 #include "../../../opcua_qt/abstraction/node/Node.hpp"
 
 #include <cstddef>
+#include <optional>
 #include <utility>
 
 #include <QAbstractTableModel>
@@ -56,26 +57,35 @@ namespace magnesia::activities::dataviewer::panels::reference_view_panel {
     }
 
     void ReferenceViewModel::nodeSelected(opcua_qt::abstraction::Node* node) {
+        const auto* references = node->getReferences();
+        if (references == nullptr) {
+            return;
+        }
+
         beginResetModel();
-        auto references = node->getReferences();
         m_references.clear();
 
-        for (const auto& reference : references) {
-            auto  node_id        = reference.getReferenceType();
-            auto  is_forward     = reference.isForward();
-            auto* reference_type = m_connection->getNode(node_id);
+        for (const auto& reference : *references) {
+            auto node_id    = reference.getReferenceType();
+            auto is_forward = reference.isForward();
+
+            auto reference_type = m_connection->getNode(node_id);
+            if (!reference_type.has_value()) {
+                continue;
+            }
 
             QString reference_name;
 
             if (!is_forward) {
-                const auto* inverse_name = reference_type->getInverseName();
-                if (inverse_name != nullptr) {
+                if (const auto* inverse_name = (*reference_type)->getInverseName(); inverse_name != nullptr) {
                     reference_name = inverse_name->getText();
                 }
             }
 
             if (reference_name.isNull()) {
-                reference_name = reference_type->getDisplayName().getText();
+                if (const auto* display_name = (*reference_type)->getDisplayName(); display_name != nullptr) {
+                    reference_name = display_name->getText();
+                }
             }
 
             m_references.emplace_back(reference_name, reference.getDisplayName().getText());
