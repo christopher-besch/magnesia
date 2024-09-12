@@ -92,6 +92,11 @@ target_link_libraries(
            open62541pp::open62541pp
 )
 
+if(WIN32)
+    # without this wingdi.h is included which defines many macros (e.g., ERROR) causing errors
+    target_compile_definitions(magnesia_lib PUBLIC NOGDI)
+endif()
+
 qt_add_executable(magnesia main.cpp)
 target_link_libraries(magnesia PRIVATE magnesia_lib)
 
@@ -101,11 +106,6 @@ set_target_properties(
     WIN32_EXECUTABLE ON
     MACOSX_BUNDLE ON
 )
-
-if(WIN32)
-    # without this wingdi.h is included which defines many macros (e.g., ERROR) causing errors
-    target_compile_definitions(magnesia PRIVATE NOGDI)
-endif()
 
 install(
     TARGETS magnesia
