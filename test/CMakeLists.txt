@@ -3,7 +3,7 @@ if(WIN32)
     return()
 endif()
 
-add_executable(magnesia_test example.cpp)
+add_executable(magnesia_test storage.cpp)
 target_link_libraries(magnesia_test GTest::gtest_main magnesia_lib)
 
 include(GoogleTest)
