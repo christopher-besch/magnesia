@@ -1,46 +1,80 @@
 #include "LogViewModel.hpp"
 
-#include "../../../opcua_qt/LogEntry.hpp"
+#include "../../../opcua_qt/Logger.hpp"
 #include "../../../opcua_qt/abstraction/LogCategory.hpp"
 #include "../../../opcua_qt/abstraction/LogLevel.hpp"
+#include "../../../qt_version_check.hpp"
 
 #include <cstddef>
-#include <vector>
 
 #include <QAbstractTableModel>
-#include <QFile>
+#include <QModelIndex>
 #include <QObject>
-#include <QTextStream>
 #include <QVariant>
 #include <Qt>
 
+#ifdef MAGNESIA_HAS_QT_6_5
+#include <QtAssert>
+#else
+#include <QtGlobal>
+#endif
+
 namespace magnesia::activities::dataviewer::panels::log_view_panel {
-    LogViewModel::LogViewModel(QObject* parent) : QAbstractTableModel(parent) {}
+    LogViewModel::LogViewModel(opcua_qt::Logger* logger, QObject* parent)
+        : QAbstractTableModel(parent), m_logger(logger) {
+        Q_ASSERT(m_logger != nullptr);
+
+        connect(logger, &opcua_qt::Logger::logEntryAdded, this, [this](std::size_t index) {
+            auto row = static_cast<int>(index);
+            // TODO: How broken is this? This adds the entry before calling beginInsertRows.
+            beginInsertRows({}, row, row);
+            endInsertRows();
+        });
+    }
 
     int LogViewModel::rowCount(const QModelIndex& /*parent*/) const {
-        return static_cast<int>(m_log_lines.size());
+        return static_cast<int>(m_logger->getEntries().size());
     }
 
     int LogViewModel::columnCount(const QModelIndex& /*parent*/) const {
-        return 3;
+        return COLUMN_COUNT;
     }
 
     QVariant LogViewModel::data(const QModelIndex& index, int role) const {
-        if (!index.isValid() || role != Qt::DisplayRole) {
+        if (!checkIndex(index, CheckIndexOption::IndexIsValid)) {
             return {};
         }
 
-        const auto& log_line = m_log_lines[static_cast<std::size_t>(index.row())];
-        switch (index.column()) {
-            case 0:
-                return opcua_qt::log_level_to_string(log_line.getLevel());
-            case 1:
-                return opcua_qt::log_category_to_string(log_line.getCategory());
-            case 2:
-                return log_line.getMessage();
-            default:
-                return {};
+        auto        row   = static_cast<std::size_t>(index.row());
+        const auto& entry = m_logger->getEntries()[row];
+
+        if (role == Qt::DisplayRole) {
+            switch (index.column()) {
+                case LevelColumn:
+                    return opcua_qt::log_level_to_string(entry.getLevel());
+                case CategoryColumn:
+                    return opcua_qt::log_category_to_string(entry.getCategory());
+                case MessageColumn:
+                    return entry.getMessage();
+                default:
+                    Q_ASSERT(false);
+            }
         }
+
+        if (role == Qt::UserRole) {
+            switch (index.column()) {
+                case LevelColumn:
+                    return QVariant::fromValue(entry.getLevel());
+                case CategoryColumn:
+                    return QVariant::fromValue(entry.getCategory());
+                case MessageColumn:
+                    return entry.getMessage();
+                default:
+                    Q_ASSERT(false);
+            }
+        }
+
+        return {};
     }
 
     QVariant LogViewModel::headerData(int section, Qt::Orientation orientation, int role) const {
@@ -48,64 +82,40 @@ namespace magnesia::activities::dataviewer::panels::log_view_panel {
             return {};
         }
 
-        if (orientation == Qt::Horizontal) {
-            switch (section) {
-                case 0:
-                    return QString("Log Level");
-                case 1:
-                    return QString("Log Category");
-                case 2:
-                    return QString("Log Message");
-                default:
-                    return {};
-            }
+        if (orientation != Qt::Horizontal) {
+            return QAbstractTableModel::headerData(section, orientation, role);
         }
+
+        switch (section) {
+            case LevelColumn:
+                return "Level";
+            case CategoryColumn:
+                return "Category";
+            case MessageColumn:
+                return "Message";
+            default:
+                Q_ASSERT(false);
+        }
+
         return {};
     }
 
-    void LogViewModel::setLogLines(const std::vector<opcua_qt::LogEntry>& log_lines) {
-        beginResetModel();
-        m_log_lines = log_lines;
-        endResetModel();
-    }
-
-    void LogViewModel::addLogLine(const opcua_qt::LogEntry& entry) {
-        auto size = static_cast<int>(m_log_lines.size());
-        beginInsertRows({}, size, size);
-        m_log_lines.push_back(entry);
-        endInsertRows();
-    }
-
-    void LogViewModel::clearLogs() {
-        beginResetModel();
-        m_log_lines.clear();
-        endResetModel();
-    }
-
-    bool LogViewModel::saveLogToFile(const QString& file_name) {
-        QFile file(file_name);
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    bool LogFilterModel::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const {
+        if (source_row < m_min_row) {
             return false;
         }
-
-        QTextStream out(&file);
-
-        // Write headers
-        out << "Level,Category,Message\n";
-
-        for (const auto& log_line : m_log_lines) {
-            const QString level    = opcua_qt::log_level_to_string(log_line.getLevel());
-            const QString category = opcua_qt::log_category_to_string(log_line.getCategory());
-            QString       message  = log_line.getMessage();
-
-            out << level << "," << category << "," << message.replace(",", " ") << "\n";
-        }
-
-        file.close();
-        return true;
+        auto index = sourceModel()->index(source_row, LogViewModel::LevelColumn, source_parent);
+        auto level = sourceModel()->data(index, Qt::UserRole).value<opcua_qt::LogLevel>();
+        return level >= m_min_level;
     }
 
-    const std::vector<opcua_qt::LogEntry>& LogViewModel::getLogLines() const {
-        return m_log_lines;
+    void LogFilterModel::setMinLevel(opcua_qt::LogLevel min_level) {
+        m_min_level = min_level;
+        invalidateFilter();
+    }
+
+    void LogFilterModel::setMinimumRow(int row) {
+        m_min_row = row;
+        invalidateFilter();
     }
 } // namespace magnesia::activities::dataviewer::panels::log_view_panel

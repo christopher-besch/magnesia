@@ -14,8 +14,8 @@ namespace magnesia::activities::dataviewer::panels {
      * List of registered panels used to fill the UI. Add your panels metadata here and an entry to `panels::PanelType`.
      */
     inline constexpr std::array all{
-        log_view_panel::metadata,       treeview_panel::metadata,  attribute_view_panel::metadata,
-        reference_view_panel::metadata, node_view_panel::metadata,
+        treeview_panel::metadata,  attribute_view_panel::metadata, reference_view_panel::metadata,
+        node_view_panel::metadata, log_view_panel::metadata,
     };
 
     /**
