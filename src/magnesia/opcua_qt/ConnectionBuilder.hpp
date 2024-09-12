@@ -23,6 +23,7 @@ namespace magnesia::opcua_qt {
      */
     class ConnectionBuilder : public QObject {
         Q_OBJECT
+
       public:
         using QObject::QObject;
         /**

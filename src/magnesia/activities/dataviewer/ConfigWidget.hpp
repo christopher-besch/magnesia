@@ -168,7 +168,6 @@ namespace magnesia::activities::dataviewer {
             [[nodiscard]] int rowIndex(StorageId connection_id) const;
 
           private slots:
-
             void onHistoricServerConnectionChanged(StorageId connection_id, StorageChange type);
 
           private:

@@ -19,7 +19,7 @@ namespace magnesia::opcua_qt::abstraction {
     const LocalizedText* ReferenceTypeNode::getInverseName() {
         try {
             return &wrapCache(&Cache::inverse_name, [this] { return LocalizedText{handle().readInverseName()}; });
-        } catch (opcua::BadStatus&) {
+        } catch (const opcua::BadStatus&) {
             return nullptr;
         }
     }

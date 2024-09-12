@@ -250,13 +250,6 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         m_connection = connection;
         m_node       = node;
 
-        std::optional<Node*> type_node = std::nullopt;
-        auto                 type_id   = node->getDataType();
-
-        if (type_id.has_value()) {
-            type_node = connection->getNode(*type_id);
-        }
-
         m_available_attributes.clear();
 
         m_available_attributes.push_back(AttributeId::NODE_ID);
@@ -272,7 +265,7 @@ namespace magnesia::activities::dataviewer::panels::attribute_view_panel {
         append_if(node->containsNoLoops().has_value(), AttributeId::CONTAINS_NO_LOOPS, m_available_attributes);
         append_if(node->getEventNotifierType().has_value(), AttributeId::EVENT_NOTFIER, m_available_attributes);
         append_if(node->getDataValue() != nullptr, AttributeId::VALUE, m_available_attributes);
-        append_if(type_node.has_value(), AttributeId::DATA_TYPE, m_available_attributes);
+        append_if(node->getDataType().has_value(), AttributeId::DATA_TYPE, m_available_attributes);
         append_if(node->getValueRank().has_value(), AttributeId::VALUE_RANK, m_available_attributes);
         append_if(node->getArrayDimensions() != nullptr, AttributeId::ARRAY_DIMENSIONS, m_available_attributes);
         append_if(node->getAccessLevel().has_value(), AttributeId::ACCESS_LEVEL, m_available_attributes);

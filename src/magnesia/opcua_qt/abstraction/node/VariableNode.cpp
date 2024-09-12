@@ -42,7 +42,7 @@ namespace magnesia::opcua_qt::abstraction {
     const std::vector<std::uint32_t>* VariableNode::getArrayDimensions() {
         try {
             return &wrapCache(&Cache::array_dimensions, [this] { return handle().readArrayDimensions(); });
-        } catch (opcua::BadStatus&) {
+        } catch (const opcua::BadStatus&) {
             return nullptr;
         }
     }
@@ -60,7 +60,7 @@ namespace magnesia::opcua_qt::abstraction {
         try {
             return wrapCache(&Cache::minimum_sampling_interval,
                              [this] { return handle().readMinimumSamplingInterval(); });
-        } catch (opcua::BadStatus&) {
+        } catch (const opcua::BadStatus&) {
             return std::nullopt;
         }
     }

@@ -23,7 +23,7 @@ namespace magnesia::opcua_qt::abstraction {
     const DataValue* VariableTypeNode::getDataValue() {
         try {
             return &wrapCache(&Cache::data_value, [this] { return DataValue{handle().readDataValue()}; });
-        } catch (opcua::BadStatus&) {
+        } catch (const opcua::BadStatus&) {
             return nullptr;
         }
     }
@@ -39,7 +39,7 @@ namespace magnesia::opcua_qt::abstraction {
     const std::vector<std::uint32_t>* VariableTypeNode::getArrayDimensions() {
         try {
             return &wrapCache(&Cache::array_dimensions, [this] { return handle().readArrayDimensions(); });
-        } catch (opcua::BadStatus&) {
+        } catch (const opcua::BadStatus&) {
             return nullptr;
         }
     }

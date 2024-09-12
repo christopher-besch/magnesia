@@ -274,11 +274,6 @@ namespace magnesia::opcua_qt::abstraction {
             return *entry;
         }
 
-        template<typename CacheEntry>
-        void invalidateCache(CacheEntry&& cache_entry) {
-            std::invoke(std::forward<CacheEntry>(cache_entry), m_cache) = std::nullopt;
-        }
-
       private:
         // Subscription updates the cache directly to reduce network round-trips
         friend class Subscription;

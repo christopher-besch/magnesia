@@ -26,7 +26,6 @@
 #include <QVariant>
 
 namespace magnesia::opcua_qt::abstraction {
-
     /**
      * @class Variant
      * @brief Union of different OPC UA types.

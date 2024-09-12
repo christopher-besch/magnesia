@@ -55,7 +55,7 @@ namespace magnesia::opcua_qt::abstraction {
     const LocalizedText* Node::getDescription() {
         try {
             return &wrapCache(&Cache::description, [this] { return LocalizedText{m_node.readDescription()}; });
-        } catch (opcua::BadStatus&) {
+        } catch (const opcua::BadStatus&) {
             return nullptr;
         }
     }
@@ -63,7 +63,7 @@ namespace magnesia::opcua_qt::abstraction {
     std::optional<WriteMaskBitmask> Node::getWriteMask() {
         try {
             return wrapCache(&Cache::write_mask, [this] { return WriteMaskBitmask{m_node.readWriteMask()}; });
-        } catch (opcua::BadStatus&) {
+        } catch (const opcua::BadStatus&) {
             return std::nullopt;
         }
     }
@@ -71,7 +71,7 @@ namespace magnesia::opcua_qt::abstraction {
     std::optional<WriteMaskBitmask> Node::getUserWriteMask() {
         try {
             return wrapCache(&Cache::write_mask, [this] { return WriteMaskBitmask{m_node.readUserWriteMask()}; });
-        } catch (opcua::BadStatus&) {
+        } catch (const opcua::BadStatus&) {
             return std::nullopt;
         }
     }

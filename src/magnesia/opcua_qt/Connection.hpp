@@ -7,6 +7,7 @@
 #include "abstraction/NodeId.hpp"
 #include "abstraction/Subscription.hpp"
 #include "abstraction/node/Node.hpp"
+#include "qt_version_check.hpp"
 
 #include <map>
 #include <optional>
@@ -21,6 +22,12 @@
 #include <QUrl>
 #include <qtmetamacros.h>
 
+#ifdef MAGNESIA_HAS_QT_6_5
+#include <QtClassHelperMacros>
+#else
+#include <QtGlobal>
+#endif
+
 namespace magnesia::opcua_qt {
     /**
      * @class Connection
@@ -28,12 +35,10 @@ namespace magnesia::opcua_qt {
      */
     class Connection : public QObject {
         Q_OBJECT
+        Q_DISABLE_COPY_MOVE(Connection)
+
       public:
         ~Connection() override;
-        Connection(const Connection&)            = delete;
-        Connection(Connection&&)                 = delete;
-        Connection& operator=(const Connection&) = delete;
-        Connection& operator=(Connection&&)      = delete;
         /**
          * @brief Constructor for a Connection.
          * The Connection is not connected until the connect method is used.

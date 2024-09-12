@@ -97,15 +97,14 @@ namespace magnesia::opcua_qt {
             m_client.connect(m_server_endpoint.getEndpointUrl().toString().toStdString());
         }
 
-        connect(this, &Connection::connected, this, [this] {
-            m_timer.setInterval(
-                static_cast<int>(Application::instance()
-                                     .getSettingsManager()
-                                     .getIntSetting({.name = "opcua_poll_intervall", .domain = "general"})
-                                     .value()));
-            connect(&m_timer, &QTimer::timeout, this, [this] { m_client.runIterate(0); });
-            m_timer.start();
-        });
+        const auto interval = Application::instance().getSettingsManager().getIntSetting(
+            {.name = "opcua_poll_intervall", .domain = "general"});
+        // Can only be nullopt if the setting was never defined or is of the wrong type. Both should never happen.
+        Q_ASSERT(interval);
+
+        m_timer.setInterval(static_cast<int>(interval.value()));
+        connect(&m_timer, &QTimer::timeout, this, [this] { m_client.runIterate(0); });
+        m_timer.start();
 
         Q_EMIT connected();
     }
@@ -134,7 +133,7 @@ namespace magnesia::opcua_qt {
         for (const abstraction::AttributeId attribute_id : attribute_ids) {
             try {
                 subscription->subscribeDataChanged(node, attribute_id);
-            } catch (opcua::BadStatus& exception) {
+            } catch (const opcua::BadStatus& exception) {
                 if (exception.code() == UA_STATUSCODE_BADNOTSUPPORTED) {
                     qCInfo(lc_opcua_connection) << "Failed to subscribe to attribute" << qToUnderlying(attribute_id)
                                                 << "reason:" << exception.what();
